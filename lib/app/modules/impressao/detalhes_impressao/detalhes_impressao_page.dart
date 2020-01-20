@@ -1,15 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:uniprint/app/shared/models/Impressao.dart';
+import 'package:timeline_list/timeline.dart';
+import 'package:timeline_list/timeline_model.dart';
+import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/temas/Tema.dart';
-import 'package:uniprint/app/shared/utils/constans.dart';
+import 'package:uniprint/app/shared/utils/constans.dart'; 
+import 'package:uniprint/app/shared/utils/utils_impressao.dart';
+import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
 
 class DetalhesImpressaoPage extends StatefulWidget {
   final String title;
-  Impressao impressao;
-  DetalhesImpressaoPage(this.impressao, {Key key, this.title = "DetalhesImpressao"})
+  final Impressao impressao;
+  DetalhesImpressaoPage(this.impressao,
+      {Key key, this.title = "Detalhes Impressao", })
       : super(key: key);
 
   @override
@@ -17,8 +22,6 @@ class DetalhesImpressaoPage extends StatefulWidget {
 }
 
 class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
-  
-
   _DetalhesImpressaoPageState();
 
   @override
@@ -45,18 +48,29 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                         padding:
                             const EdgeInsets.only(top: 5, left: 15, right: 15),
                         child: Text(
-                          widget.impressao.descricao,
+                          UtilsImpressao.getResumo(widget.impressao.arquivo_impressaos),
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(15.0),
-                        child: new Text(
-                          'Valor Total: ${NumberFormat.simpleCurrency().format(widget.impressao.valorTotal ?? 0)}',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
+                        child: FutureBuilder(
+                          future: UtilsImpressao.getValorImpressaoArquivos(widget.impressao.arquivo_impressaos),
+                          builder: (_, snap) {
+                            if (snap.connectionState == ConnectionState.waiting) {
+                              return Container(width: 0, height: 0);
+                            }
+                            if (snap.hasError) {
+                              return Text('Houve uma falha ao recuperar o valor da impressão');
+                            }
+                            return new Text(
+                              'Valor Total: ${NumberFormat.simpleCurrency().format(snap.data ?? 0)}',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -66,12 +80,13 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                       Container(
                         alignment: Alignment.center,
                         child: QrImage(
-                          data: widget.impressao.id,
+                          data: widget.impressao.id.toString(),
                           version: QrVersions.auto,
                           size: 200.0,
                         ),
                       ),
-                      _botaoConfirmarRecebimento(builderContext)
+                      _getTimeLine()
+                      //_botaoConfirmarRecebimento(builderContext)
                     ],
                     mainAxisAlignment: MainAxisAlignment.center,
                   )
@@ -81,6 +96,29 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
           ),
         ));
   }
+
+    _getTimeLine() {
+    List<TimelineModel> items = widget.impressao.movimentacao_impressaos
+        .map(
+          (mov) => TimelineModel(
+              Container(child: Text(
+                '${mov.movimentacao.data.string('dd/MM')}: ${UtilsImpressao.getTipoMovimentacao(mov.movimentacao.tipo)}',
+                style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              ), padding: EdgeInsets.only(top: 15, bottom: 15), alignment: Alignment.centerLeft),
+              position: TimelineItemPosition.random,
+              iconBackground: UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
+              icon: Icon(
+                UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
+                color: Colors.white,
+              )),
+        ).toList();
+ 
+    return Timeline(children: items, position: TimelinePosition.Center, );
+  }
+
 
   Widget _botaoConfirmarRecebimento(BuildContext builderContext) {
     if (widget.impressao.status != Constants.STATUS_IMPRESSAO_RETIRADA) {
@@ -180,13 +218,6 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
           ],
         ),
       );
-    } else
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(
-          'Entregue em: ${new DateFormat('dd/MM/yyyy HH:mm:ss').format(widget.impressao.dataEntrega)}',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-      );
+    } 
   }
 }

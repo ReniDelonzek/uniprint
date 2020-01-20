@@ -1,31 +1,88 @@
+import 'dart:convert';
+
 import 'package:uniprint/app/shared/models/graph/pessoa_g.dart';
 
 class Usuario {
+  int id;
   String email;
   String uid;
   String url_foto;
 
   Pessoa pessoa;
+  Usuario({
+    this.id,
+    this.email,
+    this.uid,
+    this.url_foto,
+    this.pessoa,
+  });
+  
 
-  Usuario();
-
-  factory Usuario.fromJson(Map<String, dynamic> map) {
-    Usuario usuario = Usuario();
-    if (map != null) {
-      usuario.email = map['email'];
-      usuario.uid = map['uid'];
-      usuario.url_foto = map['url_foto'];
-      usuario.pessoa = Pessoa.fromJson(map['pessoa']);
-    }
-    return usuario;
+  Usuario copyWith({
+    int id,
+    String email,
+    String uid,
+    String url_foto,
+    Pessoa pessoa,
+  }) {
+    return Usuario(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      uid: uid ?? this.uid,
+      url_foto: url_foto ?? this.url_foto,
+      pessoa: pessoa ?? this.pessoa,
+    );
   }
 
-  toJson() {
-    Map<String, dynamic> map = Map();
-    map['email'] = email;
-    map['uid'] = uid;
-    map['url_foto'] = url_foto;
-    map['pessoa'] = pessoa.toString();
-    return map;
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'email': email,
+      'uid': uid,
+      'url_foto': url_foto,
+      'pessoa': pessoa.toMap(),
+    };
+  }
+
+  static Usuario fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+  
+    return Usuario(
+      id: map['id'],
+      email: map['email'],
+      uid: map['uid'],
+      url_foto: map['url_foto'],
+      pessoa: Pessoa.fromMap(map['pessoa']),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  static Usuario fromJson(String source) => fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'Usuario id: $id, email: $email, uid: $uid, url_foto: $url_foto, pessoa: $pessoa';
+  }
+
+  @override
+  bool operator ==(Object o) {
+    if (identical(this, o)) return true;
+  
+    return o is Usuario &&
+      o.id == id &&
+      o.email == email &&
+      o.uid == uid &&
+      o.url_foto == url_foto &&
+      o.pessoa == pessoa;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+      email.hashCode ^
+      uid.hashCode ^
+      url_foto.hashCode ^
+      pessoa.hashCode;
   }
 }

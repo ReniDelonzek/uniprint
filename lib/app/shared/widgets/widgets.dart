@@ -251,5 +251,3 @@ class CabecalhoDetalhesUsuario extends StatelessWidget {
     }*/
   }
 }
-
-class MeusWidgets {}

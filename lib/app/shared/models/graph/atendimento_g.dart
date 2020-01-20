@@ -6,7 +6,6 @@ class Atendimento {
   int id;
   int status;
   DateTime data_solicitacao;
-  int usuario_id;
   int ponto_atendimento_id;
   Usuario usuario;
   List<MovimentacaoAtendimento> movimentacao_atendimentos;
@@ -18,7 +17,6 @@ class Atendimento {
     map['id'] = id;
     map['status'] = status;
     map['data_solicitacao'] = data_solicitacao;
-    map['usuario_id'] = usuario_id;
     map['usuario'] = usuario.toJson();
 
     return map;
@@ -31,10 +29,8 @@ class Atendimento {
     atendimento.data_solicitacao = (map['data_solicitacao'] != null)
         ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(map['data_solicitacao'])
         : DateTime.now();
-    atendimento.usuario_id = map['usuario_id'];
     atendimento.ponto_atendimento_id = map['ponto_atendimento_id'];
-    atendimento.usuario_id = map['usuario_id'];
-    atendimento.usuario = Usuario.fromJson(map['usuario']);
+    atendimento.usuario = Usuario.fromMap(map['usuario']);
     atendimento.movimentacao_atendimentos = List<MovimentacaoAtendimento>.from(
         map['movimentacao_atendimentos']
             .map((i) => MovimentacaoAtendimento.fromMap(i))

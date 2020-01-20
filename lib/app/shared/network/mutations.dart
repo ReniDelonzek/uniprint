@@ -1,5 +1,5 @@
 String cadastroAtendimento =
-    """mutation addAtendimentos(\$data: timestamp!, \$tipo: Int!, \$usuario_id: Int!, \$ponto_atendimento_id: Int!, \$status: Int!) {
+    """mutation addAtendimentos(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$ponto_atendimento_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: 
     {data: \$data, 
       tipo: \$tipo, 
@@ -48,9 +48,8 @@ mutation AddFeedbak(\$feedback: String!, \$nota: float8!, \$usuario_id: Int!) {
 
 String cadastroMaterial =
     """mutation AddMaterial(\$colorido: Boolean!, \$data_publicacao: date!, 
-\$tipo: Int!, \$tipo_folha_id: Int!, \$titulo: String!, \$arquivos: [arquivo_material_insert_input!]!) {
-  __typename
-  insert_material(objects: {colorido: \$colorido, data_publicacao: \$data_publicacao, tipo: \$tipo,
+\$tipo: Int!, \$tipo_folha_id: Int!, \$titulo: String!, \$arquivos: [arquivo_material_insert_input!]!, \$professor_turma_id: Int!) {
+  insert_material(objects: {professor_turma_id: \$professor_turma_id, colorido: \$colorido, data_publicacao: \$data_publicacao, tipo: \$tipo,
    tipo_folha_id: \$tipo_folha_id, titulo: \$titulo, arquivo_materials: {data: \$arquivos}}) {
     affected_rows
   }
@@ -64,4 +63,18 @@ mutation AddAtendente(\$usuario_id: Int!, \$ponto_atendimento_id: Int!) {
     affected_rows
   }
 }
+""";
+
+String addMovimentacaoAtendimento = """
+mutation AddMoviimentacaoAtendimento(\$atendimento_id: Int!, \$status: Int!, 
+\$data: timestamptz!, \$tipo_movimento: Int!, \$usuario_id: Int!) {
+  update_atendimento(where: {id: {_eq: \$atendimento_id}}, _set: {status: \$status}) {
+    affected_rows
+  }
+  insert_movimentacao(objects: {data: \$data, tipo: \$tipo_movimento, usuario_id: \$usuario_id, 
+    movimentacao_atendimentos: {data: {atendimento_id: \$atendimento_id}}}) {
+    affected_rows
+  }
+}
+
 """;

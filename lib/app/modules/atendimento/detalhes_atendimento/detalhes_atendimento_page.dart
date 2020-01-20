@@ -1,15 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:timeline_list/timeline.dart';
+import 'package:timeline_list/timeline_model.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
+import 'package:uniprint/app/shared/models/graph/posicao_atendimento.dart';
+import 'package:uniprint/app/shared/network/graph_ql_data.dart';
+import 'package:uniprint/app/shared/network/mutations.dart';
+import 'package:uniprint/app/shared/network/querys.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
-import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
+import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
+import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
+import 'package:uniprint/app/shared/widgets/button.dart';
 
 class DetalhesAtendimentoPage extends StatefulWidget {
   final String title;
@@ -43,36 +50,141 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
         ),
         backgroundColor: Colors.white,
         body: Builder(builder: (context) {
-          return new Container(
-            child: new Center(
-              child: new Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  QrImage(
-                    data: widget.atendimento.id.toString(),
-                    version: QrVersions.auto,
-                    size: 200.0,
-                  ),
-                  new Padding(padding: EdgeInsets.all(60)),
-                  _getBody()
-                ],
-              ),
-            ),
+          return new Center(
+            child:
+                Padding(padding: const EdgeInsets.all(16), child: _getBody(context)),
           );
         }));
   }
 
-  _getBody() {
-    return Column(
-        children: widget.atendimento.movimentacao_atendimentos
-            .map((mov) => Text(
-                  '${mov.movimentacao.data.string('dd/MM')}: ${UtilsAtendimento.tipoAtendimento(mov.movimentacao.tipo)}',
-                  style: TextStyle(
+  Widget _getBody(BuildContext context) {
+    if (widget.atendimento.status == Constants.STATUS_ATENDIMENTO_SOLICITADO) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 50),
+        child: Column(
+          children: <Widget>[
+            QrImage(
+              data: widget.atendimento.id.toString(),
+              version: QrVersions.auto,
+              size: 200.0,
+            ),
+            Text('Esse é o seu QR de identificação!'),
+            Container(
+              child: StreamBuilder(
+                  stream: GraphQlObject.hasuraConnect.subscription(
+                      posicaoAtendimento,
+                      variables: {'id': widget.atendimento.id}),
+                  builder: (_, snap) {
+                    if (snap.connectionState == ConnectionState.waiting) {
+                      return Text('Carregando posição na fila');
+                    }
+                    if (snap.hasError || !snap.hasData) {
+                      return Text('Ops, houve uma falha ao obter sua posição');
+                    }
+                    PosicaoAtendimento posicao =
+                        PosicaoAtendimento.fromJson(snap.data);
+                    if (posicao.data.atendimentoAggregate.aggregate.count ==
+                        1) {
+                      return _getTextPosicao('Você é o próximo!');
+                    }
+                    if (posicao.data.atendimentoAggregate.aggregate.count ==
+                        2) {
+                      return _getTextPosicao(
+                          'Só mais ${posicao.data.atendimentoAggregate.aggregate.count - 1} pessoa na fila!');
+                    } else
+                      return _getTextPosicao(
+                          'Mais ${posicao.data.atendimentoAggregate.aggregate.count - 1} pessoas na fila');
+                  }),
+              height: 100,
+            ),
+            Button("Cancelar", () async {
+              ProgressDialog progress = ProgressDialog(context);
+                progress.style(message: 'Cancelando atendimento');
+                progress.show();
+              try {
+                var res = await GraphQlObject.hasuraConnect
+                    .mutation(addMovimentacaoAtendimento, variables: {
+                  "atendimento_id": widget.atendimento.id,
+                  "status": Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO,
+                  "data": DateTime.now().hasuraFormat(),
+                  "tipo_movimento": Constants.MOV_ATENDIMENTO_CANCELADO_USUARIO,
+                  "usuario_id": widget.atendimento.usuario.id
+                });
+                progress.dismiss();
+                if (res != null) {
+                  showSnack(context, 'Atendimento cancelado com sucesso', dismiss: true);
+                } else {
+                  showSnack(context,
+                      'Ops, houve uma falha ao tentar cancelar o atendimento');
+                }
+              } catch (e) {
+                progress.dismiss();
+                showSnack(context,
+                    'Ops, houve uma falha ao tentar cancelar o atendimento');
+                print(e);
+              }
+            })
+          ],
+        ),
+      );
+    } else
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            new Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Text(
+                'Histórico de movimentação',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            Expanded(child: _getTimeLine())
+          ]);
+  }
+
+  Widget _getTextPosicao(String text) {
+    return Padding(
+        child: Text(text,
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.black,
+            )),
+        padding: EdgeInsets.all(30));
+  }
+
+  _getTimeLine() {
+    List<TimelineModel> items = widget.atendimento.movimentacao_atendimentos
+        .map(
+          (mov) => TimelineModel(
+              Container(
+                  child: Text(
+                    '${mov.movimentacao.data.string('dd/MM')}: ${UtilsAtendimento.tipoAtendimento(mov.movimentacao.tipo)}',
+                    style: TextStyle(
                       fontSize: 18,
                       color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                ))
-            .toList());
+                    ),
+                  ),
+                  padding: EdgeInsets.only(top: 16, bottom: 16),
+                  alignment: Alignment.centerLeft),
+              position: TimelineItemPosition.random,
+              iconBackground:
+                  UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
+              icon: Icon(
+                UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
+                color: Colors.white,
+              )),
+        )
+        .toList();
+
+    return Timeline(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      children: items,
+      position: TimelinePosition.Center,
+    );
   }
 
   // Future<int> getPosicao() async {
@@ -96,7 +208,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
   //     return -1;
   //   }
   // }
-
+/*
   Future<String> apiRequest(String url, Map jsonMap) async {
     HttpClient httpClient = new HttpClient();
     HttpClientRequest request = await httpClient.postUrl(Uri.parse(url));
@@ -108,7 +220,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
     httpClient.close();
     return reply;
   }
-
+*/
   // Widget _getWidgetPosicao(BuildContext buildContext) {
   //   if (widget.atendimento.status == Constants.STATUS_ATENDIMENTO_SOLICITADO) {
   //     return Column(

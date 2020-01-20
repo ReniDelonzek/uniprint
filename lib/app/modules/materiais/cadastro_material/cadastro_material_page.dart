@@ -1,18 +1,14 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprint/app/shared/models/ArquivoMaterial.dart';
 import 'package:uniprint/app/shared/models/LocalAtendimento.dart';
-import 'package:uniprint/app/shared/models/material_professor.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -21,7 +17,7 @@ import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 class CadastroMaterialPage extends StatefulWidget {
   final String title;
-  const CadastroMaterialPage({Key key, this.title = "CadastroMaterial"})
+  const CadastroMaterialPage({Key key, this.title = "Cadastrar Material"})
       : super(key: key);
 
   @override
@@ -60,12 +56,16 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
             child: RaisedButton(
               onPressed: () async {
                 if (verificarDados(buildContext)) {
+                  ProgressDialog progress = ProgressDialog(context);
+                  progress.style(message: 'Cadastrando material');
+                  progress.show();
+                  try {
                   for (ArquivoMaterial arquivo in arquivos) {
                     File file = File(arquivo.patch);
                     arquivo.url = await UtilsFirebaseFile.putFile(file,
                         'Materiais/professor_id/${file.path.split('/').last}');
                   }
-                  GraphQlObject.hasuraConnect
+                  var res = await GraphQlObject.hasuraConnect
                       .mutation(cadastroMaterial, variables: {
                     'professor_turma_id': 1,
                     'tipo_folha_id': 1,
@@ -77,19 +77,14 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                     'arquivos':
                         arquivos.map((arquivo) => arquivo.toMap()).toList()
                   });
-                  // runMutation({
-                  //   'professor_turma_id': 1,
-                  //   'tipo_folha_id': 1,
-                  //   'colorido': colorido,
-                  //   'data_publicacao':
-                  //       DateFormat('yyyy-MM-dd HH:mm:ss')
-                  //           .format(DateTime.now()),
-                  //   'tipo': enviarArquivos ? 0 : 1,
-                  //   'titulo': controllerTitulo.text,
-                  //   'arquivos': arquivos
-                  //       .map((arquivo) => arquivo.toMap())
-                  //       .toList()
-                  // });
+                  if (res != null) {
+                    showSnack(buildContext, 'Material cadastrado com sucesso!', dismiss: true);
+                  } else {
+                    showSnack(buildContext, 'Ops, houve uma falha ao cadastrar o material');
+                  }
+                } catch (e) {
+                 showSnack(buildContext, 'Ops, houve uma falha ao cadastrar o material');
+                }
                 }
               },
               color: Colors.blue,

@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
+import 'package:uniprint/app/shared/widgets/button.dart';
 
 class FeedbackPage extends StatefulWidget {
   final String title;
@@ -81,26 +83,33 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     ),
                     Padding(
                         padding: const EdgeInsets.all(25.0),
-                        child: RaisedButton(
-                          child: Text(
-                            'Enviar',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () async {
-                            FirebaseAuth.instance.currentUser().then((user) {
-                              // runMutation({
-                              //   'nota': rating,
-                              //   'feedback': controllerFeedBack.text,
-                              //   'usuario_id': 1
-                              // });
+                        child: Button(
+                          'Enviar',
+                           () async {
+                             ProgressDialog progressDialog = ProgressDialog(context);
+                             progressDialog.style(message: 'Enviando feedback');
+                             progressDialog.show();
+                            FirebaseAuth.instance.currentUser().then((user) async {
+                              var res = await GraphQlObject.hasuraConnect.mutation(cadastroFeedBack, variables:
+                              {
+                                 'nota': rating,
+                                 'feedback': controllerFeedBack.text,
+                                 'usuario_id': 1
+                              });
+                              progressDialog.dismiss();
+                              if (res != null) {
+                                showSnack(context, 'Muito obrigado!', dismiss: true);
+                              } else {
+                                showSnack(context, 'Ops, algo saiu mal 😥');
+                              }
                             }).catchError(() {
+                              progressDialog.dismiss();
                               Scaffold.of(context).showSnackBar(SnackBar(
                                 content: Text('Ops, algo saiu mal 😥'),
                                 duration: Duration(seconds: 3),
                               ));
                             });
                           },
-                          color: Colors.blue,
                         ))
                   ],
                 ),

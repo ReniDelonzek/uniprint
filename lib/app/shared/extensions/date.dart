@@ -8,4 +8,9 @@ extension DateExtension on DateTime {
       return null;
     }
   }
+
+  String hasuraFormat() {
+     return DateFormat('yyyy-MM-ddTHH:mm:ss')
+                          .format(this);
+  }
 }

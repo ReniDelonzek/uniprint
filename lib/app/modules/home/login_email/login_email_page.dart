@@ -1,7 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:uniprint/app/shared/utils/utils_login.dart';
+
+import '../home_module.dart';
+import 'login_email_controller.dart';
 
 class LoginEmailPage extends StatefulWidget {
   final String title;
@@ -14,6 +18,7 @@ class LoginEmailPage extends StatefulWidget {
 class _LoginEmailPageState extends State<LoginEmailPage> {
   final controllerEmail = TextEditingController();
   final controllerSenha = TextEditingController();
+  final controller = HomeModule.to.bloc<LoginEmailController>();
 
   @override
   void dispose() {
@@ -50,17 +55,17 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      decoration: InputDecoration(
-                          hintText: 'Insira seu e-mail',
+                      decoration: InputDecoration( 
                           labelText: 'Insira seu e-mail'),
                       controller: controllerEmail,
                     ),
-                    TextFormField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                          labelText: 'Escolha uma senha',
-                          hintText: 'Escolha uma senha'),
-                      controller: controllerSenha,
+                    Observer(
+                      builder: (_) => TextFormField(
+                        obscureText: controller.obscure,
+                        decoration: InputDecoration( 
+                            hintText: 'Escolha uma senha'),
+                        controller: controllerSenha,
+                      ),
                     ),
                     new Padding(padding: EdgeInsets.all(15)),
                     new ButtonTheme(
@@ -114,7 +119,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
     return true;
   }
 
-  Future logar(BuildContext context) {
+  logar(BuildContext context) {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(
             email: controllerEmail.text, password: controllerSenha.text)
@@ -131,7 +136,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
           'ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL') {
         Scaffold.of(context).showSnackBar(new SnackBar(
           content: new Text(
-              "Ops, parece que você já acessou de alguma outra forma com esse e-mail"),
+              "Ops, parece que você já acessou com suas redes sociais com esse e-mail"),
         ));
       } else if ((error as PlatformException).code == "ERROR_WRONG_PASSWORD") {
         Scaffold.of(context).showSnackBar(new SnackBar(
@@ -153,7 +158,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
           "ERROR_TOO_MANY_REQUESTS") {
         Scaffold.of(context).showSnackBar(new SnackBar(
           content: new Text(
-              "Ops, parece que você já tentou entrar diversas vezes com essa conta com as credenciais inválidas"),
+              "Ops, parece que você já tentou entrar diversas vezes com essa conta com as credenciais inválidas, tente novamente mais tarde"),
         ));
       } else if ((error as PlatformException).code ==
           "ERROR_OPERATION_NOT_ALLOWED") {

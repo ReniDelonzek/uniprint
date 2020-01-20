@@ -22,7 +22,7 @@ class GraphQlObject {
   // );
 
   static HasuraConnect hasuraConnect = HasuraConnect(
-      'http://192.168.0.104:8080/v1/graphql', token: (isError) async {
+      'https://uniprint-uv.herokuapp.com/v1/graphql', token: (isError) async {
     var a = await FirebaseAuth.instance.currentUser();
     return "Bearer ${await a?.getIdToken() ?? ''}";
   });

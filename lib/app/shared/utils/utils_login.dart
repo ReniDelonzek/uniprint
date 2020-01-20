@@ -71,6 +71,7 @@ void _goScreen(FirebaseUser user, BuildContext context) async {
     atualizarPermissoes(user, prefs);
   } else
     tipo = await atualizarPermissoes(user, prefs);
+
   // if (tipo == Constants.USUARIO_ATENDENTE) {
   //   String codPonto = await _getPontoAtendimento(user.uid);
   //   Route route =
@@ -90,15 +91,17 @@ Future<int> atualizarPermissoes(
       if (token.claims.containsKey('professor')) {
         prefs.setInt(Constants.TIPO_USUARIO, Constants.USUARIO_PROFESSOR);
         return Constants.USUARIO_PROFESSOR;
-      } else if (token.claims.containsKey('atendente')) {
-        prefs.setInt(Constants.TIPO_USUARIO, Constants.USUARIO_ATENDENTE);
-        return Constants.USUARIO_ATENDENTE;
+      } if (token.claims.containsKey('aluno')) {
+        prefs.setString(Constants.RA_ALUNO, token.claims['aluno'].toString());
+        prefs.setInt(Constants.TIPO_USUARIO, Constants.USUARIO_ALUNO);
+        return Constants.USUARIO_ALUNO;
       } else {
         prefs.setInt(Constants.TIPO_USUARIO, Constants.USUARIO_NORMAL);
         return Constants.USUARIO_NORMAL;
       }
-    }
-  }
+
+    } else return -1;
+  } return -1;
 }
 
 void posLogin(AuthResult user, BuildContext context) async {

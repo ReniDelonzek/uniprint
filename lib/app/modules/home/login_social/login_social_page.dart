@@ -111,10 +111,11 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
   }
 
   Future<Null> signInWithGoogle() async {
+    try {
     if (googleAccount == null) {
       // Start the sign-in process:
       googleAccount = await googleSignIn.signIn();
-      print(googleAccount.email);
+      
     }
     googleAccount.authentication.then((googleAuth) {
       AuthCredential credential = GoogleAuthProvider.getCredential(
@@ -140,6 +141,11 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
         content: new Text("Ops, houve uma falha na tentativa de login"),
       ));
     });
+    } catch (e) {
+      Scaffold.of(buildContext).showSnackBar(new SnackBar(
+        content: new Text("Ops, houve uma falha na tentativa de login (${e.toString()})"),
+      ));
+    }
     //AuthResult user = await signIntoFirebase(googleAccount);
   }
 

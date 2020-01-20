@@ -29,14 +29,14 @@ mixin _$HomeController on _HomeBase, Store {
   final _$impressoesAtom = Atom(name: '_HomeBase.impressoes');
 
   @override
-  ObservableList<Atendimento> get impressoes {
+  ObservableList<Impressao> get impressoes {
     _$impressoesAtom.context.enforceReadPolicy(_$impressoesAtom);
     _$impressoesAtom.reportObserved();
     return super.impressoes;
   }
 
   @override
-  set impressoes(ObservableList<Atendimento> value) {
+  set impressoes(ObservableList<Impressao> value) {
     _$impressoesAtom.context.conditionallyRunInAction(() {
       super.impressoes = value;
       _$impressoesAtom.reportChanged();

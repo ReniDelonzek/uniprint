@@ -2,7 +2,49 @@ import 'package:uniprint/app/shared/db/ValorImpressao.dart';
 import 'package:uniprint/app/shared/db/app_database.dart';
 import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
 
-class UtilsImpresao {
+import 'constans.dart';
+
+class UtilsImpressao {
+
+  static String getStatusImpressao(int status) {
+    switch (status) {
+      case Constants.STATUS_IMPRESSAO_SOLICITADO:
+        return "Impressão solicitada";
+      case Constants.STATUS_IMPRESSAO_AUTORIZADO:
+        return "Arquivo Impresso";
+      case Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA:
+        return "Suas folhas estão aguardando retirada";
+      case Constants.STATUS_IMPRESSAO_RETIRADA:
+        return "Impressão finalizada";
+      case Constants.STATUS_IMPRESSAO_CANCELADO:
+        return "Impressão cancelada";
+      case Constants.STATUS_IMPRESSAO_NEGADA:
+        return "Impressão negada";
+
+      default:
+        return '';
+    }
+  }
+
+  static String getTipoMovimentacao(int tipo) {
+    switch (tipo) {
+      case Constants.MOV_IMPRESSAO_SOLICITADO:
+        return "Impressão solicitada";
+      case Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA:
+        return "Suas folhas estão aguardando retirada";
+      case Constants.MOV_IMPRESSAO_AUTORIZADO:
+        return "Impressão autorizada";
+      case Constants.MOV_IMPRESSAO_NEGADA:
+        return "Impressão negada";
+      case Constants.MOV_IMPRESSAO_CANCELADO:
+        return "Impressão cancelada";
+      case Constants.MOV_IMPRESSAO_RETIRADA:
+        return "Impressão finalizada";
+      default:
+        return '';
+    }
+  }
+
   static String getResumo(List<ArquivoImpressao> arquivos) {
     String s = "${arquivos.length} arquivos\n";
     List<ArquivoImpressao> a3 =

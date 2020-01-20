@@ -5,6 +5,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hasura_connect/hasura_connect.dart';
 import 'package:intl/intl.dart';
+import 'package:timeline_list/timeline.dart';
+import 'package:timeline_list/timeline_model.dart';
 import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_atendimento_module.dart';
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
@@ -14,20 +16,22 @@ import 'package:uniprint/app/modules/home/tela_perfil/tela_perfil_page.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_module.dart';
 import 'package:uniprint/app/modules/materiais/cadastro_material/cadastro_material_module.dart';
+import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_module.dart';
 
-import 'package:uniprint/app/shared/models/Impressao.dart';
 import 'package:uniprint/app/shared/models/LocalAtendimento.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
+import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
-import 'package:uniprint/app/shared/network/querys.dart';
-import 'package:uniprint/app/shared/temas/Tema.dart';
+import 'package:uniprint/app/shared/network/querys.dart'; 
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
+import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_login.dart';
 import 'package:uniprint/app/shared/widgets/bottom_app_nav.dart';
 import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
+import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
 
 import 'home_controller.dart';
 
@@ -118,7 +122,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    _getAtendimentosHasura();
     atendimentoPendente = false;
     return Builder(builder: ((context) {
       return new Scaffold(
@@ -184,6 +187,10 @@ class _HomePageState extends State<HomePage> {
                     title: new Text("Materiais publicados"),
                     trailing: new Icon(Icons.school),
                     onTap: () async {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ListaMateriaisModule()));
                       // setState(() {
                       //   exibirFab = false;
                       // });
@@ -255,161 +262,117 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  _getAtendimentosHasura() async {
-    Snapshot snapshot =
-        GraphQlObject.hasuraConnect.subscription(getAtendimentos);
-    //     .convert((data) {
-    //   return data['data']['atendimento'].map((a) => Atendimento.fromJson(a));
-    // }, cachePersist: (data) {
-    //   return data.map((a) => a.toJson()).toList();
-    // });
-    snapshot.listen((data) {
-      List<Atendimento> a = List<Atendimento>.from(
-              data['data']['atendimento'].map((a) => Atendimento.fromJson(a)))
-          .toList();
-      controller.atendimentos.clear();
-      controller.atendimentos.addAll(a);
-    });
-  }
-
   Widget _getAtendimentos(BuildContext context) {
-    return Observer(
-      builder: (_) => ListView.builder(
-        itemCount: controller.atendimentos.length,
-        itemBuilder: (_, pos) {
-          return InkWell(
-              onTap: () async {
-                setState(() {
-                  exibirFab = false;
-                });
-                await Navigator.of(context).push(new MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        new DetalhesAtendimentoModule(
-                            controller.atendimentos[pos])));
-                setState(() {
-                  exibirFab = true;
-                });
-              },
-              child: new Padding(
-                padding: EdgeInsets.all(15.0),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _getItemCardAtendimento(controller.atendimentos[pos])
-                    ]),
-              ));
-        },
-      ),
+    return StreamBuilder(
+      stream: GraphQlObject.hasuraConnect
+          .subscription(getAtendimentos, variables: {"usuario_id": 1}),
+      builder: (_, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        if (snap.hasError) {
+          return Center(
+            child: FalhaWidget('Houve uma falha ao recuperar os dados'),
+          );
+        }
+        if (!snap.hasData || snap.data['data']['atendimento'].isEmpty) {
+          return Center(
+            child: Text('Nenhum dado retornado'),
+          );
+        } else {
+          List<Atendimento> a = List<Atendimento>.from(snap.data['data']
+                  ['atendimento']
+              .map((a) => Atendimento.fromJson(a))).toList();
+          controller.atendimentos.clear();
+          controller.atendimentos.addAll(a);
+          return ListView.builder(
+            itemCount: controller.atendimentos.length,
+            itemBuilder: (_, pos) {
+              return InkWell(
+                  onTap: () async {
+                    setState(() {
+                      exibirFab = false;
+                    });
+                    await Navigator.of(context).push(new MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            new DetalhesAtendimentoModule(
+                                controller.atendimentos[pos])));
+                    setState(() {
+                      exibirFab = true;
+                    });
+                  },
+                  child: new Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                              "Atendimento: ${controller.atendimentos[pos].id}"),
+                          _getMovimentacoesAtendimento(
+                              controller.atendimentos[pos])
+                        ]),
+                  ));
+            },
+          );
+        }
+      },
     );
-    // List<Widget> createChildren(AsyncSnapshot<QuerySnapshot> s) {
-    //   return s.data.documents.map(
-    //     (document) {
-    //       Atendimento atendimento = Atendimento.fromJson(document.data);
-    //       atendimento.id = document.documentID;
-    //       if (atendimento.status == Constants.STATUS_ATENDIMENTO_SOLICITADO) {
-    //         atendimentoPendente = true;
-    //       }
-    //       return InkWell(
-    //           onTap: () async {
-    //             setState(() {
-    //               exibirFab = false;
-    //             });
-    //             await Navigator.of(context).push(new MaterialPageRoute(
-    //                 builder: (BuildContext context) =>
-    //                     new DetalhesAtendimentoModule(
-    //                         /*atendimento: atendimento*/)));
-    //             setState(() {
-    //               exibirFab = true;
-    //             });
-    //           },
-    //           child: new Padding(
-    //             padding: EdgeInsets.all(15.0),
-    //             child: new Column(
-    //                 crossAxisAlignment: CrossAxisAlignment.start,
-    //                 children: <Widget>[_getItemCardAtendimento(atendimento)]),
-    //           ));
-    //     },
-    //     //),
-    //   ).toList();
-    // }
-
-    // if (controller.user != null) {
-    //   return StreamBuilder<QuerySnapshot>(
-    //     stream: Firestore.instance
-    //         .collectionGroup('Atendimentos')
-    //         .where("codSolicitante", isEqualTo: "${controller.user?.uid ?? 0}")
-    //         .orderBy("dataSolicitacao", descending: true)
-    //         .snapshots(),
-    //     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-    //       if (snapshot.hasError) return new Text('${snapshot.error}');
-    //       switch (snapshot.connectionState) {
-    //         case ConnectionState.waiting:
-    //           return new Center(child: new RefreshProgressIndicator());
-    //         default:
-    //           if (snapshot?.data?.documents?.isEmpty ?? true)
-    //             return Center(
-    //                 child: new Text('Solicite seu primeiro atendimento'));
-    //           else
-    //             return new ListView(children: createChildren(snapshot));
-    //       }
-    //     },
-    //   );
-    // } else
-    //   return Text('rere');
   }
 
-  Future<Widget> _getImpressoes(BuildContext context) async {
-    List<Widget> createChildren(AsyncSnapshot<QuerySnapshot> s) {
-      return s.data.documents.map(
-        (document) {
-          Impressao impressao = Impressao.fromJson(document.data);
-          impressao.id = document.documentID;
-          return new Card(
-            elevation: 2,
-            child: InkWell(
-                onTap: () async {
-                  setState(() {
-                    exibirFab = false;
-                  });
-                  await Navigator.of(context).push(new MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          new DetalhesImpressaoModule(impressao)));
-                  setState(() {
-                    exibirFab = true;
-                  });
-                },
-                child: new Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: new Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[_getItensCardImpressao(impressao)]),
-                )),
-          );
-        },
-      ).toList();
-    }
-
-    if (controller.user != null) {
-      return StreamBuilder<QuerySnapshot>(
-        stream: Firestore.instance
-            .collectionGroup('Impressoes')
-            .where("codSolicitante", isEqualTo: "${controller.user?.uid ?? 0}")
-            .orderBy("dataSolicitacao", descending: true)
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.hasError) return new Text('${snapshot.error}');
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return new Center(child: new RefreshProgressIndicator());
-            default:
-              if (snapshot?.data?.documents?.isEmpty ?? true)
-                return Center(child: new Text('Nenhuma impressão cadastrada'));
-              else
-                return new ListView(children: createChildren(snapshot));
+  Widget _getImpressoes(BuildContext context) {
+    return StreamBuilder(
+        stream: GraphQlObject.hasuraConnect.subscription(getImpressoes),
+        builder: (_, snap) {
+          if (snap.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
-        },
-      );
-    }
+          if (snap.hasError) {
+            return Center(
+              child: FalhaWidget('Houve uma falha ao recuperar os dados'),
+            );
+          }
+          if (!snap.hasData || snap.data['data']['impressao'].isEmpty) {
+            return Center(
+              child: Text('Nenhum dado retornado'),
+            );
+          } else {
+            List<Impressao> a = List<Impressao>.from(snap.data['data']
+                    ['impressao']
+                .map((a) => Impressao.fromJson(a))).toList();
+            controller.impressoes.clear();
+            controller.impressoes.addAll(a);
+            return ListView.builder(
+              itemCount: controller.impressoes.length,
+              itemBuilder: (_, pos) {
+                return InkWell(
+                    onTap: () async {
+                      setState(() {
+                        exibirFab = false;
+                      });
+                      await Navigator.of(context).push(new MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              new DetalhesImpressaoModule(
+                                  controller.impressoes[pos])));
+                      setState(() {
+                        exibirFab = true;
+                      });
+                    },
+                    child: new Padding(
+                      padding: EdgeInsets.all(15.0),
+                      child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            _getItensCardImpressao(controller.impressoes[pos])
+                          ]),
+                    ));
+              },
+            );
+          }
+        });
   }
 
   //status
@@ -419,18 +382,20 @@ class _HomePageState extends State<HomePage> {
   //aprovado por
 
   Widget _getItensCardImpressao(Impressao impressao) {
-    return new Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-        Widget>[
-      new Text(
-        getStatusImpressao(impressao.status),
-        style: new TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      ),
-      _dataImpressao(impressao),
-      new Text(NumberFormat.simpleCurrency().format(impressao.valorTotal ?? 0))
-    ]);
+    return new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Text(
+            UtilsImpressao.getStatusImpressao(impressao.status),
+            style:
+                new TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          //_dataImpressao(impressao),
+          //new Text(NumberFormat.simpleCurrency().format(impressao.valorTotal ?? 0))
+        ]);
   }
 
-  Widget _getItemCardAtendimento(Atendimento atendimento) {
+  Widget _getMovimentacoesAtendimento(Atendimento atendimento) {
     Movimentacao mov =
         atendimento.movimentacao_atendimentos?.first?.movimentacao;
     return new Column(
@@ -474,59 +439,8 @@ class _HomePageState extends State<HomePage> {
                     new DateFormat("dd/MM - HH:mm")
                         .format(atendimento.data_solicitacao) ??
                 ''),
-            getSatisfacao(1),
+            //getSatisfacao(1),
           ]);
-    }
-  }
-
-  String getStatusAtendimento(int status, DateTime dataAtendimento) {
-    switch (status) {
-      case Constants.STATUS_ATENDIMENTO_SOLICITADO:
-        return "Atendimento solicitado";
-      case Constants.STATUS_ATENDIMENTO_EM_ATENDIMENTO:
-        return "Atendimento em andamento";
-      case Constants.STATUS_ATENDIMENTO_ATENDIDO:
-        return "Você foi atendido em ${new DateFormat("dd/MM HH:mm").format(dataAtendimento ?? DateTime.now())}";
-      case Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO:
-        return "Atendimento cancelado pelo usuario";
-      case Constants.STATUS_ATENDIMENTO_CANCELADO_ATENDENTE:
-        return "Atendimento cancelado pelo atendente";
-
-      default:
-        return '';
-    }
-  }
-
-  String getStatusImpressao(int status) {
-    switch (status) {
-      case Constants.STATUS_IMPRESSAO_SOLICITADO:
-        return "Impressão solicitada";
-      case Constants.STATUS_IMPRESSAO_AUTORIZADO:
-        return "Arquivo Impresso";
-      case Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA:
-        return "Suas folhas estão aguardando retirada";
-      case Constants.STATUS_IMPRESSAO_RETIRADA:
-        return "Impressão finalizada";
-      case Constants.STATUS_IMPRESSAO_CANCELADO:
-        return "Impressão cancelada";
-      case Constants.STATUS_IMPRESSAO_NEGADA:
-        return "Impressão negada";
-
-      default:
-        return '';
-    }
-  }
-
-  Widget getSatisfacao(int satisfacao) {
-    switch (satisfacao) {
-      case 0: //ruim
-        return new Icon(Icons.sentiment_neutral, size: 15);
-      case 1:
-        return new Icon(Icons.sentiment_satisfied, size: 15);
-      case 2:
-        return new Icon(Icons.sentiment_very_satisfied, size: 15);
-      default:
-        return new Icon(Icons.sentiment_satisfied, size: 15);
     }
   }
 
@@ -560,21 +474,6 @@ class _HomePageState extends State<HomePage> {
       elevation: 5.0,
       //),
     );
-  }
-
-  Widget _dataImpressao(Impressao impressao) {
-    if (impressao.status > Constants.STATUS_IMPRESSAO_SOLICITADO)
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Text('Data da impressão ' +
-              new DateFormat('dd/MM/yy - HH:mm')
-                  .format(impressao.dataImpressao)),
-          new Text(impressao.descricao ?? ''),
-        ],
-      );
-    return new Text(impressao.descricao ?? '');
   }
 
   _cadastroMaterial() {
