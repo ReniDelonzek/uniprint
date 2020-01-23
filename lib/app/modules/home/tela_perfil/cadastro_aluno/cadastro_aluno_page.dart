@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uniprint/app/modules/home/home_module.dart';
 import 'package:uniprint/app/shared/widgets/button.dart';
-import 'package:uniprint/app/shared/widgets/select_widget.dart';
 
 import 'cadastro_aluno_controller.dart';
 
@@ -38,14 +37,14 @@ class _CadastroAlunoPageState extends State<CadastroAlunoPage> {
                 decoration: InputDecoration(labelText: 'E a sua senha?'),
                 controller: controller.ctlSenha,
               ),
-              Button("Validar", (){
-                Firestore.instance.collection("usuarios")
-                .where("RA", isEqualTo: controller.ctlRA.text)
-                .limit(1)
-                .getDocuments().then((value) {
-                  if (value.documents.isNotEmpty) {
-                    
-                  }
+              Button("Validar", () {
+                Firestore.instance
+                    .collection("usuarios")
+                    .where("RA", isEqualTo: controller.ctlRA.text)
+                    .limit(1)
+                    .getDocuments()
+                    .then((value) {
+                  if (value.documents.isNotEmpty) {}
                 });
               })
             ],

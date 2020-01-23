@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprint/app/shared/models/Atendimento.dart';
-import 'package:uniprint/app/shared/models/LocalAtendimento.dart';
+import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
@@ -14,7 +14,7 @@ import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 class CadastroAtendimentoPage extends StatefulWidget {
   final String title;
-  LocalAtendimento local;
+  PontoAtendimento local;
   CadastroAtendimentoPage({Key key, this.title = "Cadastro Atendimento"})
       : super(key: key);
 
@@ -24,7 +24,7 @@ class CadastroAtendimentoPage extends StatefulWidget {
 }
 
 class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
-  List<LocalAtendimento> locais = List();
+  List<PontoAtendimento> locais = List();
   final controllerObs = TextEditingController();
   ProgressDialog progressDialog;
   var selec = false;
@@ -71,7 +71,7 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                         'tipo': Constants.STATUS_ATENDIMENTO_SOLICITADO,
                         'usuario_id': 1,
                         'data': s,
-                        'ponto_atendimento_id': widget.local.idServer,
+                        'ponto_atendimento_id': widget.local.id,
                         'status': Constants.STATUS_ATENDIMENTO_SOLICITADO
                       });
                       if (res != null) {
@@ -162,14 +162,14 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
     if (user != null) {
       atendimento.codSolicitante = user.uid;
       atendimento.dataSolicitacao = DateTime.now();
-      atendimento.codPonto = widget.local.id;
+      atendimento.codPonto = widget.local.id.toString();
       atendimento.status = 0;
 
       Firestore.instance
           .collection('Empresas')
           .document('Uniguacu')
           .collection('Pontos')
-          .document(widget.local.id)
+          .document(widget.local.id.toString())
           .collection('Atendimentos')
           .add(atendimento.toJson())
           .then((sucess) {

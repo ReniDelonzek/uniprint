@@ -11,8 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_arquivos_impressao/cadastro_arquivos_impressao_module.dart';
 import 'package:uniprint/app/shared/models/Impressao.dart';
-import 'package:uniprint/app/shared/models/LocalAtendimento.dart';
 import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -33,9 +33,10 @@ class CadastroImpressaoPage extends StatefulWidget {
 }
 
 class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
-  final controller = CadastroImpressaoModule.to.bloc<CadastroImpressaoController>();
+  final controller =
+      CadastroImpressaoModule.to.bloc<CadastroImpressaoController>();
   final controllerObs = TextEditingController();
-  LocalAtendimento local;
+  PontoAtendimento local;
 
   ///ProgressDialog progressDialog;
   var inicializados =
@@ -75,7 +76,7 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
         if (arquivosA != null) {
           setState(() {
             if (this.controller.arquivos == null) {
-               controller.arquivos = List<ArquivoImpressao>();
+              controller.arquivos = List<ArquivoImpressao>();
             }
             controller.arquivos = (arquivosA);
           });
@@ -86,7 +87,7 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
 
   Widget _getPageCadastroImpressao(BuildContext context) {
     verificarArquivos(context);
-    return new Container( 
+    return new Container(
       child: new Stack(
         children: <Widget>[
           Positioned(
@@ -112,11 +113,12 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
   void solicitarImpressao() {
     FirebaseAuth.instance.currentUser().then((user) {
       if (user != null) {
-        UtilsImpressao.getValorImpressaoArquivos(controller.arquivos).then((total) {
+        UtilsImpressao.getValorImpressaoArquivos(controller.arquivos)
+            .then((total) {
           Impressao impressao = Impressao();
           impressao.valorTotal = total;
           impressao.status = 0;
-          impressao.codPonto = local.id;
+          impressao.codPonto = local.id.toString();
           impressao.codSolicitante = user.uid;
           impressao.dataSolicitacao = DateTime.now();
           impressao.comentario = controllerObs.text;
@@ -125,13 +127,14 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
               .collection("Empresas")
               .document("Uniguacu")
               .collection("Pontos")
-              .document(local.id)
+              .document(local.id.toString())
               .collection("Impressoes");
           String id = db.document().documentID;
 
           db.document(id).setData(impressao.toJson()).whenComplete(() async {
             for (int i = 0; i < controller.arquivos.length; i++) {
-              if (controller.arquivos[i].url == null || controller.arquivos[i].url.isEmpty) {
+              if (controller.arquivos[i].url == null ||
+                  controller.arquivos[i].url.isEmpty) {
                 await uploadFile(id, i.toString(), controller.arquivos[i]);
               }
             }
@@ -292,7 +295,7 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
     );
   }
 
-  Widget getButtonUI(LocalAtendimento localAtendimento) {
+  Widget getButtonUI(PontoAtendimento localAtendimento) {
     bool isSelected = localAtendimento.id == local?.id;
     var txt = localAtendimento.nome;
     return Expanded(
@@ -398,9 +401,9 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
                             if (controller.arquivos[i].url == null ||
                                 controller.arquivos[i].url.isEmpty) {
                               File file = File(controller.arquivos[i].patch);
-                              controller.arquivos[i].url = await UtilsFirebaseFile.putFile(
-                                  file,
-                                  'Impressoes/${1}/${DateFormat('yyyyMMddHHmm').format(data)}/${file.path.split('/').last}');
+                              controller.arquivos[i].url =
+                                  await UtilsFirebaseFile.putFile(file,
+                                      'Impressoes/${1}/${DateFormat('yyyyMMddHHmm').format(data)}/${file.path.split('/').last}');
                             }
                           }
                           try {
@@ -473,7 +476,7 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
           .collection("Empresas")
           .document("Uniguacu")
           .collection("Pontos")
-          .document(local.id)
+          .document(local.id.toString())
           .collection("Impressoes")
           .document(impressaoID)
           .collection('Documentos')

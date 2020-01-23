@@ -5,7 +5,7 @@ import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/temas/Tema.dart';
-import 'package:uniprint/app/shared/utils/constans.dart'; 
+import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
@@ -13,9 +13,11 @@ import 'package:uniprint/app/shared/extensions/date.dart';
 class DetalhesImpressaoPage extends StatefulWidget {
   final String title;
   final Impressao impressao;
-  DetalhesImpressaoPage(this.impressao,
-      {Key key, this.title = "Detalhes Impressao", })
-      : super(key: key);
+  DetalhesImpressaoPage(
+    this.impressao, {
+    Key key,
+    this.title = "Detalhes Impressao",
+  }) : super(key: key);
 
   @override
   _DetalhesImpressaoPageState createState() => _DetalhesImpressaoPageState();
@@ -48,20 +50,24 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                         padding:
                             const EdgeInsets.only(top: 5, left: 15, right: 15),
                         child: Text(
-                          UtilsImpressao.getResumo(widget.impressao.arquivo_impressaos),
+                          UtilsImpressao.getResumo(
+                              widget.impressao.arquivo_impressaos),
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(15.0),
                         child: FutureBuilder(
-                          future: UtilsImpressao.getValorImpressaoArquivos(widget.impressao.arquivo_impressaos),
+                          future: UtilsImpressao.getValorImpressaoArquivos(
+                              widget.impressao.arquivo_impressaos),
                           builder: (_, snap) {
-                            if (snap.connectionState == ConnectionState.waiting) {
+                            if (snap.connectionState ==
+                                ConnectionState.waiting) {
                               return Container(width: 0, height: 0);
                             }
                             if (snap.hasError) {
-                              return Text('Houve uma falha ao recuperar o valor da impressão');
+                              return Text(
+                                  'Houve uma falha ao recuperar o valor da impressão');
                             }
                             return new Text(
                               'Valor Total: ${NumberFormat.simpleCurrency().format(snap.data ?? 0)}',
@@ -97,28 +103,35 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
         ));
   }
 
-    _getTimeLine() {
+  _getTimeLine() {
     List<TimelineModel> items = widget.impressao.movimentacao_impressaos
         .map(
           (mov) => TimelineModel(
-              Container(child: Text(
-                '${mov.movimentacao.data.string('dd/MM')}: ${UtilsImpressao.getTipoMovimentacao(mov.movimentacao.tipo)}',
-                style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold),
-              ), padding: EdgeInsets.only(top: 15, bottom: 15), alignment: Alignment.centerLeft),
+              Container(
+                  child: Text(
+                    '${mov.movimentacao.data.string('dd/MM')}: ${UtilsImpressao.getTipoMovimentacao(mov.movimentacao.tipo)}',
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  padding: EdgeInsets.only(top: 15, bottom: 15),
+                  alignment: Alignment.centerLeft),
               position: TimelineItemPosition.random,
-              iconBackground: UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
+              iconBackground:
+                  UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
               icon: Icon(
                 UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
                 color: Colors.white,
               )),
-        ).toList();
- 
-    return Timeline(children: items, position: TimelinePosition.Center, );
-  }
+        )
+        .toList();
 
+    return Timeline(
+      children: items,
+      position: TimelinePosition.Center,
+    );
+  }
 
   Widget _botaoConfirmarRecebimento(BuildContext builderContext) {
     if (widget.impressao.status != Constants.STATUS_IMPRESSAO_RETIRADA) {
@@ -218,6 +231,6 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
           ],
         ),
       );
-    } 
+    }
   }
 }

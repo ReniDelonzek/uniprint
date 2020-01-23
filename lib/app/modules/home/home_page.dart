@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:hasura_connect/hasura_connect.dart';
 import 'package:intl/intl.dart';
-import 'package:timeline_list/timeline.dart';
-import 'package:timeline_list/timeline_model.dart';
 import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_atendimento_module.dart';
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
@@ -18,12 +13,11 @@ import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impre
 import 'package:uniprint/app/modules/materiais/cadastro_material/cadastro_material_module.dart';
 import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_module.dart';
 
-import 'package:uniprint/app/shared/models/LocalAtendimento.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
-import 'package:uniprint/app/shared/network/querys.dart'; 
+import 'package:uniprint/app/shared/network/querys.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
@@ -411,7 +405,7 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             new Text(
                 'Agendando em: ${new DateFormat("dd/MM - HH:mm").format((atendimento.data_solicitacao)) ?? ''}'),
-            new Text(getLocalAtendimento((atendimento.ponto_atendimento_id)))
+            //new Text(getLocalAtendimento((atendimento.ponto_atendimento_id)))
           ]);
     } else if (atendimento.status ==
         Constants.STATUS_ATENDIMENTO_CANCELADO_ATENDENTE) {

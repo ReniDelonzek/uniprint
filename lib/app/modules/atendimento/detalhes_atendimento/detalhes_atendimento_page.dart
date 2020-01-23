@@ -51,8 +51,8 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
         backgroundColor: Colors.white,
         body: Builder(builder: (context) {
           return new Center(
-            child:
-                Padding(padding: const EdgeInsets.all(16), child: _getBody(context)),
+            child: Padding(
+                padding: const EdgeInsets.all(16), child: _getBody(context)),
           );
         }));
   }
@@ -99,8 +99,9 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
             ),
             Button("Cancelar", () async {
               ProgressDialog progress = ProgressDialog(context);
-                progress.style(message: 'Cancelando atendimento');
-                progress.show();
+              progress.style(message: 'Cancelando atendimento');
+              progress.show();
+
               try {
                 var res = await GraphQlObject.hasuraConnect
                     .mutation(addMovimentacaoAtendimento, variables: {
@@ -112,7 +113,8 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                 });
                 progress.dismiss();
                 if (res != null) {
-                  showSnack(context, 'Atendimento cancelado com sucesso', dismiss: true);
+                  showSnack(context, 'Atendimento cancelado com sucesso',
+                      dismiss: true);
                 } else {
                   showSnack(context,
                       'Ops, houve uma falha ao tentar cancelar o atendimento');

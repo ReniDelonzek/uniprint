@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:uniprint/app/shared/models/LocalAtendimento.dart';
- 
+import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
+
 class TextTitle extends StatelessWidget {
   String title;
 
@@ -50,30 +50,27 @@ class MyChipButtonState extends State<MyChipButton> {
 }
 
 class LocaisAtendimento extends StatelessWidget {
-  LocalAtendimento local;
+  PontoAtendimento local;
   String title;
-  final ValueChanged<LocalAtendimento> onSelect;
+  final ValueChanged<PontoAtendimento> onSelect;
 
   LocaisAtendimento(this.title, this.onSelect, {this.local});
 
-  List<LocalAtendimento> locais = List();
+  List<PontoAtendimento> locais = List();
 
   @override
   Widget build(BuildContext context) {
-    LocalAtendimento local1 = LocalAtendimento();
+    PontoAtendimento local1 = PontoAtendimento();
     local1.nome = 'CTU';
-    local1.id = "1";
-    local1.idServer = 1;
+    local1.id = 1;
     locais.add(local1);
-    LocalAtendimento local2 = LocalAtendimento();
+    PontoAtendimento local2 = PontoAtendimento();
     local2.nome = 'Sede';
-    local2.id = "2";
-    local2.idServer = 2;
+    local2.id = 2;
     locais.add(local2);
-    LocalAtendimento local3 = LocalAtendimento();
+    PontoAtendimento local3 = PontoAtendimento();
     local3.nome = 'Cleve';
-    local3.id = "3";
-    local3.idServer = 3;
+    local3.id = 3;
     locais.add(local3);
     return _getLocais();
   }

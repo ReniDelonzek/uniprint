@@ -9,7 +9,6 @@ abstract class _ArquivoImpressaoBase with Store {
   String nome;
   @observable
   bool colorido;
-  String codImpressao;
   @observable
   int quantidade;
   @observable
@@ -21,7 +20,6 @@ abstract class _ArquivoImpressaoBase with Store {
     this.url,
     this.nome,
     this.colorido,
-    this.codImpressao,
     this.quantidade,
     this.tipo_folha_id,
     this.patch,
@@ -37,11 +35,10 @@ abstract class _ArquivoImpressaoBase with Store {
 
   factory _ArquivoImpressaoBase.fromMap(Map<String, dynamic> map) {
     return ArquivoImpressao(
-      url: map['url'] ?? '',
-      nome: map['nome'] ?? '',
-      colorido: map['colorido'] ?? false,
-      quantidade: map['quantidade'] ?? 0,
-      tipo_folha_id: map['tipo_folha_id'] ?? 0
-    );
+        url: map['url'] ?? '',
+        nome: map['nome'] ?? '',
+        colorido: map['colorido'] ?? false,
+        quantidade: map['quantidade'] ?? 0,
+        tipo_folha_id: map['tipo_folha_id'] ?? 0);
   }
 }
