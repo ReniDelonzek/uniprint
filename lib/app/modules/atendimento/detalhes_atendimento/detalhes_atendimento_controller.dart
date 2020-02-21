@@ -6,5 +6,6 @@ class DetalhesAtendimentoController = _DetalhesAtendimentoBase
     with _$DetalhesAtendimentoController;
 
 abstract class _DetalhesAtendimentoBase with Store {
-  
+  @observable
+  double avaliacao = 4;
 }

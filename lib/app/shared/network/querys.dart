@@ -23,21 +23,26 @@ String getAtendimentos = """subscription getAtendimentos(\$usuario_id: Int!) {
 }""";
 
 String getImpressoes = """
-subscription MySubscription {
-  impressao {
+subscription getImpressoes(\$usuario_id: Int!) { 
+  impressao(where: {usuario_id: {_eq: \$usuario_id}}, order_by: {id: desc}) {
+    id
     comentario
     status
+    usuario {
+      id
+    }
     arquivo_impressaos {
       colorido
       id
       nome
       quantidade
       tipofolha {
+        id
         nome
       }
       url
     }
-    movimentacao_impressaos {
+    movimentacao_impressaos(order_by: {movimentacao: {tipo: asc}}) {
       movimentacao {
         tipo
         data
@@ -77,6 +82,15 @@ String getListaMateriais = """query materiais {
           url_foto
         }
       }
+      turma {
+        disciplina {
+          nome
+        }
+      }
+    }
+    arquivo_materials { 
+      nome
+      url
     }
   }
 }

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:uniprint/app/shared/network/graph_ql_data.dart';
+import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
 
 class UtilsAtendimento {
   static String tipoAtendimento(int tipo) {
@@ -19,7 +22,7 @@ class UtilsAtendimento {
       return '';
   }
 
-   String getStatusAtendimento(int status, DateTime dataAtendimento) {
+  String getStatusAtendimento(int status, DateTime dataAtendimento) {
     switch (status) {
       case Constants.STATUS_ATENDIMENTO_SOLICITADO:
         return "Atendimento solicitado";
@@ -37,7 +40,6 @@ class UtilsAtendimento {
     }
   }
 
-
   Widget getSatisfacao(int satisfacao) {
     switch (satisfacao) {
       case 0: //ruim
@@ -51,4 +53,21 @@ class UtilsAtendimento {
     }
   }
 
+  static Future<bool> gerarMovimentacao(
+      int tipo, int status, int atendimentoId, int usuario) async {
+    try {
+      var res = await GraphQlObject.hasuraConnect
+          .mutation(Mutations.cadastroMovimentacaoAtendimento, variables: {
+        'data': DateTime.now().hasuraFormat(),
+        'tipo': tipo,
+        'atendimento_id': atendimentoId,
+        'status': status,
+        'usuario_id': usuario
+      });
+      return res != null;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
 }

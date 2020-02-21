@@ -42,4 +42,21 @@ mixin _$HomeController on _HomeBase, Store {
       _$impressoesAtom.reportChanged();
     }, _$impressoesAtom, name: '${_$impressoesAtom.name}_set');
   }
+
+  final _$exibirFabAtom = Atom(name: '_HomeBase.exibirFab');
+
+  @override
+  bool get exibirFab {
+    _$exibirFabAtom.context.enforceReadPolicy(_$exibirFabAtom);
+    _$exibirFabAtom.reportObserved();
+    return super.exibirFab;
+  }
+
+  @override
+  set exibirFab(bool value) {
+    _$exibirFabAtom.context.conditionallyRunInAction(() {
+      super.exibirFab = value;
+      _$exibirFabAtom.reportChanged();
+    }, _$exibirFabAtom, name: '${_$exibirFabAtom.name}_set');
+  }
 }

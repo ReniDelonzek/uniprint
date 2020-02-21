@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 
 part 'cadastro_arquivos_impressao_controller.g.dart';
 

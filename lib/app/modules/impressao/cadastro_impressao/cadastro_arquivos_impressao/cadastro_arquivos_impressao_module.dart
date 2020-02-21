@@ -1,6 +1,6 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/material.dart';
-import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 
 import 'cadastro_arquivos_impressao_controller.dart';
 import 'cadastro_arquivos_impressao_page.dart';

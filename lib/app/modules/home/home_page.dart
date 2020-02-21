@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_atendimento_module.dart';
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
@@ -12,7 +14,8 @@ import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impre
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_module.dart';
 import 'package:uniprint/app/modules/materiais/cadastro_material/cadastro_material_module.dart';
 import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_module.dart';
-
+import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
@@ -24,8 +27,8 @@ import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_login.dart';
 import 'package:uniprint/app/shared/widgets/bottom_app_nav.dart';
 import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
-import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
+import 'package:uniprint/app/shared/widgets/layout.dart';
 
 import 'home_controller.dart';
 
@@ -42,11 +45,9 @@ class _HomePageState extends State<HomePage> {
 
   Atendimento atendimento;
   int _lastSelected = 0;
-  bool atendimentoPendente = false;
 
   //caso haja um atendimento pendente, nao deixa criar outro
   BuildContext buildContextScall;
-  bool exibirFab = true;
 
   _HomePageState({this.atendimento});
 
@@ -56,16 +57,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _selectedFab(int index) {
+  Future<void> _selectedFab(int index) async {
     switch (index) {
       case 0:
         {
-          if (!atendimentoPendente) {
+          if (!controller.atendimentos.any((element) =>
+              element.status == Constants.STATUS_ATENDIMENTO_SOLICITADO)) {
             /*Navigator.of(context).push(new MaterialPageRoute(
                 builder: (BuildContext context) => new CadastroAtendimento()));*/
-            Navigator.of(context).push(new MaterialPageRoute(
+            controller.exibirFab = false;
+            await Navigator.of(context).push(new MaterialPageRoute(
                 builder: (BuildContext context) =>
                     new CadastroAtendimentoModule()));
+            controller.exibirFab = true;
           } else {
             Scaffold.of(buildContextScall).showSnackBar(SnackBar(
               content: Text('Você já possui um atendimento marcado!'),
@@ -76,9 +80,11 @@ class _HomePageState extends State<HomePage> {
         }
       case 1:
         {
-          Navigator.of(context).push(new MaterialPageRoute(
+          controller.exibirFab = false;
+          await Navigator.of(context).push(new MaterialPageRoute(
               builder: (BuildContext context) =>
                   new CadastroImpressaoModule()));
+          controller.exibirFab = true;
           break;
         }
       case 2:
@@ -99,15 +105,11 @@ class _HomePageState extends State<HomePage> {
     if (atendimento != null) {
       //case tenha vindo a partir de uma notificacao
       SchedulerBinding.instance.addPostFrameCallback((_) async {
-        setState(() {
-          exibirFab = false;
-        });
+        controller.exibirFab = false;
         await Navigator.of(context).push(new MaterialPageRoute(
             builder: (BuildContext context) =>
                 new DetalhesAtendimentoModule(atendimento)));
-        setState(() {
-          exibirFab = true;
-        });
+        controller.exibirFab = true;
       });
     }
 
@@ -116,7 +118,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    atendimentoPendente = false;
     return Builder(builder: ((context) {
       return new Scaffold(
         backgroundColor: Colors.white,
@@ -151,24 +152,20 @@ class _HomePageState extends State<HomePage> {
                       style: new TextStyle(color: Colors.white)),
                   currentAccountPicture: new GestureDetector(
                     onTap: () async {
-                      setState(() {
-                        exibirFab = false;
-                      });
+                      controller.exibirFab = false;
                       await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
                                   TelaPerfilPage(controller.user)));
-                      setState(() {
-                        exibirFab = true;
-                      });
+                      controller.exibirFab = true;
                     },
                     child: Hero(
                       tag: "imagem_perfil",
                       child: new CircleAvatar(
                         backgroundImage: new NetworkImage(controller
                                 .user?.photoUrl ??
-                            "https://www.pnglot.com/pngfile/detail/192-1925683_user-icon-png-small.png"),
+                            "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
                       ),
                     ),
                   ),
@@ -181,10 +178,12 @@ class _HomePageState extends State<HomePage> {
                     title: new Text("Materiais publicados"),
                     trailing: new Icon(Icons.school),
                     onTap: () async {
-                      Navigator.push(
+                      controller.exibirFab = false;
+                      await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ListaMateriaisModule()));
+                      controller.exibirFab = true;
                       // setState(() {
                       //   exibirFab = false;
                       // });
@@ -201,16 +200,12 @@ class _HomePageState extends State<HomePage> {
                     title: new Text("FeedBack"),
                     trailing: new Icon(Icons.favorite),
                     onTap: () async {
-                      setState(() {
-                        exibirFab = false;
-                      });
+                      controller.exibirFab = false;
                       await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => FeedbackModule()));
-                      setState(() {
-                        exibirFab = true;
-                      });
+                      controller.exibirFab = true;
                     }),
                 new Divider(),
                 new ListTile(
@@ -259,7 +254,10 @@ class _HomePageState extends State<HomePage> {
   Widget _getAtendimentos(BuildContext context) {
     return StreamBuilder(
       stream: GraphQlObject.hasuraConnect
-          .subscription(getAtendimentos, variables: {"usuario_id": 1}),
+          .subscription(getAtendimentos, variables: {
+        "usuario_id":
+            AppModule.to.getDependency<HasuraAuthService>().usuario.codHasura
+      }),
       builder: (_, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
           return Center(
@@ -278,7 +276,7 @@ class _HomePageState extends State<HomePage> {
         } else {
           List<Atendimento> a = List<Atendimento>.from(snap.data['data']
                   ['atendimento']
-              .map((a) => Atendimento.fromJson(a))).toList();
+              .map((a) => Atendimento.fromMap(a))).toList();
           controller.atendimentos.clear();
           controller.atendimentos.addAll(a);
           return ListView.builder(
@@ -286,16 +284,12 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (_, pos) {
               return InkWell(
                   onTap: () async {
-                    setState(() {
-                      exibirFab = false;
-                    });
+                    controller.exibirFab = false;
                     await Navigator.of(context).push(new MaterialPageRoute(
                         builder: (BuildContext context) =>
                             new DetalhesAtendimentoModule(
                                 controller.atendimentos[pos])));
-                    setState(() {
-                      exibirFab = true;
-                    });
+                    controller.exibirFab = true;
                   },
                   child: new Padding(
                     padding: EdgeInsets.all(15.0),
@@ -317,7 +311,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _getImpressoes(BuildContext context) {
     return StreamBuilder(
-        stream: GraphQlObject.hasuraConnect.subscription(getImpressoes),
+        stream: GraphQlObject.hasuraConnect
+            .subscription(getImpressoes, variables: {
+          "usuario_id":
+              AppModule.to.getDependency<HasuraAuthService>().usuario.codHasura
+        }),
         builder: (_, snap) {
           if (snap.connectionState == ConnectionState.waiting) {
             return Center(
@@ -336,7 +334,7 @@ class _HomePageState extends State<HomePage> {
           } else {
             List<Impressao> a = List<Impressao>.from(snap.data['data']
                     ['impressao']
-                .map((a) => Impressao.fromJson(a))).toList();
+                .map((a) => Impressao.fromMap(a))).toList();
             controller.impressoes.clear();
             controller.impressoes.addAll(a);
             return ListView.builder(
@@ -344,25 +342,14 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (_, pos) {
                 return InkWell(
                     onTap: () async {
-                      setState(() {
-                        exibirFab = false;
-                      });
+                      controller.exibirFab = false;
                       await Navigator.of(context).push(new MaterialPageRoute(
                           builder: (BuildContext context) =>
                               new DetalhesImpressaoModule(
                                   controller.impressoes[pos])));
-                      setState(() {
-                        exibirFab = true;
-                      });
+                      controller.exibirFab = true;
                     },
-                    child: new Padding(
-                      padding: EdgeInsets.all(15.0),
-                      child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            _getItensCardImpressao(controller.impressoes[pos])
-                          ]),
-                    ));
+                    child: _getItensCardImpressao(controller.impressoes[pos]));
               },
             );
           }
@@ -376,17 +363,45 @@ class _HomePageState extends State<HomePage> {
   //aprovado por
 
   Widget _getItensCardImpressao(Impressao impressao) {
-    return new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: new Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              new Text(
+                UtilsImpressao.getStatusImpressao(impressao.status),
+                style: new TextStyle(
+                    color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+              Text(UtilsImpressao.getResumo(impressao.arquivo_impressaos)),
+              Text(
+                (impressao.comentario == null || impressao.comentario.isEmpty)
+                    ? 'Nenhum comentário extra'
+                    : impressao.comentario,
+              ),
+              _getMovimentacoesImpressao(impressao)
+              //new Text(NumberFormat.simpleCurrency().format(impressao.valorTotal ?? 0))
+            ]),
+      ),
+    );
+  }
+
+  Widget _getMovimentacoesImpressao(Impressao impressao) {
+    Movimentacao mov = impressao.movimentacao_impressaos?.first?.movimentacao;
+    return Container(
+      padding: EdgeInsets.all(5),
+      child: Row(
         children: <Widget>[
-          new Text(
-            UtilsImpressao.getStatusImpressao(impressao.status),
-            style:
-                new TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(UtilsImpressao.getIconeFromStatus(impressao.status)),
           ),
-          //_dataImpressao(impressao),
-          //new Text(NumberFormat.simpleCurrency().format(impressao.valorTotal ?? 0))
-        ]);
+          Text(
+              '${mov?.data?.string('dd/MM HH:mm:ss') ?? ''}: ${UtilsImpressao.getStatusImpressao(impressao.status)}')
+        ],
+      ),
+    );
   }
 
   Widget _getMovimentacoesAtendimento(Atendimento atendimento) {
@@ -440,33 +455,33 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildFab(BuildContext context) {
     final icons = [
-      ItemFabWith(icon: Icons.add, title: 'Impressão arquivos'),
+      ItemFabWith(
+          icon: Icons.add,
+          title: 'Impressão arquivos',
+          heroTag: 'add_atendimento'),
       ItemFabWith(icon: Icons.print, title: 'Senha Atendimento'),
       //ItemFabWith(icon: Icons.people, title: 'Material Aula')
     ];
-    // return AnchoredOverlay(
-    //   showOverlay: exibirFab,
-    //   overlayBuilder: (context, offset) {
-    //     return CenterAbout(
-    //       position: Offset(offset.dx, offset.dy - icons.length * 35.0),
-    //       child: FabWithIcons(
-    //         icons: icons,
-    //         onIconTapped: _selectedFab,
-    //       ),
-    //     );
-    //   },
-    //child:
-    return FloatingActionButton(
-      heroTag: 'aaa',
-      onPressed: () {
-        Navigator.of(context).push(new MaterialPageRoute(
-            builder: (BuildContext context) =>
-                new CadastroAtendimentoModule()));
-      },
-      tooltip: 'Increment',
-      child: Icon(Icons.add),
-      elevation: 5.0,
-      //),
+    return Observer(
+      builder: (_) => AnchoredOverlay(
+        showOverlay: controller.exibirFab,
+        overlayBuilder: (context, offset) {
+          return CenterAbout(
+            position: Offset(offset.dx, offset.dy - icons.length * 35.0),
+            child: FabWithIcons(
+              icons: icons,
+              onIconTapped: _selectedFab,
+            ),
+          );
+        },
+        child: FloatingActionButton(
+          heroTag: 'aaa',
+          onPressed: () {},
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+          elevation: 5.0,
+        ),
+      ),
     );
   }
 
@@ -475,16 +490,12 @@ class _HomePageState extends State<HomePage> {
         title: new Text("Cadastrar Material (Professor)"),
         trailing: new Icon(Icons.list),
         onTap: () async {
-          setState(() {
-            exibirFab = false;
-          });
+          controller.exibirFab = false;
           await Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => CadastroMaterialModule()));
-          setState(() {
-            exibirFab = true;
-          });
+          controller.exibirFab = true;
         });
   }
 }

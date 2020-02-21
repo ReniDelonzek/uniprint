@@ -43,20 +43,20 @@ mixin _$ArquivoImpressao on _ArquivoImpressaoBase, Store {
     }, _$quantidadeAtom, name: '${_$quantidadeAtom.name}_set');
   }
 
-  final _$tipo_folha_idAtom = Atom(name: '_ArquivoImpressaoBase.tipo_folha_id');
+  final _$tipoFolhaAtom = Atom(name: '_ArquivoImpressaoBase.tipoFolha');
 
   @override
-  String get tipo_folha_id {
-    _$tipo_folha_idAtom.context.enforceReadPolicy(_$tipo_folha_idAtom);
-    _$tipo_folha_idAtom.reportObserved();
-    return super.tipo_folha_id;
+  TipoFolha get tipoFolha {
+    _$tipoFolhaAtom.context.enforceReadPolicy(_$tipoFolhaAtom);
+    _$tipoFolhaAtom.reportObserved();
+    return super.tipoFolha;
   }
 
   @override
-  set tipo_folha_id(String value) {
-    _$tipo_folha_idAtom.context.conditionallyRunInAction(() {
-      super.tipo_folha_id = value;
-      _$tipo_folha_idAtom.reportChanged();
-    }, _$tipo_folha_idAtom, name: '${_$tipo_folha_idAtom.name}_set');
+  set tipoFolha(TipoFolha value) {
+    _$tipoFolhaAtom.context.conditionallyRunInAction(() {
+      super.tipoFolha = value;
+      _$tipoFolhaAtom.reportChanged();
+    }, _$tipoFolhaAtom, name: '${_$tipoFolhaAtom.name}_set');
   }
 }

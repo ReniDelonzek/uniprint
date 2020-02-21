@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 
 part 'cadastro_impressao_controller.g.dart';
 
@@ -10,9 +10,11 @@ abstract class _CadastroImpressaoBase with Store {
   @observable
   ObservableList<ArquivoImpressao> arquivos = ObservableList();
 
-  _CadastroImpressaoBase({this.arquivos}) {
+  _CadastroImpressaoBase({List<ArquivoImpressao> arquivos}) {
     if (arquivos != null) {
-      this.arquivos.addAll(arquivos);
+      for (ArquivoImpressao arquivoImpressao in arquivos) {
+        this.arquivos.add(arquivoImpressao);
+      }
     }
   }
 }

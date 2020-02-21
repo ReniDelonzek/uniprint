@@ -1,3 +1,5 @@
+import 'package:uniprint/app/shared/db/hive/utils_hive_service.dart';
+import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/app_controller.dart';
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,10 @@ class AppModule extends ModuleWidget {
       ];
 
   @override
-  List<Dependency> get dependencies => [];
+  List<Dependency> get dependencies => [
+        Dependency((i) => UtilsHiveService()),
+        Dependency((i) => HasuraAuthService()),
+      ];
 
   @override
   Widget get view => AppWidget();

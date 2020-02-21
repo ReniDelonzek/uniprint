@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mobx/mobx.dart'; 
+import 'package:mobx/mobx.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
 
@@ -13,4 +13,6 @@ abstract class _HomeBase with Store {
   ObservableList<Atendimento> atendimentos = ObservableList();
   @observable
   ObservableList<Impressao> impressoes = ObservableList();
+  @observable
+  bool exibirFab = true;
 }

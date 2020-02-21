@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 class ItemFabWith {
   IconData icon;
   String title;
+  String heroTag;
 
-  ItemFabWith({this.icon, this.title});
+  ItemFabWith({this.icon, this.title, this.heroTag});
 }
 
 class FabWithIcons extends StatefulWidget {
   FabWithIcons({this.icons, this.onIconTapped});
 
   final List<ItemFabWith> icons;
-  ValueChanged<int> onIconTapped;
+  final ValueChanged<int> onIconTapped;
 
   @override
   State createState() => FabWithIconsState();
@@ -91,7 +92,8 @@ class FabWithIconsState extends State<FabWithIcons>
               padding: EdgeInsets.all(5),
             ),
             FloatingActionButton(
-              heroTag: "item_${index.toString()}",
+              heroTag:
+                  widget.icons[index].heroTag ?? "item_${index.toString()}",
               backgroundColor: backgroundColor,
               mini: true,
               child: Icon(widget.icons[index].icon, color: foregroundColor),

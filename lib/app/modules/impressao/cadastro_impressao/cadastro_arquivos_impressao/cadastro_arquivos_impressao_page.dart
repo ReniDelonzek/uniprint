@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_arquivos_impressao/cadastro_arquivos_impressao_controller.dart';
-import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
-import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/tipo_folha.dart';
 
 import 'cadastro_arquivos_impressao_module.dart';
 
@@ -13,7 +12,7 @@ class CadastroArquivosImpressaoPage extends StatefulWidget {
   final List<ArquivoImpressao> arquivos;
   const CadastroArquivosImpressaoPage(
       {Key key,
-      this.title = "CadastroArquivosImpressao",
+      this.title = "Cadastro Arquivos Impressao",
       @required this.arquivos})
       : super(key: key);
 
@@ -28,7 +27,7 @@ class _CadastroArquivosImpressaoPageState
       .bloc<CadastroArquivosImpressaoController>();
   Icon icon = Icon(Icons.navigate_next);
   bool _visibility = true;
-  List<String> tamanhosFolha = List();
+  List<TipoFolha> tamanhosFolha = List();
 
   _CadastroArquivosImpressaoPageState(List<ArquivoImpressao> arq) {
     controller.arquivos.addAll(arq);
@@ -36,7 +35,7 @@ class _CadastroArquivosImpressaoPageState
 
   @override
   void initState() {
-    tamanhosFolha = getTamanhoFolhas();
+    tamanhosFolha = TipoFolha.getTamanhoFolhas();
     icon = (controller.arquivos.length == 1)
         ? Icon(Icons.done)
         : Icon(Icons.navigate_next);
@@ -172,9 +171,9 @@ class _CadastroArquivosImpressaoPageState
                           mainAxisSize: MainAxisSize.max,
                           children: <Widget>[
                             getButtonUI(index, tamanhosFolha[0],
-                                arquivo.tipo_folha_id == tamanhosFolha[0]),
+                                arquivo.tipo_folha_id == tamanhosFolha[0].id),
                             getButtonUI(index, tamanhosFolha[1],
-                                arquivo.tipo_folha_id == tamanhosFolha[1])
+                                arquivo.tipo_folha_id == tamanhosFolha[1].id)
                           ],
                         ),
                         _textTitle('Número de cópias'),
@@ -191,7 +190,7 @@ class _CadastroArquivosImpressaoPageState
                                     itemExtent: 35,
                                     zeroPad: false,
                                     scrollDirection: Axis.horizontal,
-                                    initialValue: arquivo.quantidade,
+                                    initialValue: arquivo.quantidade ?? 1,
                                     minValue: 1,
                                     maxValue: 99,
                                     onChanged: (quantidade) {
@@ -243,19 +242,12 @@ class _CadastroArquivosImpressaoPageState
         ));
   }
 
-  List<String> getTamanhoFolhas() {
-    List<String> items = new List();
-    items.add('A4');
-    items.add('A3');
-    return items;
-  }
-
-  Widget getButtonUI(int position, String tipo, bool isSelected) {
+  Widget getButtonUI(int position, TipoFolha tipoFolha, bool isSelected) {
     return Container(
         width: 80,
         height: 42,
         decoration: new BoxDecoration(
-            color: (controller.arquivos[position].tipo_folha_id == tipo)
+            color: (controller.arquivos[position].tipo_folha_id == tipoFolha.id)
                 ? Colors.blue
                 : Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(24.0)),
@@ -267,7 +259,7 @@ class _CadastroArquivosImpressaoPageState
               borderRadius: BorderRadius.all(Radius.circular(24.0)),
               onTap: () {
                 setState(() {
-                  controller.arquivos[position].tipo_folha_id = tipo;
+                  controller.arquivos[position].tipo_folha_id = tipoFolha.id;
                 });
               },
               child: Padding(
@@ -275,7 +267,7 @@ class _CadastroArquivosImpressaoPageState
                     EdgeInsets.only(top: 12, bottom: 12, left: 18, right: 18),
                 child: Center(
                   child: Text(
-                    tipo,
+                    tipoFolha.nome,
                     textAlign: TextAlign.left,
                     style: TextStyle(
                         fontWeight: FontWeight.w600,

@@ -1,17 +1,24 @@
-import 'package:uniprint/app/shared/db/ValorImpressao.dart';
-import 'package:uniprint/app/shared/db/app_database.dart';
-import 'package:uniprint/app/shared/models/arquivo_impressao.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:hive/hive.dart';
+import 'package:progress_dialog/progress_dialog.dart';
+import 'package:uniprint/app/shared/db/hive/utils_hive_service.dart';
+import 'package:uniprint/app/shared/db/valor_impressao.dart';
+import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
+import 'package:uniprint/app/shared/network/graph_ql_data.dart';
+import 'package:uniprint/app/shared/network/mutations.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
 
+import '../../app_module.dart';
 import 'constans.dart';
 
 class UtilsImpressao {
-
   static String getStatusImpressao(int status) {
     switch (status) {
       case Constants.STATUS_IMPRESSAO_SOLICITADO:
         return "Impressão solicitada";
       case Constants.STATUS_IMPRESSAO_AUTORIZADO:
-        return "Arquivo Impresso";
+        return "Impressão Autorizada";
       case Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA:
         return "Suas folhas estão aguardando retirada";
       case Constants.STATUS_IMPRESSAO_RETIRADA:
@@ -45,18 +52,41 @@ class UtilsImpressao {
     }
   }
 
+  static IconData getIconeFromStatus(int status) {
+    switch (status) {
+      case Constants.STATUS_IMPRESSAO_SOLICITADO:
+        return Icons.star;
+      case Constants.STATUS_IMPRESSAO_AUTORIZADO:
+        return Icons.done;
+      case Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA:
+        return Icons.local_printshop;
+      case Constants.STATUS_IMPRESSAO_RETIRADA:
+        return Icons.done_all;
+      case Constants.STATUS_IMPRESSAO_CANCELADO:
+        return Icons.close;
+      case Constants.STATUS_IMPRESSAO_NEGADA:
+        return Icons.error_outline;
+      default:
+        return Icons.star;
+    }
+  }
+
   static String getResumo(List<ArquivoImpressao> arquivos) {
-    String s = "${arquivos.length} arquivos\n";
+    String s = "${arquivos.length}";
+    if (arquivos.length <= 1) {
+      s += " arquivo\n";
+    } else
+      s += " arquivos\n";
     List<ArquivoImpressao> a3 =
-        arquivos.where((item) => item.tipo_folha_id == 'A3').toList();
+        arquivos.where((item) => item.tipoFolha.id == 2).toList();
     List<ArquivoImpressao> a4 =
-        arquivos.where((item) => item.tipo_folha_id == 'A4').toList();
+        arquivos.where((item) => item.tipoFolha.id == 1).toList();
     if (a3.isNotEmpty) {
       int sum = 0;
       a3.forEach((ArquivoImpressao e) {
         sum += e.quantidade;
       });
-      s += "$sum folhas do tipo A3";
+      s += "$sum folha${sum > 1 ? 's' : ''} do tipo A3";
       List<ArquivoImpressao> color =
           a3.where((item) => item.colorido == true).toList();
       if (color.isNotEmpty) {
@@ -65,7 +95,11 @@ class UtilsImpressao {
           sumColoridas += e.quantidade;
         });
         if (sumColoridas == sum) {
-          s += ", todas coloridas\n";
+          if (sum == 1) {
+            s += ", colorida\n";
+          } else {
+            s += ", todas coloridas\n";
+          }
         } else {
           s +=
               ", $sumColoridas coloridas e ${sum - sumColoridas} em preto e branco\n";
@@ -79,7 +113,7 @@ class UtilsImpressao {
       a4.forEach((ArquivoImpressao e) {
         sum += e.quantidade;
       });
-      s += "$sum folhas do tipo A4";
+      s += "$sum folha${sum > 1 ? 's' : ''} do tipo A4";
       List<ArquivoImpressao> color =
           a4.where((item) => item.colorido == true).toList();
       if (color.isNotEmpty) {
@@ -88,7 +122,11 @@ class UtilsImpressao {
           sumColoridas += e.quantidade;
         });
         if (sumColoridas == sum) {
-          s += ", todas coloridas\n";
+          if (sum == 1) {
+            s += ", colorida\n";
+          } else {
+            s += ", todas coloridas\n";
+          }
         } else {
           s +=
               ", $sumColoridas coloridas e ${sum - sumColoridas} em preto e branco\n";
@@ -104,7 +142,7 @@ class UtilsImpressao {
       List<ArquivoImpressao> arquivos, String tipo, bool colorido) {
     List<ArquivoImpressao> ar = arquivos
         .where(
-            (item) => item.tipo_folha_id == tipo && item.colorido == colorido)
+            (item) => item.tipoFolha.nome == tipo && item.colorido == colorido)
         .toList();
     int qtdF = 0;
     for (ArquivoImpressao a in ar) {
@@ -129,19 +167,58 @@ class UtilsImpressao {
 
   static Future<double> getValorImpressaoTipo(
       String tipo, int quantidade, bool colorido) async {
-    var base = await getDataBase();
+    /*var base = await getDataBase();
     ValorImpressao valorImpressao = await base.valorImpressaoDao.getImpressao(
         tipo,
         DateTime.now().millisecondsSinceEpoch,
         DateTime.now().millisecondsSinceEpoch,
         colorido ? 1 : 0);
-    return (valorImpressao?.valor ?? 0) * quantidade;
+    return (valorImpressao?.valor ?? 0) * quantidade;*/
+    Box box = await AppModule.to
+        .getDependency<UtilsHiveService>()
+        .getBox('precificacao');
+    var valores = box.values.cast<ValorImpressao>();
+    ;
+    if (valores != null && valores.isNotEmpty) {
+      var val = valores.firstWhere(
+          (element) => (element.tipoFolha == tipo &&
+              element.dataInicio.isBefore(DateTime.now()) &&
+              element.dataFim.isAfter(DateTime.now())), orElse: () {
+        return null;
+      });
+      if (val != null) {
+        return val.valor * quantidade;
+      }
+    }
+    return 0.25 * quantidade;
+  }
+
+  static Future<bool> gerarMovimentacao(int tipo, int status, int impressaoId,
+      int usuario, BuildContext context, String message) async {
+    ProgressDialog progressDialog = ProgressDialog(context)
+      ..style(message: message)
+      ..show();
+    try {
+      var res = await GraphQlObject.hasuraConnect
+          .mutation(Mutations.cadastroMovimentacaoImpressao, variables: {
+        'data': DateTime.now().hasuraFormat(),
+        'tipo': tipo,
+        'impressao_id': impressaoId,
+        'status': status,
+        'usuario_id': usuario
+      });
+      progressDialog.dismiss();
+      return res != null;
+    } catch (e) {
+      print(e);
+      progressDialog.dismiss();
+      return false;
+    }
   }
 }
 
 cadastrarValoresImpressao() {
-  getDataBase().then((base) {
-    /*Map<String, dynamic> map = Map();
+  /*Map<String, dynamic> map = Map();
     map['valor'] = 1.0;
     map['tipoFolha'] = "A4";
     map['dataInicio'] = DateTime.now().millisecondsSinceEpoch;
@@ -172,7 +249,4 @@ cadastrarValoresImpressao() {
     map4['dataFim'] = 0;
     map4['colorido'] = true;
     base.database.insert("ValorImpressao", map4);*/
-  }).catchError((error) {
-    print(error);
-  });
 }

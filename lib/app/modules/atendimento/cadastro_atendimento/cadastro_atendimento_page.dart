@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/models/Atendimento.dart';
 import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
@@ -11,6 +12,8 @@ import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_finish.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
+
+import '../../../app_module.dart';
 
 class CadastroAtendimentoPage extends StatefulWidget {
   final String title;
@@ -53,7 +56,7 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
             width: 180,
             height: 180,
             child: FloatingActionButton(
-                heroTag: 'add',
+                heroTag: 'add_atendimento',
                 child: Image.asset(
                   'imagens/agendamento.png',
                   color: Colors.white,
@@ -69,7 +72,10 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                       var res = await GraphQlObject.hasuraConnect
                           .mutation(cadastroAtendimento, variables: {
                         'tipo': Constants.STATUS_ATENDIMENTO_SOLICITADO,
-                        'usuario_id': 1,
+                        'usuario_id': AppModule.to
+                            .getDependency<HasuraAuthService>()
+                            .usuario
+                            .codHasura,
                         'data': s,
                         'ponto_atendimento_id': widget.local.id,
                         'status': Constants.STATUS_ATENDIMENTO_SOLICITADO

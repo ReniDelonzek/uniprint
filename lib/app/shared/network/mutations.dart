@@ -1,3 +1,5 @@
+import 'package:uniprint/app/shared/utils/constans.dart';
+
 String cadastroAtendimento =
     """mutation addAtendimentos(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$ponto_atendimento_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: 
@@ -19,8 +21,8 @@ String cadastroAtendimento =
 """;
 
 String cadastroImpressao =
-    """mutation addImpressao(\$data: timestamp!, \$usuario_id: Int!, \$tipo: Int!,
-  \$comentario: String!, \$arquivos: [arquivo_impressao_insert_input!]!) {
+    """mutation addImpressao(\$data: timestamptz!, \$usuario_id: Int!, \$tipo: Int!,
+  \$comentario: String!, \$ponto_atendimento_id: Int!, \$arquivos: [arquivo_impressao_insert_input!]!) {
   insert_movimentacao(objects: {
     data: \$data,
     usuario_id: \$usuario_id, 
@@ -28,7 +30,9 @@ String cadastroImpressao =
     movimentacao_impressaos: {data: {
       impressao: {data: {
         comentario: \$comentario,
-        status: 10, 
+        status: ${Constants.STATUS_IMPRESSAO_SOLICITADO}, 
+        usuario_id: \$usuario_id,
+        ponto_atendimento_id: \$ponto_atendimento_id,
         arquivo_impressaos: {data: \$arquivos}},
       
       }}}}) {
@@ -47,7 +51,7 @@ mutation AddFeedbak(\$feedback: String!, \$nota: float8!, \$usuario_id: Int!) {
 """;
 
 String cadastroMaterial =
-    """mutation AddMaterial(\$colorido: Boolean!, \$data_publicacao: date!, 
+    """mutation AddMaterial(\$colorido: Boolean!, \$data_publicacao: timestamptz!, 
 \$tipo: Int!, \$tipo_folha_id: Int!, \$titulo: String!, \$arquivos: [arquivo_material_insert_input!]!, \$professor_turma_id: Int!) {
   insert_material(objects: {professor_turma_id: \$professor_turma_id, colorido: \$colorido, data_publicacao: \$data_publicacao, tipo: \$tipo,
    tipo_folha_id: \$tipo_folha_id, titulo: \$titulo, arquivo_materials: {data: \$arquivos}}) {
@@ -66,7 +70,7 @@ mutation AddAtendente(\$usuario_id: Int!, \$ponto_atendimento_id: Int!) {
 """;
 
 String addMovimentacaoAtendimento = """
-mutation AddMoviimentacaoAtendimento(\$atendimento_id: Int!, \$status: Int!, 
+mutation AddMovimentacaoAtendimento(\$atendimento_id: Int!, \$status: Int!, 
 \$data: timestamptz!, \$tipo_movimento: Int!, \$usuario_id: Int!) {
   update_atendimento(where: {id: {_eq: \$atendimento_id}}, _set: {status: \$status}) {
     affected_rows
@@ -78,3 +82,31 @@ mutation AddMoviimentacaoAtendimento(\$atendimento_id: Int!, \$status: Int!,
 }
 
 """;
+
+class Mutations {
+  static String cadastroMovimentacaoAtendimento = """
+mutation cadastroMovimentacaoAtendimento(\$data: timestamptz!, 
+\$tipo: Int!, \$usuario_id: Int!, \$atendimento_id: Int!, \$status: Int!) {
+  insert_movimentacao(objects: {data: \$data, 
+    tipo: \$tipo, 
+    usuario_id: \$usuario_id, 
+    movimentacao_atendimentos: {data: {atendimento_id: \$atendimento_id}}}) {
+    affected_rows
+  }
+  update_atendimento(_set: {status: \$status}, where: {id: {_eq: \$atendimento_id}}) {
+    affected_rows
+  }
+}
+""";
+
+  static String cadastroMovimentacaoImpressao = """
+mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$impressao_id: Int!, \$status: Int!) {
+  insert_movimentacao(objects: {data: \$data, tipo: \$tipo, usuario_id: \$usuario_id, movimentacao_impressaos: {data: {impressao_id: \$impressao_id}}}) {
+    affected_rows
+  }
+  update_impressao(_set: {status: \$status}, where: {id: {_eq: \$impressao_id}}) {
+    affected_rows
+  }
+}
+""";
+}

@@ -1,8 +1,33 @@
 import 'package:mobx/mobx.dart';
+import 'package:uniprint/app/shared/models/graph/tipo_folha.dart';
 
 part 'arquivo_impressao.g.dart';
 
-class ArquivoImpressao = _ArquivoImpressaoBase with _$ArquivoImpressao;
+class ArquivoImpressao extends _ArquivoImpressaoBase with _$ArquivoImpressao {
+  ArquivoImpressao(
+      {String url,
+      String nome,
+      bool colorido,
+      int quantidade,
+      int tipo_folha_id,
+      TipoFolha tipoFolha})
+      : super(
+            url: url,
+            nome: nome,
+            colorido: colorido,
+            quantidade: quantidade,
+            tipo_folha_id: tipo_folha_id,
+            tipoFolha: tipoFolha);
+  factory ArquivoImpressao.fromMap(Map<String, dynamic> map) {
+    return ArquivoImpressao(
+        url: map['url'],
+        nome: map['nome'],
+        colorido: map['colorido'],
+        quantidade: map['quantidade'],
+        tipo_folha_id: map['tipo_folha_id'],
+        tipoFolha: TipoFolha.fromMap(map['tipofolha']));
+  }
+}
 
 abstract class _ArquivoImpressaoBase with Store {
   String url;
@@ -11,8 +36,9 @@ abstract class _ArquivoImpressaoBase with Store {
   bool colorido;
   @observable
   int quantidade;
+  int tipo_folha_id;
   @observable
-  String tipo_folha_id;
+  TipoFolha tipoFolha;
 
   //ingorar
   String patch;
@@ -23,6 +49,7 @@ abstract class _ArquivoImpressaoBase with Store {
     this.quantidade,
     this.tipo_folha_id,
     this.patch,
+    this.tipoFolha,
   });
 
   Map<String, dynamic> toJson() => {
@@ -32,13 +59,4 @@ abstract class _ArquivoImpressaoBase with Store {
         'quantidade': quantidade,
         'tipo_folha_id': 1,
       };
-
-  factory _ArquivoImpressaoBase.fromMap(Map<String, dynamic> map) {
-    return ArquivoImpressao(
-        url: map['url'] ?? '',
-        nome: map['nome'] ?? '',
-        colorido: map['colorido'] ?? false,
-        quantidade: map['quantidade'] ?? 0,
-        tipo_folha_id: map['tipo_folha_id'] ?? 0);
-  }
 }

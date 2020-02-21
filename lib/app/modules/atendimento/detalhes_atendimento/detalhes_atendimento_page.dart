@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
@@ -17,6 +19,10 @@ import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/widgets/button.dart';
+import 'package:uniprint/app/shared/widgets/widgets.dart';
+
+import 'detalhes_atendimento_controller.dart';
+import 'detalhes_atendimento_module.dart';
 
 class DetalhesAtendimentoPage extends StatefulWidget {
   final String title;
@@ -32,9 +38,13 @@ class DetalhesAtendimentoPage extends StatefulWidget {
 
 class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
   Future<int> posicao;
+  final _controller =
+      DetalhesAtendimentoModule.to.bloc<DetalhesAtendimentoController>();
 
   @override
   void initState() {
+    _controller.avaliacao =
+        widget.atendimento.nota_atendimento?.toDouble() ?? 4;
     super.initState();
   }
 
@@ -62,6 +72,9 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
       return Padding(
         padding: const EdgeInsets.only(bottom: 50),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             QrImage(
               data: widget.atendimento.id.toString(),
@@ -84,16 +97,16 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                     PosicaoAtendimento posicao =
                         PosicaoAtendimento.fromJson(snap.data);
                     if (posicao.data.atendimentoAggregate.aggregate.count ==
-                        1) {
+                        0) {
                       return _getTextPosicao('Você é o próximo!');
                     }
                     if (posicao.data.atendimentoAggregate.aggregate.count ==
-                        2) {
+                        1) {
                       return _getTextPosicao(
-                          'Só mais ${posicao.data.atendimentoAggregate.aggregate.count - 1} pessoa na fila!');
+                          'Só mais ${posicao.data.atendimentoAggregate.aggregate.count} pessoa na fila!');
                     } else
                       return _getTextPosicao(
-                          'Mais ${posicao.data.atendimentoAggregate.aggregate.count - 1} pessoas na fila');
+                          'Mais ${posicao.data.atendimentoAggregate.aggregate.count} pessoas na fila');
                   }),
               height: 100,
             ),
@@ -103,16 +116,21 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
               progress.show();
 
               try {
-                var res = await GraphQlObject.hasuraConnect
+                var res = await UtilsAtendimento.gerarMovimentacao(
+                    Constants.MOV_ATENDIMENTO_CANCELADO_USUARIO,
+                    Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO,
+                    widget.atendimento.id,
+                    widget.atendimento.usuario.id);
+                /*var res = await GraphQlObject.hasuraConnect
                     .mutation(addMovimentacaoAtendimento, variables: {
                   "atendimento_id": widget.atendimento.id,
                   "status": Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO,
                   "data": DateTime.now().hasuraFormat(),
                   "tipo_movimento": Constants.MOV_ATENDIMENTO_CANCELADO_USUARIO,
                   "usuario_id": widget.atendimento.usuario.id
-                });
+                });*/
                 progress.dismiss();
-                if (res != null) {
+                if (res) {
                   showSnack(context, 'Atendimento cancelado com sucesso',
                       dismiss: true);
                 } else {
@@ -131,19 +149,30 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
       );
     } else
       return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Padding(
-              padding: EdgeInsets.only(bottom: 16),
-              child: Text(
-                'Histórico de movimentação',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold),
+                padding: EdgeInsets.only(bottom: 16),
+                child: TextTitle('Histórico de movimentação')),
+            _getTimeLine(),
+            Padding(
+              padding: EdgeInsets.only(top: 25),
+              child: Observer(
+                builder: (_) => SmoothStarRating(
+                    allowHalfRating: false,
+                    onRatingChanged: (v) {
+                      _controller.avaliacao = v;
+                    },
+                    starCount: 5,
+                    rating: _controller.avaliacao,
+                    size: 40.0,
+                    color: Colors.blue,
+                    borderColor: Colors.blue,
+                    spacing: 0.0),
               ),
             ),
-            Expanded(child: _getTimeLine())
           ]);
   }
 
@@ -158,28 +187,35 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
   }
 
   _getTimeLine() {
-    List<TimelineModel> items = widget.atendimento.movimentacao_atendimentos
-        .map(
-          (mov) => TimelineModel(
-              Container(
-                  child: Text(
-                    '${mov.movimentacao.data.string('dd/MM')}: ${UtilsAtendimento.tipoAtendimento(mov.movimentacao.tipo)}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
-                    ),
+    TimelineItemPosition position = TimelineItemPosition.left;
+    List<TimelineModel> items =
+        widget.atendimento.movimentacao_atendimentos.map(
+      (mov) {
+        if (position == TimelineItemPosition.right) {
+          position = TimelineItemPosition.left;
+        } else {
+          position = TimelineItemPosition.right;
+        }
+        return TimelineModel(
+            Container(
+                child: Text(
+                  '${mov.movimentacao.data.string('dd/MM HH:mm')}\n${UtilsAtendimento.tipoAtendimento(mov.movimentacao.tipo)}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
                   ),
-                  padding: EdgeInsets.only(top: 16, bottom: 16),
-                  alignment: Alignment.centerLeft),
-              position: TimelineItemPosition.random,
-              iconBackground:
-                  UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
-              icon: Icon(
-                UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
-                color: Colors.white,
-              )),
-        )
-        .toList();
+                ),
+                padding: EdgeInsets.only(top: 16, bottom: 16),
+                alignment: Alignment.centerLeft),
+            position: position,
+            iconBackground:
+                UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
+            icon: Icon(
+              UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
+              color: Colors.white,
+            ));
+      },
+    ).toList();
 
     return Timeline(
       physics: const NeverScrollableScrollPhysics(),

@@ -17,9 +17,10 @@ class LoginSocialPage extends StatefulWidget {
 }
 
 class _LoginSocialPageState extends State<LoginSocialPage> {
- BuildContext buildContext;
+  BuildContext buildContext;
   GoogleSignInAccount googleAccount;
-  final GoogleSignIn googleSignIn = new GoogleSignIn();
+  final GoogleSignIn googleSignIn = new GoogleSignIn(hostedDomain: "");
+  //hostedDomain bug da biblioteca no IOS se nao setar isso
 
   @override
   void dispose() {
@@ -112,38 +113,38 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
 
   Future<Null> signInWithGoogle() async {
     try {
-    if (googleAccount == null) {
-      // Start the sign-in process:
-      googleAccount = await googleSignIn.signIn();
-      
-    }
-    googleAccount.authentication.then((googleAuth) {
-      AuthCredential credential = GoogleAuthProvider.getCredential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      FirebaseAuth.instance.signInWithCredential(credential).then((user) {
-        if (user != null) {
-          posLogin(user, buildContext);
-        } else {
+      if (googleAccount == null) {
+        // Start the sign-in process:
+        googleAccount = await googleSignIn.signIn();
+      }
+      googleAccount.authentication.then((googleAuth) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        FirebaseAuth.instance.signInWithCredential(credential).then((user) {
+          if (user != null) {
+            posLogin(user, buildContext);
+          } else {
+            Scaffold.of(buildContext).showSnackBar(new SnackBar(
+              content: new Text("Ops, houve uma falha na tentativa de login"),
+            ));
+          }
+        }).catchError((error) {
+          FirebaseAuth.instance.signOut();
           Scaffold.of(buildContext).showSnackBar(new SnackBar(
             content: new Text("Ops, houve uma falha na tentativa de login"),
           ));
-        }
+        });
       }).catchError((error) {
-        FirebaseAuth.instance.signOut();
         Scaffold.of(buildContext).showSnackBar(new SnackBar(
           content: new Text("Ops, houve uma falha na tentativa de login"),
         ));
       });
-    }).catchError((error) {
-      Scaffold.of(buildContext).showSnackBar(new SnackBar(
-        content: new Text("Ops, houve uma falha na tentativa de login"),
-      ));
-    });
     } catch (e) {
       Scaffold.of(buildContext).showSnackBar(new SnackBar(
-        content: new Text("Ops, houve uma falha na tentativa de login (${e.toString()})"),
+        content: new Text(
+            "Ops, houve uma falha na tentativa de login (${e.toString()})"),
       ));
     }
     //AuthResult user = await signIntoFirebase(googleAccount);

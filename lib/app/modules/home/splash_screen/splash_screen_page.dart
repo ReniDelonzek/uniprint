@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,8 +85,16 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     if (Platform.isAndroid || Platform.isIOS) {
       _firebaseMessaging.getToken().then((token) {
         SharedPreferences.getInstance().then((shared) {
-          shared.setString('messaging_token', token);
-        }); //todo implementar metodo pra adicionar novo token
+          String tokenAnt = shared.getString('messaging_token');
+          if (token != tokenAnt) {
+            shared.setString('messaging_token', token);
+            FirebaseAuth.instance.currentUser().then((user) {
+              if (user != null) {
+                enviarToken(user.uid, context);
+              }
+            });
+          }
+        });
       });
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
