@@ -2,17 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf_render/pdf_render.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
-import 'package:uniprint/app/shared/models/Atendimento.dart';
 import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
-import 'package:uniprint/app/shared/utils/utils_finish.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
-
 import '../../../app_module.dart';
 
 class CadastroAtendimentoPage extends StatefulWidget {
@@ -67,8 +65,6 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                     progressDialog.style(message: 'Cadastrando atendimento...');
                     progressDialog.show();
                     try {
-                      String s = DateFormat('yyyy-MM-ddTHH:mm:ss')
-                          .format(DateTime.now());
                       var res = await GraphQlObject.hasuraConnect
                           .mutation(cadastroAtendimento, variables: {
                         'tipo': Constants.STATUS_ATENDIMENTO_SOLICITADO,
@@ -76,7 +72,8 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                             .getDependency<HasuraAuthService>()
                             .usuario
                             .codHasura,
-                        'data': s,
+                        'data': DateFormat('yyyy-MM-ddTHH:mm:ss')
+                            .format(DateTime.now()),
                         'ponto_atendimento_id': widget.local.id,
                         'status': Constants.STATUS_ATENDIMENTO_SOLICITADO
                       });
@@ -90,17 +87,7 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                       progressDialog.dismiss();
                       showSnack(context,
                           'Ops, houve uma falha ao cadastrar o atendimento');
-                      print(e);
                     }
-                    // runMutation({
-                    //   'tipo': 1,
-                    //   'usuario_id': 1,
-                    //   'data': DateFormat('yyyy-MM-dd HH:mm:ss')
-                    //       .format(DateTime.now()),
-                    //   'ponto_atendimento_id': widget.local.idServer,
-                    //   'status': Constants.STATUS_ATENDIMENTO_SOLICITADO
-                    // });
-                    //criarAtendimento(context);
                   }
                 })));
     return Column(
@@ -143,59 +130,5 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
       return false;
     }
     return true;
-  }
-
-  void criarAtendimento(BuildContext buildContext) async {
-    progressDialog = new ProgressDialog(buildContext,
-        type: ProgressDialogType.Normal, isDismissible: true);
-    progressDialog.style(
-        message: 'Solicitando atendimento',
-        borderRadius: 10.0,
-        backgroundColor: Colors.white,
-        progressWidget: CircularProgressIndicator(),
-        elevation: 10.0,
-        insetAnimCurve: Curves.easeInOut,
-        progress: 0.0,
-        maxProgress: 100.0,
-        progressTextStyle: TextStyle(
-            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
-        messageTextStyle: TextStyle(
-            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
-    progressDialog.show();
-
-    Atendimento atendimento = new Atendimento();
-    var user = await FirebaseAuth.instance.currentUser();
-    if (user != null) {
-      atendimento.codSolicitante = user.uid;
-      atendimento.dataSolicitacao = DateTime.now();
-      atendimento.codPonto = widget.local.id.toString();
-      atendimento.status = 0;
-
-      Firestore.instance
-          .collection('Empresas')
-          .document('Uniguacu')
-          .collection('Pontos')
-          .document(widget.local.id.toString())
-          .collection('Atendimentos')
-          .add(atendimento.toJson())
-          .then((sucess) {
-        progressDialog.dismiss();
-        Scaffold.of(buildContext).showSnackBar(
-            SnackBar(content: Text('Atendimento agendado com sucesso')));
-        Future.delayed(Duration(milliseconds: 1500), () {
-          Navigator.pop(context);
-        });
-      }).catchError((error) {
-        print(error);
-        progressDialog.dismiss();
-        Scaffold.of(buildContext).showSnackBar(SnackBar(
-            content: Text(
-                'Ops, parece que houve uma falha ao solicitar o atendimento, por favor, tente mais tarde')));
-      });
-    } else {
-      Scaffold.of(buildContext).showSnackBar(SnackBar(
-          content: Text(
-              'Ops, parece que houve uma falha ao recuperar seu usuário')));
-    }
   }
 }

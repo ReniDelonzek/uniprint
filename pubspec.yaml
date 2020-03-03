@@ -16,7 +16,10 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.6.0 <3.0.0"
 
-dependencies:
+dependencies:  
+  pdf_render: ^0.57.1
+  device_info: ^0.4.1+5
+  sentry: ^3.0.1
   hive_flutter: ^0.3.0+1
   hive: ^1.4.0+1
   timeline_list: ^0.0.5 
@@ -79,8 +82,8 @@ dev_dependencies:
   mobx_codegen: ^0.3.11
   build_runner: ^1.7.2
   mockito: ^4.1.1
-  flutter_test:
-    sdk: flutter
+  #flutter_test:
+   # sdk: flutter
 
 
 # For information on the generic Dart part of this file, see the

@@ -101,7 +101,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                 _botaoConfirmarRecebimento(builderContext),
                 Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.only(top: 25, bottom: 16),
+                  padding: const EdgeInsets.only(top: 35, bottom: 16),
                   child: TextTitle('Histórico de Movimentações'),
                 ),
                 _getTimeLine(),
@@ -155,28 +155,38 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
     );
   }
 
+  Widget _getQr(String qr) {
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.all(15),
+          alignment: Alignment.center,
+          child: QrImage(
+            data: qr,
+            version: QrVersions.auto,
+            size: 200.0,
+          ),
+        ),
+        Text('Apresente esse QRCode para retirar'),
+      ],
+    );
+  }
+
   Widget _botaoConfirmarRecebimento(BuildContext context) {
     if (widget.impressao.status != Constants.STATUS_IMPRESSAO_RETIRADA &&
         widget.impressao.status != Constants.STATUS_IMPRESSAO_NEGADA &&
         widget.impressao.status != Constants.STATUS_IMPRESSAO_CANCELADO &&
-        widget.impressao.status != Constants.STATUS_IMPRESSAO_AUTORIZADO) {
+        widget.impressao.status != Constants.STATUS_IMPRESSAO_AUTORIZADO &&
+        widget.impressao.status !=
+            Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
       return Padding(
         padding: const EdgeInsets.only(top: 5),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.all(15),
-              alignment: Alignment.center,
-              child: QrImage(
-                data: widget.impressao.id.toString(),
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-            ),
-            Text('Apresente esse QRCode para retirar'),
+            //_getQr(widget.impressao.id.toString()),
             Padding(
-              padding: const EdgeInsets.only(top: 45),
+              padding: const EdgeInsets.only(top: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
@@ -221,6 +231,9 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
           ],
         ),
       );
+    } else if (widget.impressao.status ==
+        Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
+      return _getQr(widget.impressao.id.toString());
     } else
       return Container();
   }

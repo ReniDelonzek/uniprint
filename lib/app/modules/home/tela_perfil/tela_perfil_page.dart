@@ -1,9 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:uniprint/app/app_module.dart';
+import 'package:uniprint/app/services/detalhes_usuario_service.dart';
+import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
+import 'package:uniprint/app/shared/models/graph/detalhes_usuario.dart';
+
+import '../home_module.dart';
 
 class TelaPerfilPage extends StatefulWidget {
   final String title;
-  FirebaseUser user;
+  final FirebaseUser user;
   TelaPerfilPage(this.user, {Key key, this.title = "TelaPerfil"})
       : super(key: key);
 
@@ -76,23 +82,60 @@ class _TelaPerfilPageState extends State<TelaPerfilPage> {
                                     Padding(
                                       padding: const EdgeInsets.only(
                                           top: 35, left: 15, right: 15),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: <Widget>[
-                                          _getItemDetalhes('12', 'Atendim.'),
-                                          VerticalDivider(
-                                            width: 50,
-                                            color: Colors.black26,
-                                          ),
-                                          _getItemDetalhes('15', 'Impres.'),
-                                          VerticalDivider(
-                                            width: 50,
-                                            color: Colors.black26,
-                                          ),
-                                          _getItemDetalhes(
-                                              '3,50', 'Total gasto'),
-                                        ],
+                                      child: FutureBuilder(
+                                        future: HomeModule.to
+                                            .getDependency<
+                                                DetalhesUsuarioService>()
+                                            .recuperarDados(AppModule.to
+                                                .getDependency<
+                                                    HasuraAuthService>()
+                                                .usuario
+                                                .codHasura),
+                                        builder: (_, snap) {
+                                          if (snap.connectionState !=
+                                              ConnectionState.done) {
+                                            return Container(
+                                              height: 50,
+                                              child: Text(
+                                                  'Carregando detalhes de uso'),
+                                            );
+                                          } else if (snap.hasError) {
+                                            return Container(
+                                              height: 50,
+                                              child: Text(
+                                                  'Ops, houve uma falha ao recuperar os detalhes de uso'),
+                                            );
+                                          } else {
+                                            DetalhesUsuario detalhesUsuario =
+                                                snap.data;
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: <Widget>[
+                                                _getItemDetalhes(
+                                                    detalhesUsuario
+                                                        .numAtendimentos
+                                                        .toString(),
+                                                    'Atendimentos'),
+                                                VerticalDivider(
+                                                  width: 50,
+                                                  color: Colors.black26,
+                                                ),
+                                                _getItemDetalhes(
+                                                    detalhesUsuario
+                                                        .numImpressoes
+                                                        .toString(),
+                                                    'Impressões'),
+                                                /*VerticalDivider(
+                                                  width: 50,
+                                                  color: Colors.black26,
+                                                ),
+                                                _getItemDetalhes(
+                                                    '3,50', 'Total gasto'),*/
+                                              ],
+                                            );
+                                          }
+                                        },
                                       ),
                                     )
                                   ],
@@ -100,7 +143,7 @@ class _TelaPerfilPageState extends State<TelaPerfilPage> {
                               ),
                             ),
                           ),
-                          Card(
+                          /*Card(
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
@@ -119,6 +162,7 @@ class _TelaPerfilPageState extends State<TelaPerfilPage> {
                               ),
                             ),
                           )
+                        */
                         ],
                       ),
                     ),

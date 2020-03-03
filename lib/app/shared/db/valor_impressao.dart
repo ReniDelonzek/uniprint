@@ -1,11 +1,9 @@
-import 'package:floor/floor.dart';
 import 'package:hive/hive.dart';
 
 part 'valor_impressao.g.dart';
 
 @HiveType(typeId: 2)
 class ValorImpressao extends HiveObject {
-  @PrimaryKey(autoGenerate: true)
   @HiveField(0)
   final int id;
   @HiveField(1)

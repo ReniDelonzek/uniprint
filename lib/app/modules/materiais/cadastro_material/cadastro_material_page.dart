@@ -3,11 +3,15 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:pdf_render/pdf_render.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:uniprint/app/shared/models/ArquivoMaterial.dart';
+import 'package:uniprint/app/app_module.dart';
+import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
+import 'package:uniprint/app/shared/models/graph/materiais/arquivo_material.dart';
 import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
@@ -15,6 +19,9 @@ import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_firebase_file.dart';
 import 'package:uniprint/app/shared/utils/utils_platform.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
+
+import 'cadastro_material_controller.dart';
+import 'cadastro_material_module.dart';
 
 class CadastroMaterialPage extends StatefulWidget {
   final String title;
@@ -26,10 +33,12 @@ class CadastroMaterialPage extends StatefulWidget {
 }
 
 class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
+  final _controller =
+      CadastroMaterialModule.to.bloc<CadastroMaterialController>();
+
   PontoAtendimento local;
-  final controllerTitulo = TextEditingController();
+
   List<ArquivoMaterial> arquivos = List();
-  bool enviarArquivos = true;
   int quantidade = 1;
   bool colorido = false;
   String tipoFolha = "A4";
@@ -63,19 +72,27 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                   progress.show();
                   try {
                     for (ArquivoMaterial arquivo in arquivos) {
-                      File file = File(arquivo.patch);
-                      arquivo.url = await UtilsFirebaseFile.putFile(file,
-                          'Materiais/professor_id/${file.path.split('/').last}');
+                      if (arquivo.url == null) {
+                        File file = File(arquivo.path);
+                        arquivo.url = await UtilsFirebaseFile.putFile(file,
+                            'Materiais/professor_id/${file.path.split('/').last}');
+                      }
                     }
+
                     var res = await GraphQlObject.hasuraConnect
                         .mutation(cadastroMaterial, variables: {
-                      'professor_turma_id': 2,
+                      'professor_id': AppModule.to
+                              .getDependency<HasuraAuthService>()
+                              .usuario
+                              ?.codProfessor ??
+                          6,
                       'tipo_folha_id': 1,
                       'colorido': colorido,
                       'data_publicacao': DateFormat('yyyy-MM-ddTHH:mm:ss')
                           .format(DateTime.now()),
-                      'tipo': enviarArquivos ? 0 : 1,
-                      'titulo': controllerTitulo.text,
+                      'tipo': _controller.enviarArquivos ? 0 : 1,
+                      'titulo': _controller.controllerTitulo.text,
+                      'descricao': _controller.controllerDescricao.text,
                       'arquivos':
                           arquivos.map((arquivo) => arquivo.toMap()).toList()
                     });
@@ -91,6 +108,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                           'Ops, houve uma falha ao cadastrar o material');
                     }
                   } catch (e) {
+                    print(e);
                     if (progress != null && progress.isShowing()) {
                       progress.dismiss();
                     }
@@ -121,27 +139,41 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.only(left: 16.0, right: 16),
-          child: TextFormField(
-            decoration: InputDecoration(
-              labelStyle: TextStyle(color: Colors.black45),
-              labelText: 'Defina um título',
-            ),
-            controller: controllerTitulo,
-            textCapitalization: TextCapitalization.sentences,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                decoration: InputDecoration(
+                  labelStyle: TextStyle(color: Colors.black45),
+                  labelText: 'Defina um título',
+                ),
+                controller: _controller.controllerTitulo,
+                textCapitalization: TextCapitalization.sentences,
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelStyle: TextStyle(color: Colors.black45),
+                  labelText: 'Descrição',
+                ),
+                controller: _controller.controllerDescricao,
+                textCapitalization: TextCapitalization.sentences,
+              ),
+            ],
           ),
         ),
-        CheckboxListTile(
-          title: Text("Anexar arquivos"),
-          value: enviarArquivos,
-          onChanged: (newValue) {
-            setState(() {
-              enviarArquivos = newValue;
-            });
-          },
-          controlAffinity:
-              ListTileControlAffinity.leading, //  <-- leading Checkbox
+        Observer(
+          builder: (_) => CheckboxListTile(
+            title: Text("Anexar arquivos"),
+            value: _controller.enviarArquivos,
+            onChanged: (newValue) {
+              //setState(() {
+              _controller.enviarArquivos = newValue;
+              //});
+            },
+            controlAffinity:
+                ListTileControlAffinity.leading, //  <-- leading Checkbox
+          ),
         ),
-        _listaOpcoes()
+        Observer(builder: (_) => _listaOpcoes())
       ],
     );
   }
@@ -217,13 +249,21 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
     Map<String, String> filePaths = await FilePicker.getMultiFilePath(
         type: FileType.CUSTOM, fileExtension: 'pdf');
     if (filePaths != null) {
+      ProgressDialog progressDialog = ProgressDialog(context)
+        ..style(message: 'Coletando dados do arquivo...');
+      //todo ver pq aqui estava aparecendo so depois do arquivo ja adicionado a lista
+
       List<ArquivoMaterial> arquivos = List();
       for (var item in filePaths.entries) {
         var arquivo = ArquivoMaterial();
         arquivo.nome = item.key;
-        arquivo.patch = item.value;
+        arquivo.path = item.value;
+        PdfDocument document = await PdfDocument.openFile(item.value);
+        arquivo.num_paginas = document.pageCount;
+        await document.dispose();
         arquivos.add(arquivo);
       }
+
       setState(() {
         this.arquivos.addAll(arquivos);
       });
@@ -231,20 +271,20 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
   }
 
   bool verificarDados(BuildContext context) {
-    if (controllerTitulo.text.isEmpty) {
+    if (_controller.controllerTitulo.text.isEmpty) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text('Por favor, insira um título para o material'),
         duration: Duration(seconds: 3),
       ));
       return false;
-    } else if (!enviarArquivos && local == null) {
+    } else if (!_controller.enviarArquivos && local == null) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(
             'Você precisa selecionar o local onde o material vai estar disponível'),
         duration: Duration(seconds: 3),
       ));
       return false;
-    } else if (enviarArquivos && arquivos.isEmpty) {
+    } else if (_controller.enviarArquivos && arquivos.isEmpty) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text('Você precisa anexar pelo menos um arquivo'),
         duration: Duration(seconds: 3),
@@ -255,7 +295,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
   }
 
   Widget _listaOpcoes() {
-    if (enviarArquivos) {
+    if (_controller.enviarArquivos) {
       return Expanded(
         child: Padding(
           padding: const EdgeInsets.all(14.0),

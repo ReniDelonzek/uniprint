@@ -308,30 +308,6 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
         context: context);
   }
 
-  // Future<void> _showDialog() async {
-  //   return showDialog<void>(
-  //     context: context,
-  //     barrierDismissible: false, // user must tap button!
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(''),
-  //         content: new Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: <Widget>[new CircularProgressIndicator()],
-  //         ),
-  //         actions: <Widget>[
-  //           FlatButton(
-  //             child: Text('Cancelar'),
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   Widget newTitle(String string) {
     return new Padding(
         padding: EdgeInsets.all(5),

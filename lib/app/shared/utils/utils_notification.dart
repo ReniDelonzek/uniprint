@@ -1,13 +1,6 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:uniprint/app/modules/home/home_page.dart';
-import 'package:uniprint/app/shared/models/Atendimento.dart';
-import 'package:uniprint/app/shared/utils/utils_login.dart';
-
-import 'constans.dart';
 
 BuildContext context;
 

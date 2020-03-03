@@ -110,40 +110,36 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                   }),
               height: 100,
             ),
-            Button("Cancelar", () async {
-              ProgressDialog progress = ProgressDialog(context);
-              progress.style(message: 'Cancelando atendimento');
-              progress.show();
+            Button(
+              "Cancelar",
+              () async {
+                ProgressDialog progress = ProgressDialog(context);
+                progress.style(message: 'Cancelando atendimento');
+                progress.show();
 
-              try {
-                var res = await UtilsAtendimento.gerarMovimentacao(
-                    Constants.MOV_ATENDIMENTO_CANCELADO_USUARIO,
-                    Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO,
-                    widget.atendimento.id,
-                    widget.atendimento.usuario.id);
-                /*var res = await GraphQlObject.hasuraConnect
-                    .mutation(addMovimentacaoAtendimento, variables: {
-                  "atendimento_id": widget.atendimento.id,
-                  "status": Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO,
-                  "data": DateTime.now().hasuraFormat(),
-                  "tipo_movimento": Constants.MOV_ATENDIMENTO_CANCELADO_USUARIO,
-                  "usuario_id": widget.atendimento.usuario.id
-                });*/
-                progress.dismiss();
-                if (res) {
-                  showSnack(context, 'Atendimento cancelado com sucesso',
-                      dismiss: true);
-                } else {
+                try {
+                  var res = await UtilsAtendimento.gerarMovimentacao(
+                      Constants.MOV_ATENDIMENTO_CANCELADO_USUARIO,
+                      Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO,
+                      widget.atendimento.id,
+                      widget.atendimento.usuario.id);
+                  progress.dismiss();
+                  if (res) {
+                    showSnack(context, 'Atendimento cancelado com sucesso',
+                        dismiss: true);
+                  } else {
+                    showSnack(context,
+                        'Ops, houve uma falha ao tentar cancelar o atendimento');
+                  }
+                } catch (e) {
+                  progress.dismiss();
                   showSnack(context,
                       'Ops, houve uma falha ao tentar cancelar o atendimento');
+                  print(e);
                 }
-              } catch (e) {
-                progress.dismiss();
-                showSnack(context,
-                    'Ops, houve uma falha ao tentar cancelar o atendimento');
-                print(e);
-              }
-            })
+              },
+              width: 200,
+            )
           ],
         ),
       );

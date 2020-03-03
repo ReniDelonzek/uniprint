@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uniprint/app/app_module.dart';
+import 'package:uniprint/app/modules/home/home_module.dart';
 import 'package:uniprint/app/modules/home/home_page.dart';
 import 'package:uniprint/app/modules/home/login_social/login_social_page.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
@@ -15,31 +16,6 @@ import 'constans.dart';
 Future<bool> isLogged() async {
   FirebaseUser user = await FirebaseAuth.instance.currentUser();
   return (user != null) ? true : false;
-}
-
-deslogar() {
-  SharedPreferences.getInstance().then((shared) {
-    shared.remove(Constants.TIPO_USUARIO);
-    FirebaseAuth.instance.currentUser().then((user) {
-      Firestore.instance
-          .collection('Usuarios')
-          .document(user.uid)
-          .collection('tokens')
-          .where('messaging_token',
-              isEqualTo: shared.get(Constants.MESSAGING_TOKEN))
-          .getDocuments()
-          .then((snap) {
-        snap.documents.forEach((doc) {
-          doc.reference.delete();
-        });
-      });
-      FirebaseAuth.instance.signOut();
-    }).catchError((error) {
-      FirebaseAuth.instance.signOut();
-    });
-  }).catchError((error) {
-    FirebaseAuth.instance.signOut();
-  });
 }
 
 void verificarLogin(context) {
@@ -87,7 +63,7 @@ void _goScreen(FirebaseUser user, BuildContext context) async {
   //       MaterialPageRoute(builder: (context) => MainPrinterClerk(codPonto));
   //   Navigator.pushReplacement(context, route);
   // } else {
-  Route route = MaterialPageRoute(builder: (context) => HomePage());
+  Route route = MaterialPageRoute(builder: (context) => HomeModule());
   Navigator.pushReplacement(context, route);
   //}
 }
@@ -150,8 +126,10 @@ void buscarDadosPerfil(BuildContext context, String uid) async {
   HasuraAuthService hasuraAuthService =
       AppModule.to.getDependency<HasuraAuthService>();
   hasuraAuthService.obterDadosUsuario(uid, (UsuarioHasura usuarioHasura) async {
-    if (progressDialog.isShowing()) {
+    try {
       progressDialog.dismiss();
+    } catch (e) {
+      print(e);
     }
     if (usuarioHasura != null) {
       var usuario = await FirebaseAuth.instance.currentUser();

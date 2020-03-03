@@ -1,7 +1,9 @@
 import 'dart:convert';
 
-import 'package:intl/intl.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
+import 'package:uniprint/app/shared/extensions/string.dart';
 import 'package:uniprint/app/shared/models/graph/materiais/arquivo_material.dart';
+import 'package:uniprint/app/shared/models/graph/professor.dart';
 
 import '../ponto_atendimento.dart';
 import '../professor_turma.dart';
@@ -14,8 +16,9 @@ class MaterialProf {
   TipoFolha tipo_folha;
   bool colorido;
   PontoAtendimento ponto_atendimento;
-  ProfessorTurma professor_turma;
   List<ArquivoMaterial> arquivo_materials;
+  Professor professor;
+  String descricao;
   MaterialProf({
     this.data_publicacao,
     this.tipo,
@@ -23,8 +26,9 @@ class MaterialProf {
     this.tipo_folha,
     this.colorido,
     this.ponto_atendimento,
-    this.professor_turma,
     this.arquivo_materials,
+    this.professor,
+    this.descricao,
   });
 
   MaterialProf copyWith({
@@ -34,8 +38,9 @@ class MaterialProf {
     TipoFolha tipo_folha,
     bool colorido,
     PontoAtendimento ponto_atendimento,
-    ProfessorTurma professor_turma,
-    List<ArquivoMaterial> arquivos,
+    List<ArquivoMaterial> arquivo_materials,
+    Professor professor,
+    String descricao,
   }) {
     return MaterialProf(
       data_publicacao: data_publicacao ?? this.data_publicacao,
@@ -44,21 +49,24 @@ class MaterialProf {
       tipo_folha: tipo_folha ?? this.tipo_folha,
       colorido: colorido ?? this.colorido,
       ponto_atendimento: ponto_atendimento ?? this.ponto_atendimento,
-      professor_turma: professor_turma ?? this.professor_turma,
-      arquivo_materials: arquivos ?? this.arquivo_materials,
+      arquivo_materials: arquivo_materials ?? this.arquivo_materials,
+      professor: professor ?? this.professor,
+      descricao: descricao ?? this.descricao,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'data_publicacao': data_publicacao.millisecondsSinceEpoch,
+      'data_publicacao': data_publicacao.hasuraFormat(),
       'tipo': tipo,
       'titulo': titulo,
       'tipo_folha': tipo_folha.toMap(),
       'colorido': colorido,
       'ponto_atendimento': ponto_atendimento.toMap(),
-      'professor_turma': professor_turma.toMap(),
-      'arquivos': List<dynamic>.from(arquivo_materials.map((x) => x.toMap())),
+      'arquivo_materials':
+          List<dynamic>.from(arquivo_materials.map((x) => x.toMap())),
+      'professor': professor.toMap(),
+      'descricao': descricao,
     };
   }
 
@@ -66,20 +74,17 @@ class MaterialProf {
     if (map == null) return null;
 
     return MaterialProf(
-      data_publicacao: (map['data_publicacao'] != null)
-          ? DateFormat('yyyy-MM-ddTHH:mm:ss').parse(map['data_publicacao'])
-          : DateTime
-              .now(), //DateTime.fromMillisecondsSinceEpoch(map['data_publicacao']),
+      data_publicacao:
+          map['data_publicacao'].toString().dateFromHasura(DateTime.now()),
       tipo: map['tipo'],
       titulo: map['titulo'],
       tipo_folha: TipoFolha.fromMap(map['tipo_folha']),
       colorido: map['colorido'],
       ponto_atendimento: PontoAtendimento.fromMap(map['ponto_atendimento']),
-      professor_turma: ProfessorTurma.fromMap(map['professor_turma']),
-      arquivo_materials: map.containsKey('arquivo_materials')
-          ? List<ArquivoMaterial>.from(
-              map['arquivo_materials']?.map((x) => ArquivoMaterial.fromMap(x)))
-          : List(),
+      arquivo_materials: List<ArquivoMaterial>.from(
+          map['arquivo_materials']?.map((x) => ArquivoMaterial.fromMap(x))),
+      professor: Professor.fromMap(map['professor']),
+      descricao: map['descricao'],
     );
   }
 
@@ -89,7 +94,7 @@ class MaterialProf {
 
   @override
   String toString() {
-    return 'MaterialProf data_publicacao: $data_publicacao, tipo: $tipo, titulo: $titulo, tipo_folha: $tipo_folha, colorido: $colorido, ponto_atendimento: $ponto_atendimento, professor_turma: $professor_turma, arquivos: $arquivo_materials';
+    return 'MaterialProf data_publicacao: $data_publicacao, tipo: $tipo, titulo: $titulo, tipo_folha: $tipo_folha, colorido: $colorido, ponto_atendimento: $ponto_atendimento, arquivo_materials: $arquivo_materials, professor: $professor, descricao: $descricao';
   }
 
   @override
@@ -103,8 +108,9 @@ class MaterialProf {
         o.tipo_folha == tipo_folha &&
         o.colorido == colorido &&
         o.ponto_atendimento == ponto_atendimento &&
-        o.professor_turma == professor_turma &&
-        o.arquivo_materials == arquivo_materials;
+        o.arquivo_materials == arquivo_materials &&
+        o.professor == professor &&
+        o.descricao == descricao;
   }
 
   @override
@@ -115,7 +121,8 @@ class MaterialProf {
         tipo_folha.hashCode ^
         colorido.hashCode ^
         ponto_atendimento.hashCode ^
-        professor_turma.hashCode ^
-        arquivo_materials.hashCode;
+        arquivo_materials.hashCode ^
+        professor.hashCode ^
+        descricao.hashCode;
   }
 }

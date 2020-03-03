@@ -1,3 +1,4 @@
+import 'package:uniprint/app/modules/home/home_page.dart';
 import 'package:uniprint/app/modules/home/obter_dados_perfil/obter_dados_perfil_controller.dart';
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:uniprint/app/modules/home/splash_screen/splash_screen_controller
 import 'package:uniprint/app/modules/home/splash_screen/splash_screen_page.dart';
 import 'package:uniprint/app/modules/home/tela_perfil/cadastro_aluno/cadastro_aluno_controller.dart';
 import 'package:uniprint/app/modules/home/tela_perfil/tela_perfil_controller.dart';
+import 'package:uniprint/app/services/detalhes_usuario_service.dart';
 
 class HomeModule extends ModuleWidget {
   @override
@@ -15,17 +17,17 @@ class HomeModule extends ModuleWidget {
         Bloc((i) => ObterDadosPerfilController()),
         Bloc((i) => CadastroAlunoController()),
         Bloc((i) => TelaPerfilController()),
-        Bloc((i) => LoginEmailController()),
         Bloc((i) => LoginSocialController()),
-        Bloc((i) => SplashScreenController()),
         Bloc((i) => HomeController()),
       ];
 
   @override
-  List<Dependency> get dependencies => [];
+  List<Dependency> get dependencies => [
+        Dependency((i) => DetalhesUsuarioService()),
+      ];
 
   @override
-  Widget get view => SplashScreenPage();
+  Widget get view => HomePage();
 
   static Inject get to => Inject<HomeModule>.of();
 }

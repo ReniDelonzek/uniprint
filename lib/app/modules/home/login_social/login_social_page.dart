@@ -111,7 +111,7 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
     ));
   }
 
-  Future<Null> signInWithGoogle() async {
+  signInWithGoogle() async {
     try {
       if (googleAccount == null) {
         // Start the sign-in process:

@@ -84,7 +84,7 @@ class UtilsImpressao {
     if (a3.isNotEmpty) {
       int sum = 0;
       a3.forEach((ArquivoImpressao e) {
-        sum += e.quantidade;
+        sum += e.quantidade * (e.num_paginas ?? 1);
       });
       s += "$sum folha${sum > 1 ? 's' : ''} do tipo A3";
       List<ArquivoImpressao> color =
@@ -92,7 +92,7 @@ class UtilsImpressao {
       if (color.isNotEmpty) {
         int sumColoridas = 0;
         color.forEach((ArquivoImpressao e) {
-          sumColoridas += e.quantidade;
+          sumColoridas += e.quantidade * (e.num_paginas ?? 1);
         });
         if (sumColoridas == sum) {
           if (sum == 1) {
@@ -111,7 +111,7 @@ class UtilsImpressao {
     if (a4.isNotEmpty) {
       int sum = 0;
       a4.forEach((ArquivoImpressao e) {
-        sum += e.quantidade;
+        sum += e.quantidade * (e.num_paginas ?? 1);
       });
       s += "$sum folha${sum > 1 ? 's' : ''} do tipo A4";
       List<ArquivoImpressao> color =
@@ -119,7 +119,7 @@ class UtilsImpressao {
       if (color.isNotEmpty) {
         int sumColoridas = 0;
         color.forEach((ArquivoImpressao e) {
-          sumColoridas += e.quantidade;
+          sumColoridas += e.quantidade * (e.num_paginas ?? 1);
         });
         if (sumColoridas == sum) {
           if (sum == 1) {
@@ -146,7 +146,7 @@ class UtilsImpressao {
         .toList();
     int qtdF = 0;
     for (ArquivoImpressao a in ar) {
-      qtdF += a.quantidade;
+      qtdF += (a.quantidade * (a.num_paginas ?? 1)).toInt();
     }
     return qtdF;
   }

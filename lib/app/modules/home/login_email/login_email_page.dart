@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
 import 'package:uniprint/app/shared/utils/utils_login.dart';
 
-import '../home_module.dart';
 import 'login_email_controller.dart';
 
 class LoginEmailPage extends StatefulWidget {
@@ -18,7 +18,7 @@ class LoginEmailPage extends StatefulWidget {
 class _LoginEmailPageState extends State<LoginEmailPage> {
   final controllerEmail = TextEditingController();
   final controllerSenha = TextEditingController();
-  final controller = HomeModule.to.bloc<LoginEmailController>();
+  final controller = SplashModule.to.bloc<LoginEmailController>();
 
   @override
   void dispose() {
@@ -55,15 +55,15 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
                 child: Column(
                   children: <Widget>[
                     TextFormField(
-                      decoration: InputDecoration( 
-                          labelText: 'Insira seu e-mail'),
+                      decoration:
+                          InputDecoration(labelText: 'Insira seu e-mail'),
                       controller: controllerEmail,
                     ),
                     Observer(
                       builder: (_) => TextFormField(
                         obscureText: controller.obscure,
-                        decoration: InputDecoration( 
-                            hintText: 'Escolha uma senha'),
+                        decoration:
+                            InputDecoration(hintText: 'Escolha uma senha'),
                         controller: controllerSenha,
                       ),
                     ),
@@ -129,6 +129,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
           content: new Text("Ops, houve uma falha ao realizar o login"),
         ));
       } else {
+        FocusScope.of(context).requestFocus(FocusNode());
         posLogin(user, context);
       }
     }).catchError((error) {

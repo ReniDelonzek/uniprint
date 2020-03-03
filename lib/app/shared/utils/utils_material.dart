@@ -1,4 +1,4 @@
- import 'package:uniprint/app/shared/models/ArquivoMaterial.dart';
+import 'package:uniprint/app/shared/models/graph/materiais/arquivo_material.dart';
 
 class UtilsMaterial {
   static String getResumoArquivos(List<ArquivoMaterial> arquivos) {

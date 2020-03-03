@@ -5,13 +5,14 @@ class Button extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
   final Color color;
+  final double width;
 
-  Button(this.title, this.onTap, {this.color});
+  Button(this.title, this.onTap, {this.color, this.width = 150});
 
   @override
   Widget build(BuildContext context) {
     return new ButtonTheme(
-      minWidth: 150,
+      minWidth: width,
       height: 42,
       child: new RaisedButton(
           color: color ?? Colors.blue,

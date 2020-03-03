@@ -37,16 +37,7 @@ class _CadastroAlunoPageState extends State<CadastroAlunoPage> {
                 decoration: InputDecoration(labelText: 'E a sua senha?'),
                 controller: controller.ctlSenha,
               ),
-              Button("Validar", () {
-                Firestore.instance
-                    .collection("usuarios")
-                    .where("RA", isEqualTo: controller.ctlRA.text)
-                    .limit(1)
-                    .getDocuments()
-                    .then((value) {
-                  if (value.documents.isNotEmpty) {}
-                });
-              })
+              Button("Validar", () {})
             ],
           )),
         ),

@@ -9,6 +9,7 @@ import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_a
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
 import 'package:uniprint/app/modules/home/home_module.dart';
 import 'package:uniprint/app/modules/home/login_social/login_social_page.dart';
+import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
 import 'package:uniprint/app/modules/home/tela_perfil/tela_perfil_page.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_module.dart';
@@ -29,6 +30,7 @@ import 'package:uniprint/app/shared/widgets/bottom_app_nav.dart';
 import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
 import 'package:uniprint/app/shared/widgets/layout.dart';
+import 'package:uniprint/app/shared/widgets/lista_vazia/lista_vazia_widget.dart';
 
 import 'home_controller.dart';
 
@@ -45,8 +47,6 @@ class _HomePageState extends State<HomePage> {
 
   Atendimento atendimento;
   int _lastSelected = 0;
-
-  //caso haja um atendimento pendente, nao deixa criar outro
   BuildContext buildContextScall;
 
   _HomePageState({this.atendimento});
@@ -122,9 +122,11 @@ class _HomePageState extends State<HomePage> {
       return new Scaffold(
         backgroundColor: Colors.white,
         appBar: new AppBar(
-          title: new Text(
-            "${_getSaudacao()} ${controller.user?.displayName?.split(" ")?.first ?? ""}",
-            style: new TextStyle(fontWeight: FontWeight.bold),
+          title: Observer(
+            builder: (_) => new Text(
+              "${_getSaudacao()} ${controller.user?.displayName?.split(" ")?.first ?? ""}",
+              style: new TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
         body: Builder(builder: (context) {
@@ -143,36 +145,38 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
               color: Colors.white,
               child: new Column(children: <Widget>[
-                new UserAccountsDrawerHeader(
-                  accountName: new Text(
-                    controller.user?.displayName ?? "",
-                    style: new TextStyle(color: Colors.white),
-                  ),
-                  accountEmail: new Text(controller.user?.email ?? "",
-                      style: new TextStyle(color: Colors.white)),
-                  currentAccountPicture: new GestureDetector(
-                    onTap: () async {
-                      controller.exibirFab = false;
-                      await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  TelaPerfilPage(controller.user)));
-                      controller.exibirFab = true;
-                    },
-                    child: Hero(
-                      tag: "imagem_perfil",
-                      child: new CircleAvatar(
-                        backgroundImage: new NetworkImage(controller
-                                .user?.photoUrl ??
-                            "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
+                Observer(
+                  builder: (_) => new UserAccountsDrawerHeader(
+                    accountName: new Text(
+                      controller.user?.displayName ?? "",
+                      style: new TextStyle(color: Colors.white),
+                    ),
+                    accountEmail: new Text(controller.user?.email ?? "",
+                        style: new TextStyle(color: Colors.white)),
+                    currentAccountPicture: new GestureDetector(
+                      onTap: () async {
+                        controller.exibirFab = false;
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    TelaPerfilPage(controller.user)));
+                        controller.exibirFab = true;
+                      },
+                      child: Hero(
+                        tag: "imagem_perfil",
+                        child: new CircleAvatar(
+                          backgroundImage: new NetworkImage(controller
+                                  .user?.photoUrl ??
+                              "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
+                        ),
                       ),
                     ),
+                    decoration: new BoxDecoration(
+                        image: new DecorationImage(
+                            fit: BoxFit.fill,
+                            image: AssetImage('imagens/back_drawer.jpg'))),
                   ),
-                  decoration: new BoxDecoration(
-                      image: new DecorationImage(
-                          fit: BoxFit.fill,
-                          image: AssetImage('imagens/back_drawer.jpg'))),
                 ),
                 new ListTile(
                     title: new Text("Materiais publicados"),
@@ -184,16 +188,6 @@ class _HomePageState extends State<HomePage> {
                           MaterialPageRoute(
                               builder: (context) => ListaMateriaisModule()));
                       controller.exibirFab = true;
-                      // setState(() {
-                      //   exibirFab = false;
-                      // });
-                      // await Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => ListaMateriais()));
-                      // setState(() {
-                      //   exibirFab = true;
-                      // });
                     }),
                 _cadastroMaterial(),
                 new ListTile(
@@ -211,14 +205,14 @@ class _HomePageState extends State<HomePage> {
                 new ListTile(
                     title: new Text("Sair"),
                     trailing: new Icon(Icons.power_settings_new),
-                    onTap: () {
-                      deslogar();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
+                    onTap: () async {
+                      await AppModule.to
+                          .getDependency<HasuraAuthService>()
+                          .deslogar();
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => LoginSocialPage()));
+                              builder: (context) => SplashModule()));
                     }),
               ]),
             ))),
@@ -270,9 +264,10 @@ class _HomePageState extends State<HomePage> {
           );
         }
         if (!snap.hasData || snap.data['data']['atendimento'].isEmpty) {
-          return Center(
-            child: Text('Nenhum dado retornado'),
-          );
+          return ListaVaziaWidget(
+              'Nenhum atendimento na lista',
+              "Agende seu primeiro atendimento clicando no '+'",
+              'imagens/reception.png');
         } else {
           List<Atendimento> a = List<Atendimento>.from(snap.data['data']
                   ['atendimento']
@@ -328,9 +323,10 @@ class _HomePageState extends State<HomePage> {
             );
           }
           if (!snap.hasData || snap.data['data']['impressao'].isEmpty) {
-            return Center(
-              child: Text('Nenhum dado retornado'),
-            );
+            return ListaVaziaWidget(
+                'Nenhuma impressão na lista',
+                "Solicite sua primeira impressão no botão '+'",
+                'imagens/printer_icon.png');
           } else {
             List<Impressao> a = List<Impressao>.from(snap.data['data']
                     ['impressao']
@@ -397,8 +393,10 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Icon(UtilsImpressao.getIconeFromStatus(impressao.status)),
           ),
-          Text(
-              '${mov?.data?.string('dd/MM HH:mm:ss') ?? ''}: ${UtilsImpressao.getStatusImpressao(impressao.status)}')
+          Expanded(
+            child: Text(
+                '${mov?.data?.string('dd/MM HH:mm:ss') ?? ''}: ${UtilsImpressao.getStatusImpressao(impressao.status)}'),
+          )
         ],
       ),
     );
@@ -486,16 +484,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   _cadastroMaterial() {
-    return new ListTile(
-        title: new Text("Cadastrar Material (Professor)"),
-        trailing: new Icon(Icons.list),
-        onTap: () async {
-          controller.exibirFab = false;
-          await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => CadastroMaterialModule()));
-          controller.exibirFab = true;
-        });
+    if (AppModule.to.getDependency<HasuraAuthService>().usuario.codProfessor !=
+        null) {
+      return new ListTile(
+          title: new Text("Cadastrar Material (Professor)"),
+          trailing: new Icon(Icons.list),
+          onTap: () async {
+            controller.exibirFab = false;
+            await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => CadastroMaterialModule()));
+            controller.exibirFab = true;
+          });
+    } else {
+      return Container();
+    }
   }
 }

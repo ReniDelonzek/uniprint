@@ -36,6 +36,7 @@ subscription getImpressoes(\$usuario_id: Int!) {
       id
       nome
       quantidade
+      num_paginas
       tipofolha {
         id
         nome
@@ -71,26 +72,35 @@ String getListaMateriais = """query materiais {
     ponto_atendimento {
       nome
     }
+    descricao
     tipo
     titulo
-    professor_turma {
-      professor {
+    professor {
         usuario {
           pessoa {
             nome
           }
           url_foto
         }
-      }
-      turma {
-        disciplina {
-          nome
-        }
-      }
     }
     arquivo_materials { 
       nome
       url
+      num_paginas
+    }
+  }
+}
+""";
+String getDetalhesUsuUsuario = """
+ detalhesUso(\$usuario_id: Int!) {
+  atendimento_aggregate(where: {usuario_id: {_eq: \$usuario_id}}) {
+    aggregate {
+      count(columns: id)
+    }
+  }
+  impressao_aggregate(where: {usuario_id: {_eq: \$usuario_id}}) {
+    aggregate {
+      count(columns: id)
     }
   }
 }

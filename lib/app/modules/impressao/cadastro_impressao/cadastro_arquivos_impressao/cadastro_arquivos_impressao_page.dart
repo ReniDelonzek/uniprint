@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:pdf_render/pdf_render.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_arquivos_impressao/cadastro_arquivos_impressao_controller.dart';
 import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 import 'package:uniprint/app/shared/models/graph/tipo_folha.dart';
+import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
 
 import 'cadastro_arquivos_impressao_module.dart';
 
@@ -92,17 +94,32 @@ class _CadastroArquivosImpressaoPageState
   }
 
   Widget _getFragent() {
-    return new PageView.builder(
-      controller: controller.pageController,
-      itemCount: controller.arquivos.length,
-      itemBuilder: (context, position) {
-        return _buildStoryPage(
-            controller.arquivos[position],
-            position == controller.currentPageValue.floor(),
-            position == 0
-                ? Colors.blue
-                : position == 1 ? Colors.cyan : Colors.greenAccent,
-            position);
+    return FutureBuilder(
+      future: controller.obterNumeroPaginas(),
+      builder: (_, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snap.hasError || (snap.hasData && snap.data == false)) {
+          return Center(
+            child:
+                FalhaWidget('Ops, houve uma falha ao carregar os documentos'),
+          );
+        }
+        return new PageView.builder(
+          controller: controller.pageController,
+          itemCount: controller.arquivos.length,
+          itemBuilder: (context, position) {
+            return _buildStoryPage(
+                controller.arquivos[position],
+                position == controller.currentPageValue.floor(),
+                position == 0
+                    ? Colors.blue
+                    : position == 1 ? Colors.cyan : Colors.greenAccent,
+                position);
+          },
+        );
       },
     );
   }
@@ -147,7 +164,7 @@ class _CadastroArquivosImpressaoPageState
                   Align(
                     alignment: Alignment.topCenter,
                     child: Text(
-                      arquivo.nome,
+                      '${arquivo.nome} - ${arquivo.num_paginas} pg',
                       style: new TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,

@@ -19,7 +19,10 @@ class UtilsHiveService extends Disposable {
   }
 
   Future<bool> inicializarHive() async {
-    return await completer.future;
+    if (!completer.isCompleted) {
+      return await completer.future;
+    } else
+      return true;
   }
 
   Future<Box> getBox(String name) async {

@@ -10,9 +10,7 @@ import 'package:uniprint/app/shared/utils/utils_login.dart';
 import 'package:uniprint/app/shared/utils/utils_notification.dart';
 
 class SplashScreenPage extends StatefulWidget {
-  final String title;
-  const SplashScreenPage({Key key, this.title = "SplashScreen"})
-      : super(key: key);
+  const SplashScreenPage({Key key}) : super(key: key);
 
   @override
   _SplashScreenPageState createState() => _SplashScreenPageState();
