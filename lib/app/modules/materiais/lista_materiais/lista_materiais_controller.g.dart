@@ -25,4 +25,17 @@ mixin _$ListaMateriaisController on _ListaMateriaisBase, Store {
       _$materiaisAtom.reportChanged();
     }, _$materiaisAtom, name: '${_$materiaisAtom.name}_set');
   }
+
+  final _$_ListaMateriaisBaseActionController =
+      ActionController(name: '_ListaMateriaisBase');
+
+  @override
+  List<ArquivoImpressao> getArquivosImpressao(MaterialProf material) {
+    final _$actionInfo = _$_ListaMateriaisBaseActionController.startAction();
+    try {
+      return super.getArquivosImpressao(material);
+    } finally {
+      _$_ListaMateriaisBaseActionController.endAction(_$actionInfo);
+    }
+  }
 }

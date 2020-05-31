@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:numberpicker/numberpicker.dart';
-import 'package:pdf_render/pdf_render.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_arquivos_impressao/cadastro_arquivos_impressao_controller.dart';
+import 'package:uniprint/app/shared/db/hive/tipo_folha.dart';
 import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
-import 'package:uniprint/app/shared/models/graph/tipo_folha.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
+import 'package:uniprint/app/shared/widgets/selecionar_quantidade/selecionar_quantidade_widget.dart';
+import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_controller.dart';
+import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_widget.dart';
 
 import 'cadastro_arquivos_impressao_module.dart';
 
@@ -27,7 +29,7 @@ class _CadastroArquivosImpressaoPageState
     extends State<CadastroArquivosImpressaoPage> {
   final controller = CadastroArquivosImpressaoModule.to
       .bloc<CadastroArquivosImpressaoController>();
-  Icon icon = Icon(Icons.navigate_next);
+
   bool _visibility = true;
   List<TipoFolha> tamanhosFolha = List();
 
@@ -38,7 +40,7 @@ class _CadastroArquivosImpressaoPageState
   @override
   void initState() {
     tamanhosFolha = TipoFolha.getTamanhoFolhas();
-    icon = (controller.arquivos.length == 1)
+    controller.icon = (controller.arquivos.length == 1)
         ? Icon(Icons.done)
         : Icon(Icons.navigate_next);
     super.initState();
@@ -54,21 +56,17 @@ class _CadastroArquivosImpressaoPageState
   @override
   Widget build(BuildContext context) {
     controller.pageController.addListener(() {
-      setState(() {
-        controller.currentPageValue = controller.pageController.page;
-        icon = (controller.currentPageValue.toInt() ==
-                controller.arquivos.length - 1)
-            ? Icon(Icons.done)
-            : Icon(Icons.navigate_next);
-      });
+      controller.currentPageValue = controller.pageController.page;
+      controller.icon = (controller.currentPageValue.toInt() ==
+              controller.arquivos.length - 1)
+          ? Icon(Icons.done)
+          : Icon(Icons.navigate_next);
     });
     return new Scaffold(
         appBar: new AppBar(
           title: new Text(
             "Arquivos",
-            style: new TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.white,
         ),
         floatingActionButton: new Visibility(
             visible: _visibility,
@@ -87,9 +85,8 @@ class _CadastroArquivosImpressaoPageState
                 }
               },
               tooltip: 'Confirmar',
-              child: icon,
+              child: Observer(builder: (_) => controller.icon),
             )),
-        backgroundColor: Colors.white,
         body: _getFragent());
   }
 
@@ -111,13 +108,14 @@ class _CadastroArquivosImpressaoPageState
           controller: controller.pageController,
           itemCount: controller.arquivos.length,
           itemBuilder: (context, position) {
-            return _buildStoryPage(
-                controller.arquivos[position],
-                position == controller.currentPageValue.floor(),
-                position == 0
-                    ? Colors.blue
-                    : position == 1 ? Colors.cyan : Colors.greenAccent,
-                position);
+            return Observer(
+                builder: (_) => _buildStoryPage(
+                    controller.arquivos[position],
+                    position == controller.currentPageValue.floor(),
+                    position == 0
+                        ? Colors.blue
+                        : position == 1 ? Colors.cyan : Colors.greenAccent,
+                    position));
           },
         );
       },
@@ -134,15 +132,13 @@ class _CadastroArquivosImpressaoPageState
       duration: Duration(milliseconds: 600),
       curve: Curves.easeOutQuint,
       margin: EdgeInsets.only(top: top, bottom: 10, right: 5, left: 5),
-      //color: Colors.cyan,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-          //    color: Colors.cyan,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black26,
-                blurRadius: blur,
-                offset: Offset(offset, offset))
-          ]),
+      decoration:
+          BoxDecoration(borderRadius: BorderRadius.circular(20), boxShadow: [
+        BoxShadow(
+            color: Colors.black26,
+            blurRadius: blur,
+            offset: Offset(offset, offset))
+      ]),
       child: _getCard(arquivo, index),
     );
   }
@@ -166,9 +162,7 @@ class _CadastroArquivosImpressaoPageState
                     child: Text(
                       '${arquivo.nome} - ${arquivo.num_paginas} pg',
                       style: new TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18),
+                          fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                   ),
                   new Image.asset(
@@ -176,23 +170,14 @@ class _CadastroArquivosImpressaoPageState
                     width: 150,
                     height: 150,
                   ),
+
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        _textTitle('Tipo de folha'),
-                        new Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          mainAxisSize: MainAxisSize.max,
-                          children: <Widget>[
-                            getButtonUI(index, tamanhosFolha[0],
-                                arquivo.tipo_folha_id == tamanhosFolha[0].id),
-                            getButtonUI(index, tamanhosFolha[1],
-                                arquivo.tipo_folha_id == tamanhosFolha[1].id)
-                          ],
-                        ),
+                        TipoFolhaWidget(TipoFolhaController(arquivo.tipoFolha)),
                         _textTitle('Número de cópias'),
                         Row(
                           mainAxisSize: MainAxisSize.max,
@@ -234,6 +219,7 @@ class _CadastroArquivosImpressaoPageState
                             ),
                           ],
                         ),
+                        _numeroPag(arquivo)
                       ],
                     ),
                   ), //getButtonUI(index, arquivo.tipoFolha, true)
@@ -242,6 +228,25 @@ class _CadastroArquivosImpressaoPageState
             ),
           )))),
     );
+  }
+
+  Widget _numeroPag(ArquivoImpressao arquivo) {
+    if (arquivo.num_paginas == 0) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('Infome o número de paginas do documento'),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: SelecionarQuantidadeWidget(
+                arquivo.num_paginas.toDouble(), controller.ctlQuantidade,
+                alteravel: arquivo.num_paginas == 0, inteiro: true),
+          ),
+        ],
+      );
+    } else {
+      return Container(width: 0, height: 0);
+    }
   }
 
   Widget _textTitle(String text) {
@@ -257,43 +262,5 @@ class _CadastroArquivosImpressaoPageState
             //letterSpacing: 0.27,
           ),
         ));
-  }
-
-  Widget getButtonUI(int position, TipoFolha tipoFolha, bool isSelected) {
-    return Container(
-        width: 80,
-        height: 42,
-        decoration: new BoxDecoration(
-            color: (controller.arquivos[position].tipo_folha_id == tipoFolha.id)
-                ? Colors.blue
-                : Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(24.0)),
-            border: new Border.all(color: Colors.blue)),
-        child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              splashColor: Colors.white24,
-              borderRadius: BorderRadius.all(Radius.circular(24.0)),
-              onTap: () {
-                setState(() {
-                  controller.arquivos[position].tipo_folha_id = tipoFolha.id;
-                });
-              },
-              child: Padding(
-                padding:
-                    EdgeInsets.only(top: 12, bottom: 12, left: 18, right: 18),
-                child: Center(
-                  child: Text(
-                    tipoFolha.nome,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                        letterSpacing: 0.27,
-                        color: isSelected ? Colors.white : Colors.blue),
-                  ),
-                ),
-              ),
-            )));
   }
 }

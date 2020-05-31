@@ -1,13 +1,12 @@
 import 'dart:convert';
 
+import 'package:uniprint/app/shared/db/hive/tipo_folha.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/extensions/string.dart';
 import 'package:uniprint/app/shared/models/graph/materiais/arquivo_material.dart';
 import 'package:uniprint/app/shared/models/graph/professor.dart';
 
 import '../ponto_atendimento.dart';
-import '../professor_turma.dart';
-import '../tipo_folha.dart';
 
 class MaterialProf {
   DateTime data_publicacao;

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -8,13 +9,13 @@ import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_a
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
 import 'package:uniprint/app/modules/home/home_module.dart';
-import 'package:uniprint/app/modules/home/login_social/login_social_page.dart';
 import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
 import 'package:uniprint/app/modules/home/tela_perfil/tela_perfil_page.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_module.dart';
 import 'package:uniprint/app/modules/materiais/cadastro_material/cadastro_material_module.dart';
 import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_module.dart';
+import 'package:uniprint/app/services/sincronizar_dados_service.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
@@ -22,10 +23,10 @@ import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
+import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
-import 'package:uniprint/app/shared/utils/utils_login.dart';
 import 'package:uniprint/app/shared/widgets/bottom_app_nav.dart';
 import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
@@ -63,8 +64,6 @@ class _HomePageState extends State<HomePage> {
         {
           if (!controller.atendimentos.any((element) =>
               element.status == Constants.STATUS_ATENDIMENTO_SOLICITADO)) {
-            /*Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) => new CadastroAtendimento()));*/
             controller.exibirFab = false;
             await Navigator.of(context).push(new MaterialPageRoute(
                 builder: (BuildContext context) =>
@@ -87,14 +86,7 @@ class _HomePageState extends State<HomePage> {
           controller.exibirFab = true;
           break;
         }
-      case 2:
-        {
-          // Navigator.of(context).push(new MaterialPageRoute(
-          //     builder: (BuildContext context) => new ListaAtendente()));
-          // break;
-        }
     }
-    //  });
   }
 
   @override
@@ -102,136 +94,130 @@ class _HomePageState extends State<HomePage> {
     FirebaseAuth.instance.currentUser().then((user) {
       controller.user = user;
     });
-    if (atendimento != null) {
-      //case tenha vindo a partir de uma notificacao
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      _atualizarValoresImpressoes();
+      if (atendimento != null) {
+        //caso tenha vindo a partir de uma notificacao
         controller.exibirFab = false;
         await Navigator.of(context).push(new MaterialPageRoute(
             builder: (BuildContext context) =>
                 new DetalhesAtendimentoModule(atendimento)));
         controller.exibirFab = true;
-      });
-    }
+      }
+    });
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: ((context) {
-      return new Scaffold(
-        backgroundColor: Colors.white,
-        appBar: new AppBar(
-          title: Observer(
-            builder: (_) => new Text(
-              "${_getSaudacao()} ${controller.user?.displayName?.split(" ")?.first ?? ""}",
-              style: new TextStyle(fontWeight: FontWeight.bold),
-            ),
+    return Scaffold(
+      appBar: new AppBar(
+        title: Observer(
+          builder: (_) => new Text(
+            "${_getSaudacao()} ${controller.user?.displayName?.split(" ")?.first ?? ""}",
+            style: new TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        body: Builder(builder: (context) {
-          buildContextScall = context;
-          return (_lastSelected == 0)
-              ? _getAtendimentos(context)
-              : _getImpressoes(context);
-        }),
-        drawer: Theme(
-            data: Theme.of(context).copyWith(
-              // Set the transparency here
-              canvasColor: Colors
-                  .transparent, //or any other color you want. e.g Colors.blue.withOpacity(0.5)
-            ),
-            child: new Drawer(
-                child: Container(
-              color: Colors.white,
-              child: new Column(children: <Widget>[
-                Observer(
-                  builder: (_) => new UserAccountsDrawerHeader(
-                    accountName: new Text(
-                      controller.user?.displayName ?? "",
-                      style: new TextStyle(color: Colors.white),
-                    ),
-                    accountEmail: new Text(controller.user?.email ?? "",
-                        style: new TextStyle(color: Colors.white)),
-                    currentAccountPicture: new GestureDetector(
-                      onTap: () async {
-                        controller.exibirFab = false;
-                        await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    TelaPerfilPage(controller.user)));
-                        controller.exibirFab = true;
-                      },
-                      child: Hero(
-                        tag: "imagem_perfil",
-                        child: new CircleAvatar(
-                          backgroundImage: new NetworkImage(controller
-                                  .user?.photoUrl ??
-                              "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
-                        ),
+      ),
+      body: Builder(builder: (context) {
+        buildContextScall = context;
+        return (_lastSelected == 0)
+            ? _getAtendimentos(context)
+            : _getImpressoes(context);
+      }),
+      drawer: Theme(
+          data: Tema.getWhiteTema(context),
+          child: new Drawer(
+              child: Container(
+            child: new Column(children: <Widget>[
+              Observer(
+                builder: (_) => new UserAccountsDrawerHeader(
+                  accountName: new Text(
+                    controller.user?.displayName ?? "",
+                    style: new TextStyle(color: Colors.white),
+                  ),
+                  accountEmail: new Text(controller.user?.email ?? "",
+                      style: new TextStyle(color: Colors.white)),
+                  currentAccountPicture: new GestureDetector(
+                    onTap: () async {
+                      controller.exibirFab = false;
+                      await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  TelaPerfilPage(controller.user)));
+                      controller.exibirFab = true;
+                    },
+                    child: Hero(
+                      tag: "imagem_perfil",
+                      child: new CircleAvatar(
+                        backgroundImage: new NetworkImage(controller
+                                .user?.photoUrl ??
+                            "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
                       ),
                     ),
-                    decoration: new BoxDecoration(
-                        image: new DecorationImage(
-                            fit: BoxFit.fill,
-                            image: AssetImage('imagens/back_drawer.jpg'))),
                   ),
+                  decoration: new BoxDecoration(
+                      image: new DecorationImage(
+                          fit: BoxFit.fill,
+                          image: AssetImage('imagens/back_drawer.jpg'))),
                 ),
-                new ListTile(
-                    title: new Text("Materiais publicados"),
-                    trailing: new Icon(Icons.school),
-                    onTap: () async {
-                      controller.exibirFab = false;
-                      await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ListaMateriaisModule()));
-                      controller.exibirFab = true;
-                    }),
-                _cadastroMaterial(),
-                new ListTile(
-                    title: new Text("FeedBack"),
-                    trailing: new Icon(Icons.favorite),
-                    onTap: () async {
-                      controller.exibirFab = false;
-                      await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => FeedbackModule()));
-                      controller.exibirFab = true;
-                    }),
-                new Divider(),
-                new ListTile(
-                    title: new Text("Sair"),
-                    trailing: new Icon(Icons.power_settings_new),
-                    onTap: () async {
-                      await AppModule.to
-                          .getDependency<HasuraAuthService>()
-                          .deslogar();
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SplashModule()));
-                    }),
-              ]),
-            ))),
-        bottomNavigationBar: FABBottomAppBar(
-          centerItemText: '',
-          color: Colors.grey,
-          selectedColor: Colors.blue,
-          notchedShape: CircularNotchedRectangle(),
-          onTabSelected: _selectedTab,
-          items: [
-            FABBottomAppBarItem(
-                iconData: Icons.group_work, text: 'Atendimentos'),
-            FABBottomAppBarItem(iconData: Icons.layers, text: 'Impressões'),
-          ],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: _buildFab(context),
-      );
-    }));
+              ),
+              new ListTile(
+                  title: new Text("Materiais publicados"),
+                  trailing: new Icon(Icons.school),
+                  onTap: () async {
+                    controller.exibirFab = false;
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ListaMateriaisModule()));
+                    controller.exibirFab = true;
+                  }),
+              _cadastroMaterial(),
+              new ListTile(
+                  title: new Text("FeedBack"),
+                  trailing: new Icon(Icons.favorite),
+                  onTap: () async {
+                    controller.exibirFab = false;
+                    await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FeedbackModule()));
+                    controller.exibirFab = true;
+                  }),
+              new Divider(),
+              new ListTile(
+                  title: new Text("Sair"),
+                  trailing: new Icon(Icons.power_settings_new),
+                  onTap: () async {
+                    await AppModule.to
+                        .getDependency<HasuraAuthService>()
+                        .logOut();
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SplashModule()));
+                  }),
+            ]),
+          ))),
+      bottomNavigationBar: FABBottomAppBar(
+        centerItemText: '',
+        //color: Colors.grey,
+        selectedColor: Colors.blue,
+        notchedShape: CircularNotchedRectangle(),
+        onTabSelected: _selectedTab,
+        items: [
+          FABBottomAppBarItem(iconData: Icons.group_work, text: 'Atendimentos'),
+          FABBottomAppBarItem(iconData: Icons.layers, text: 'Impressões'),
+        ],
+      ),
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: _buildFab(context),
+    );
   }
 
   String _getSaudacao() {
@@ -248,7 +234,7 @@ class _HomePageState extends State<HomePage> {
   Widget _getAtendimentos(BuildContext context) {
     return StreamBuilder(
       stream: GraphQlObject.hasuraConnect
-          .subscription(getAtendimentos, variables: {
+          .subscription(Querys.getAtendimentos, variables: {
         "usuario_id":
             AppModule.to.getDependency<HasuraAuthService>().usuario.codHasura
       }),
@@ -307,7 +293,7 @@ class _HomePageState extends State<HomePage> {
   Widget _getImpressoes(BuildContext context) {
     return StreamBuilder(
         stream: GraphQlObject.hasuraConnect
-            .subscription(getImpressoes, variables: {
+            .subscription(Querys.getImpressoes, variables: {
           "usuario_id":
               AppModule.to.getDependency<HasuraAuthService>().usuario.codHasura
         }),
@@ -336,30 +322,23 @@ class _HomePageState extends State<HomePage> {
             return ListView.builder(
               itemCount: controller.impressoes.length,
               itemBuilder: (_, pos) {
-                return InkWell(
-                    onTap: () async {
-                      controller.exibirFab = false;
-                      await Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              new DetalhesImpressaoModule(
-                                  controller.impressoes[pos])));
-                      controller.exibirFab = true;
-                    },
-                    child: _getItensCardImpressao(controller.impressoes[pos]));
+                return _getItensCardImpressao(controller.impressoes[pos]);
               },
             );
           }
         });
   }
 
-  //status
-  //data de impressao
-  //resumo arquivos
-  //valor total da impressao
-  //aprovado por
-
   Widget _getItensCardImpressao(Impressao impressao) {
     return Card(
+        child: InkWell(
+      onTap: () async {
+        controller.exibirFab = false;
+        await Navigator.of(context).push(new MaterialPageRoute(
+            builder: (BuildContext context) =>
+                new DetalhesImpressaoModule(impressao)));
+        controller.exibirFab = true;
+      },
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: new Column(
@@ -367,8 +346,7 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               new Text(
                 UtilsImpressao.getStatusImpressao(impressao.status),
-                style: new TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold),
+                style: new TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(UtilsImpressao.getResumo(impressao.arquivo_impressaos)),
               Text(
@@ -380,7 +358,7 @@ class _HomePageState extends State<HomePage> {
               //new Text(NumberFormat.simpleCurrency().format(impressao.valorTotal ?? 0))
             ]),
       ),
-    );
+    ));
   }
 
   Widget _getMovimentacoesImpressao(Impressao impressao) {
@@ -501,4 +479,12 @@ class _HomePageState extends State<HomePage> {
       return Container();
     }
   }
+
+  _atualizarValoresImpressoes() {
+    compute(sincronizarDados(), '');
+  }
+}
+
+sincronizarDados() {
+  SincronizarDadosService().sincronizar('');
 }

@@ -19,10 +19,9 @@ class ValorImpressaoAdapter extends TypeAdapter<ValorImpressao> {
     return ValorImpressao(
       fields[0] as int,
       fields[1] as double,
-      fields[3] as String,
-      fields[2] as String,
-      fields[4] as DateTime,
-      fields[5] as DateTime,
+      fields[3] as int,
+      fields[4] as dynamic,
+      fields[5] as dynamic,
       fields[6] as bool,
     );
   }
@@ -30,19 +29,17 @@ class ValorImpressaoAdapter extends TypeAdapter<ValorImpressao> {
   @override
   void write(BinaryWriter writer, ValorImpressao obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.valor)
-      ..writeByte(2)
-      ..write(obj.idServer)
       ..writeByte(3)
-      ..write(obj.tipoFolha)
+      ..write(obj.tipo_folha_id)
       ..writeByte(4)
-      ..write(obj.dataInicio)
+      ..write(obj.data_inicio)
       ..writeByte(5)
-      ..write(obj.dataFim)
+      ..write(obj.data_fim)
       ..writeByte(6)
       ..write(obj.colorido);
   }

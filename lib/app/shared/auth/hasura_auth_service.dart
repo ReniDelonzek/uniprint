@@ -9,9 +9,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/shared/db/hive/usuario.dart';
 import 'package:uniprint/app/shared/db/hive/utils_hive_service.dart';
+import 'package:uniprint/app/shared/interfaces/auth_service_interface.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
+import 'package:uniprint/app/shared/utils/utils_sentry.dart';
 
-class HasuraAuthService extends Disposable {
+class HasuraAuthService extends Disposable with AuthServiceInterface {
   UsuarioHasura usuario;
   Completer<Box> completer = Completer();
 
@@ -21,42 +23,29 @@ class HasuraAuthService extends Disposable {
 
   _init() async {
     await AppModule.to.getDependency<UtilsHiveService>().inicializarHive();
-    Box box = (Hive.isBoxOpen('hasura_user')
-        ? Hive.box('hasura_user')
-        : (await Hive.openBox('hasura_user')));
+    Box box = await AppModule.to
+        .getDependency<UtilsHiveService>()
+        .getBox('hasura_user');
     completer.complete(box);
   }
 
-  Future<bool> deslogar() async {
-    usuario = null;
-    Box box = await completer.future;
-    await box.clear();
-
-    SharedPreferences.getInstance().then((shared) {
+  @override
+  Future<bool> logOut() async {
+    try {
+      usuario = null;
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+      Box box = await completer.future;
+      await box.clear();
+      await FirebaseAuth.instance.signOut();
+      SharedPreferences shared = await SharedPreferences.getInstance();
       shared.remove(Constants.TIPO_USUARIO);
-      FirebaseAuth.instance.currentUser().then((user) {
-        Firestore.instance
-            .collection('Usuarios')
-            .document(user.uid)
-            .collection('tokens')
-            .where('messaging_token',
-                isEqualTo: shared.get(Constants.MESSAGING_TOKEN))
-            .getDocuments()
-            .then((snap) {
-          snap.documents.forEach((doc) async {
-            await doc.reference.delete();
-          });
-        });
-        FirebaseAuth.instance.signOut();
-        return true;
-      }).catchError((error) {
-        FirebaseAuth.instance.signOut();
-        return false;
-      });
-    }).catchError((error) {
-      FirebaseAuth.instance.signOut();
+      await _limparTokenFirebase(
+          user?.uid, shared.get(Constants.MESSAGING_TOKEN));
+      return true;
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       return false;
-    });
+    }
   }
 
   void obterDadosUsuario(
@@ -91,6 +80,20 @@ class HasuraAuthService extends Disposable {
     } else {
       onChanged(usuario);
     }
+  }
+
+  _limparTokenFirebase(String uid, String token) {
+    Firestore.instance
+        .collection('Usuarios')
+        .document(uid)
+        .collection('tokens')
+        .where('messaging_token', isEqualTo: token)
+        .getDocuments()
+        .then((snap) {
+      snap.documents.forEach((doc) async {
+        await doc.reference.delete();
+      });
+    });
   }
 
   @override

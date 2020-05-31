@@ -1,8 +1,20 @@
 import 'dart:convert';
 
+import 'package:hive/hive.dart';
+import 'package:uniprint/app/app_module.dart';
+import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_controller.dart';
+
+import 'utils_hive_service.dart';
+part 'tipo_folha.g.dart';
+
+@HiveType(typeId: 3)
 class TipoFolha {
+  @HiveField(0)
   int id;
+  @HiveField(1)
   String nome;
+  bool selecionado = false;
+
   TipoFolha({
     this.id,
     this.nome,
@@ -53,5 +65,15 @@ class TipoFolha {
 
   static List<TipoFolha> getTamanhoFolhas() {
     return [TipoFolha(id: 1, nome: 'A4'), TipoFolha(id: 2, nome: 'A3')];
+  }
+
+  List<TipoFolha> tiposFolha;
+
+  Future<List<TipoFolha>> getTiposFolha() async {
+    Box box = await AppModule.to
+        .getDependency<UtilsHiveService>()
+        .getBox<TipoFolha>('tipo_folha');
+    tiposFolha = box.values.toList();
+    return tiposFolha;
   }
 }

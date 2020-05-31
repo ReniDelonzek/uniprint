@@ -27,4 +27,39 @@ mixin _$CadastroArquivosImpressaoController
       _$pageControllerAtom.reportChanged();
     }, _$pageControllerAtom, name: '${_$pageControllerAtom.name}_set');
   }
+
+  final _$currentPageValueAtom =
+      Atom(name: '_CadastroArquivosImpressaoBase.currentPageValue');
+
+  @override
+  double get currentPageValue {
+    _$currentPageValueAtom.context.enforceReadPolicy(_$currentPageValueAtom);
+    _$currentPageValueAtom.reportObserved();
+    return super.currentPageValue;
+  }
+
+  @override
+  set currentPageValue(double value) {
+    _$currentPageValueAtom.context.conditionallyRunInAction(() {
+      super.currentPageValue = value;
+      _$currentPageValueAtom.reportChanged();
+    }, _$currentPageValueAtom, name: '${_$currentPageValueAtom.name}_set');
+  }
+
+  final _$iconAtom = Atom(name: '_CadastroArquivosImpressaoBase.icon');
+
+  @override
+  Icon get icon {
+    _$iconAtom.context.enforceReadPolicy(_$iconAtom);
+    _$iconAtom.reportObserved();
+    return super.icon;
+  }
+
+  @override
+  set icon(Icon value) {
+    _$iconAtom.context.conditionallyRunInAction(() {
+      super.icon = value;
+      _$iconAtom.reportChanged();
+    }, _$iconAtom, name: '${_$iconAtom.name}_set');
+  }
 }

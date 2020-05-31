@@ -1,4 +1,6 @@
-String getAtendimentos = """subscription getAtendimentos(\$usuario_id: Int!) { 
+class Querys {
+  static String getAtendimentos =
+      """subscription getAtendimentos(\$usuario_id: Int!) { 
   atendimento(where: {usuario_id: {_eq: \$usuario_id}}, order_by: {id: desc}) {
     id
     data_solicitacao
@@ -22,7 +24,7 @@ String getAtendimentos = """subscription getAtendimentos(\$usuario_id: Int!) {
   }
 }""";
 
-String getImpressoes = """
+  static String getImpressoes = """
 subscription getImpressoes(\$usuario_id: Int!) { 
   impressao(where: {usuario_id: {_eq: \$usuario_id}}, order_by: {id: desc}) {
     id
@@ -53,7 +55,7 @@ subscription getImpressoes(\$usuario_id: Int!) {
 }
 """;
 
-String posicaoAtendimento = """
+  static String posicaoAtendimento = """
 subscription posicaoAtendimento(\$id: Int!) {
   atendimento_aggregate(where: {status: {_eq: 1}, _and: {id: {_gt: \$id}}}) {
     aggregate {
@@ -64,7 +66,7 @@ subscription posicaoAtendimento(\$id: Int!) {
 
 """;
 
-String getListaMateriais = """query materiais {
+  static String getListaMateriais = """query materiais {
   material {
     colorido
     data_publicacao
@@ -91,7 +93,7 @@ String getListaMateriais = """query materiais {
   }
 }
 """;
-String getDetalhesUsuUsuario = """
+  static String getDetalhesUsuUsuario = """
  detalhesUso(\$usuario_id: Int!) {
   atendimento_aggregate(where: {usuario_id: {_eq: \$usuario_id}}) {
     aggregate {
@@ -105,3 +107,32 @@ String getDetalhesUsuUsuario = """
   }
 }
 """;
+
+  static String getSincronizacao = """
+  query valoresImpressao {
+  valor_impressao {
+    colorido
+    data_fim
+    data_inicio
+    tipo_folha_id
+    valor
+    id
+  }
+  tipo_folha {
+    id
+    nome 
+  }
+}
+""";
+
+  static String getValorMaximoImpressao = """
+  query nivel_usuario(\$usuario_id: Int!) {
+  nivel_usuario(where: {usuario_id: {_eq: \$usuario_id}}) {
+    nivel {
+      valor_max_impressao
+    }
+  }
+}
+
+""";
+}

@@ -37,7 +37,6 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(title: Text('Detalhes impressão')),
       body: new Builder(
         builder: (builderContext) {
@@ -51,7 +50,6 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
-                      elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -85,7 +83,6 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                                     'Valor Total: ${NumberFormat.simpleCurrency().format(snap.data ?? 0)}',
                                     style: TextStyle(
                                         fontSize: 18,
-                                        color: Colors.black,
                                         fontWeight: FontWeight.bold),
                                   );
                                 },
@@ -100,9 +97,9 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
 
                 _botaoConfirmarRecebimento(builderContext),
                 Container(
-                  alignment: Alignment.center,
+                  //alignment: Alignment.center,
                   padding: const EdgeInsets.only(top: 35, bottom: 16),
-                  child: TextTitle('Histórico de Movimentações'),
+                  child: TextTitle('Movimentações'),
                 ),
                 _getTimeLine(),
                 //_botaoConfirmarRecebimento(builderContext)
@@ -127,10 +124,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
             Container(
                 child: Text(
                   '${mov.movimentacao.data.string('dd/MM HH:mm')}\n${UtilsImpressao.getTipoMovimentacao(mov.movimentacao.tipo)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
+                  style: TextStyle(fontSize: 16),
                 ),
                 padding: EdgeInsets.only(top: 16, bottom: 16),
                 alignment: Alignment.centerLeft),
@@ -190,22 +184,24 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
-                  new Button('Cancelar', () async {
-                    var res = await UtilsImpressao.gerarMovimentacao(
-                        Constants.MOV_IMPRESSAO_CANCELADO,
-                        Constants.STATUS_IMPRESSAO_CANCELADO,
-                        widget.impressao.id,
-                        widget.impressao.usuario.id,
-                        context,
-                        'Cancelando impressão...');
-                    if (res) {
-                      showSnack(context, 'Impressão cancelada com sucesso',
-                          dismiss: true);
-                    } else {
-                      showSnack(context,
-                          'Ops, houve uma falha ao cancelar a impressão');
-                    }
-                  }),
+                  new FlatButton(
+                      child: Text('Cancelar'),
+                      onPressed: () async {
+                        var res = await UtilsImpressao.gerarMovimentacao(
+                            Constants.MOV_IMPRESSAO_CANCELADO,
+                            Constants.STATUS_IMPRESSAO_CANCELADO,
+                            widget.impressao.id,
+                            widget.impressao.usuario.id,
+                            context,
+                            'Cancelando impressão...');
+                        if (res) {
+                          showSnack(context, 'Impressão cancelada com sucesso',
+                              dismiss: true);
+                        } else {
+                          showSnack(context,
+                              'Ops, houve uma falha ao cancelar a impressão');
+                        }
+                      }),
                   Container(
                     alignment: Alignment.bottomCenter,
                     child: new Button('Confirmar Recebimento', () async {

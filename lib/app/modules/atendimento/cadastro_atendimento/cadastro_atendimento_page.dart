@@ -1,21 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf_render/pdf_render.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_atendimento_module.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
-import 'package:uniprint/app/shared/widgets/widgets.dart';
+import 'package:uniprint/app/shared/widgets/pontos_atendimento/pontos_atendimento_widget.dart';
+
 import '../../../app_module.dart';
+import 'cadastro_atendimento_controller.dart';
 
 class CadastroAtendimentoPage extends StatefulWidget {
   final String title;
-  PontoAtendimento local;
   CadastroAtendimentoPage({Key key, this.title = "Cadastro Atendimento"})
       : super(key: key);
 
@@ -25,6 +24,8 @@ class CadastroAtendimentoPage extends StatefulWidget {
 }
 
 class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
+  final _controller =
+      CadastroAtendimentoModule.to.bloc<CadastroAtendimentoController>();
   List<PontoAtendimento> locais = List();
   final controllerObs = TextEditingController();
   ProgressDialog progressDialog;
@@ -74,7 +75,8 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                             .codHasura,
                         'data': DateFormat('yyyy-MM-ddTHH:mm:ss')
                             .format(DateTime.now()),
-                        'ponto_atendimento_id': widget.local.id,
+                        'ponto_atendimento_id': _controller
+                            .ctlPontosAtendimento.pontoAtendimento.id,
                         'status': Constants.STATUS_ATENDIMENTO_SOLICITADO
                       });
                       if (res != null) {
@@ -93,15 +95,8 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
-        LocaisAtendimento(
-          'Selecione o Local',
-          (local) {
-            setState(() {
-              this.widget.local = local;
-            });
-          },
-          local: widget.local,
-        ),
+        PontosAtendimentoWidget(
+            'Selecione o Local', (local) {}, _controller.ctlPontosAtendimento),
         Expanded(
           child: new Column(
             mainAxisSize: MainAxisSize.max,
@@ -123,7 +118,7 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
   }
 
   bool verificarDados(BuildContext context) {
-    if (widget.local == null) {
+    if (_controller.ctlPontosAtendimento.pontoAtendimento == null) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text('Você precisa selecionar o local do atendimento'),
       ));

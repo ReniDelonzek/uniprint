@@ -76,4 +76,21 @@ mixin _$HomeController on _HomeBase, Store {
       _$exibirFabAtom.reportChanged();
     }, _$exibirFabAtom, name: '${_$exibirFabAtom.name}_set');
   }
+
+  final _$lastSelectedAtom = Atom(name: '_HomeBase.lastSelected');
+
+  @override
+  int get lastSelected {
+    _$lastSelectedAtom.context.enforceReadPolicy(_$lastSelectedAtom);
+    _$lastSelectedAtom.reportObserved();
+    return super.lastSelected;
+  }
+
+  @override
+  set lastSelected(int value) {
+    _$lastSelectedAtom.context.conditionallyRunInAction(() {
+      super.lastSelected = value;
+      _$lastSelectedAtom.reportChanged();
+    }, _$lastSelectedAtom, name: '${_$lastSelectedAtom.name}_set');
+  }
 }

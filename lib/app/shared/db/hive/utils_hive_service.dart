@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uniprint/app/shared/db/hive/tipo_folha.dart';
 import 'package:uniprint/app/shared/db/hive/usuario.dart';
+import 'package:uniprint/app/shared/db/valor_impressao.dart';
 
 class UtilsHiveService extends Disposable {
   Completer<bool> completer = Completer();
@@ -15,6 +17,8 @@ class UtilsHiveService extends Disposable {
   _init() async {
     await Hive.initFlutter();
     Hive.registerAdapter(UsuarioHasuraAdapter());
+    Hive.registerAdapter(ValorImpressaoAdapter());
+    Hive.registerAdapter(TipoFolhaAdapter());
     completer.complete(true);
   }
 
@@ -25,13 +29,15 @@ class UtilsHiveService extends Disposable {
       return true;
   }
 
-  Future<Box> getBox(String name) async {
+  Future<Box<E>> getBox<E>(String name) async {
     if (!completer.isCompleted) {
       await completer.future;
     }
-    return (Hive.isBoxOpen(name)) ? Hive.box(name) : Hive.openBox(name);
+    return (Hive.isBoxOpen(name)) ? Hive.box<E>(name) : Hive.openBox<E>(name);
   }
 
   @override
-  void dispose() {}
+  void dispose() {
+    completer.future.then((value) => {Hive.close()});
+  }
 }

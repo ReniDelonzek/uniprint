@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
+import 'package:uniprint/app/modules/feedback/feedback_controller.dart';
+import 'package:uniprint/app/modules/feedback/feedback_module.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -16,24 +19,11 @@ class FeedbackPage extends StatefulWidget {
 }
 
 class _FeedbackPageState extends State<FeedbackPage> {
-  final controllerFeedBack = TextEditingController();
-  var coutTextFeedback = 0;
-  double rating = 4;
-
-  @override
-  void initState() {
-    super.initState();
-    controllerFeedBack.addListener(() {
-      setState(() {
-        coutTextFeedback = controllerFeedBack.text.length;
-      });
-    });
-  }
+  final _controller = FeedbackModule.to.bloc<FeedbackController>();
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text('FeedBack'),
         ),
@@ -54,30 +44,33 @@ class _FeedbackPageState extends State<FeedbackPage> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 25),
-                      child: SmoothStarRating(
-                          allowHalfRating: false,
-                          onRatingChanged: (v) {
-                            rating = v;
-                            setState(() {});
-                          },
-                          starCount: 5,
-                          rating: rating,
-                          size: 40.0,
-                          color: Colors.blue,
-                          borderColor: Colors.blue,
-                          spacing: 0.0),
+                      child: Observer(
+                        builder: (_) => SmoothStarRating(
+                            allowHalfRating: false,
+                            onRatingChanged: (v) {
+                              _controller.rating = v;
+                            },
+                            starCount: 5,
+                            rating: _controller.rating,
+                            size: 40.0,
+                            color: Colors.blue,
+                            borderColor: Colors.blue,
+                            spacing: 0.0),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 25),
                       child: TextFormField(
                         decoration: InputDecoration(
-                          labelStyle: TextStyle(color: Colors.black45),
+                          //labelStyle: TextStyle(color: Colors.black45),
                           labelText:
                               'Insira dicas, opiniões, críticas, desabafos...',
-                          counter: Text('$coutTextFeedback/500'),
+                          counter: Observer(
+                              builder: (_) =>
+                                  Text('${_controller.coutTextFeedback}/500')),
                         ),
                         maxLength: 500,
-                        controller: controllerFeedBack,
+                        controller: _controller.controllerFeedBack,
                         textCapitalization: TextCapitalization.sentences,
                       ),
                     ),
@@ -85,20 +78,24 @@ class _FeedbackPageState extends State<FeedbackPage> {
                         padding: const EdgeInsets.all(25.0),
                         child: Button(
                           'Enviar',
-                           () async {
-                             ProgressDialog progressDialog = ProgressDialog(context);
-                             progressDialog.style(message: 'Enviando feedback');
-                             progressDialog.show();
-                            FirebaseAuth.instance.currentUser().then((user) async {
-                              var res = await GraphQlObject.hasuraConnect.mutation(cadastroFeedBack, variables:
-                              {
-                                 'nota': rating,
-                                 'feedback': controllerFeedBack.text,
-                                 'usuario_id': 1
+                          () async {
+                            ProgressDialog progressDialog =
+                                ProgressDialog(context);
+                            progressDialog.style(message: 'Enviando feedback');
+                            progressDialog.show();
+                            FirebaseAuth.instance
+                                .currentUser()
+                                .then((user) async {
+                              var res = await GraphQlObject.hasuraConnect
+                                  .mutation(cadastroFeedBack, variables: {
+                                'nota': _controller.rating,
+                                'feedback': _controller.controllerFeedBack.text,
+                                'usuario_id': 1
                               });
                               progressDialog.dismiss();
                               if (res != null) {
-                                showSnack(context, 'Muito obrigado!', dismiss: true);
+                                showSnack(context, 'Muito obrigado!',
+                                    dismiss: true);
                               } else {
                                 showSnack(context, 'Ops, algo saiu mal 😥');
                               }

@@ -9,20 +9,20 @@ part of 'login_email_controller.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$LoginEmailController on _LoginEmailBase, Store {
-  final _$obscureAtom = Atom(name: '_LoginEmailBase.obscure');
+  final _$exibirSenhaAtom = Atom(name: '_LoginEmailBase.exibirSenha');
 
   @override
-  bool get obscure {
-    _$obscureAtom.context.enforceReadPolicy(_$obscureAtom);
-    _$obscureAtom.reportObserved();
-    return super.obscure;
+  bool get exibirSenha {
+    _$exibirSenhaAtom.context.enforceReadPolicy(_$exibirSenhaAtom);
+    _$exibirSenhaAtom.reportObserved();
+    return super.exibirSenha;
   }
 
   @override
-  set obscure(bool value) {
-    _$obscureAtom.context.conditionallyRunInAction(() {
-      super.obscure = value;
-      _$obscureAtom.reportChanged();
-    }, _$obscureAtom, name: '${_$obscureAtom.name}_set');
+  set exibirSenha(bool value) {
+    _$exibirSenhaAtom.context.conditionallyRunInAction(() {
+      super.exibirSenha = value;
+      _$exibirSenhaAtom.reportChanged();
+    }, _$exibirSenhaAtom, name: '${_$exibirSenhaAtom.name}_set');
   }
 }

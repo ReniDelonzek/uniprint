@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:uniprint/app/shared/models/graph/tipo_folha.dart';
+import 'package:uniprint/app/shared/db/hive/tipo_folha.dart';
 
 part 'arquivo_impressao.g.dart';
 
@@ -45,14 +45,14 @@ abstract class _ArquivoImpressaoBase with Store {
   int num_paginas;
 
   //ingorar
-  String patch;
+  String path;
   _ArquivoImpressaoBase(
       {this.url,
       this.nome,
       this.colorido,
       this.quantidade,
       this.tipo_folha_id,
-      this.patch,
+      this.path,
       this.tipoFolha,
       this.num_paginas});
 

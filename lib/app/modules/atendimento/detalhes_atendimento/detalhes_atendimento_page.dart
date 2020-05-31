@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -8,16 +5,15 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/posicao_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
-import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
-import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/widgets/button.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
 
@@ -54,11 +50,8 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
         appBar: new AppBar(
           title: new Text(
             "Atendimento",
-            style: TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.white,
         ),
-        backgroundColor: Colors.white,
         body: Builder(builder: (context) {
           return new Center(
             child: Padding(
@@ -85,7 +78,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
             Container(
               child: StreamBuilder(
                   stream: GraphQlObject.hasuraConnect.subscription(
-                      posicaoAtendimento,
+                      Querys.posicaoAtendimento,
                       variables: {'id': widget.atendimento.id}),
                   builder: (_, snap) {
                     if (snap.connectionState == ConnectionState.waiting) {
@@ -110,9 +103,9 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                   }),
               height: 100,
             ),
-            Button(
-              "Cancelar",
-              () async {
+            FlatButton(
+              child: Text("Cancelar"),
+              onPressed: () async {
                 ProgressDialog progress = ProgressDialog(context);
                 progress.style(message: 'Cancelando atendimento');
                 progress.show();
@@ -138,7 +131,6 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                   print(e);
                 }
               },
-              width: 200,
             )
           ],
         ),
@@ -174,11 +166,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
 
   Widget _getTextPosicao(String text) {
     return Padding(
-        child: Text(text,
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.black,
-            )),
+        child: Text(text, style: TextStyle(fontSize: 20)),
         padding: EdgeInsets.all(30));
   }
 
@@ -196,10 +184,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
             Container(
                 child: Text(
                   '${mov.movimentacao.data.string('dd/MM HH:mm')}\n${UtilsAtendimento.tipoAtendimento(mov.movimentacao.tipo)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
+                  style: TextStyle(fontSize: 16),
                 ),
                 padding: EdgeInsets.only(top: 16, bottom: 16),
                 alignment: Alignment.centerLeft),

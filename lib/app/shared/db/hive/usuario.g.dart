@@ -8,7 +8,7 @@ part of 'usuario.dart';
 
 class UsuarioHasuraAdapter extends TypeAdapter<UsuarioHasura> {
   @override
-  final typeId = 2;
+  final typeId = 1;
 
   @override
   UsuarioHasura read(BinaryReader reader) {

@@ -9,8 +9,9 @@ class DetalhesUsuarioService extends Disposable {
 
   Future<DetalhesUsuario> recuperarDados(int usuarioID) async {
     try {
-      var res = await GraphQlObject.hasuraConnect
-          .query(getDetalhesUsuUsuario, variables: {'usuario_id': usuarioID});
+      var res = await GraphQlObject.hasuraConnect.query(
+          Querys.getDetalhesUsuUsuario,
+          variables: {'usuario_id': usuarioID});
       if (res != null && res.containsKey('data')) {
         detalhesUsuario = DetalhesUsuario();
         detalhesUsuario.numAtendimentos =

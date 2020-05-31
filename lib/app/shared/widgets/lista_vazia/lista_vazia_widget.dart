@@ -13,8 +13,8 @@ class ListaVaziaWidget extends StatelessWidget {
         children: <Widget>[
           Image.asset(
             asset,
-            width: 150,
-            height: 150,
+            width: 120,
+            height: 120,
           ),
           Padding(
             padding: const EdgeInsets.only(top: 16.0, bottom: 2),

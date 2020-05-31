@@ -5,7 +5,6 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/modules/home/home_module.dart';
-import 'package:uniprint/app/modules/home/home_page.dart';
 import 'package:uniprint/app/modules/home/login_social/login_social_page.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/db/hive/usuario.dart';
@@ -35,18 +34,6 @@ void verificarLogin(context) {
   });
 }
 
-Future<String> _getPontoAtendimento(String userId) async {
-  DocumentSnapshot doc =
-      await Firestore.instance.collection('Atendentes').document(userId).get();
-  if (doc != null && doc.exists) {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('codPonto', doc.data['codPonto']);
-    return doc.data['codPonto'];
-  } else {
-    return null;
-  }
-}
-
 void _goScreen(FirebaseUser user, BuildContext context) async {
   final prefs = await SharedPreferences.getInstance();
 
@@ -64,7 +51,7 @@ void _goScreen(FirebaseUser user, BuildContext context) async {
   //   Navigator.pushReplacement(context, route);
   // } else {
   Route route = MaterialPageRoute(builder: (context) => HomeModule());
-  Navigator.pushReplacement(context, route);
+  Navigator.pushAndRemoveUntil(context, route, (_) => false);
   //}
 }
 
@@ -120,8 +107,8 @@ void posLogin(AuthResult user, BuildContext context) async {
 
 void buscarDadosPerfil(BuildContext context, String uid) async {
   ProgressDialog progressDialog = ProgressDialog(context)
-    ..style(message: 'Buscando dados do perfil')
-    ..show();
+    ..style(message: 'Buscando dados do perfil');
+  await progressDialog.show();
 
   HasuraAuthService hasuraAuthService =
       AppModule.to.getDependency<HasuraAuthService>();

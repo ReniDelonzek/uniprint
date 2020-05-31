@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 
 part 'usuario.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 1)
 class UsuarioHasura extends HiveObject {
   @HiveField(0)
   int id;

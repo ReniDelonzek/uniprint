@@ -167,13 +167,6 @@ class UtilsImpressao {
 
   static Future<double> getValorImpressaoTipo(
       String tipo, int quantidade, bool colorido) async {
-    /*var base = await getDataBase();
-    ValorImpressao valorImpressao = await base.valorImpressaoDao.getImpressao(
-        tipo,
-        DateTime.now().millisecondsSinceEpoch,
-        DateTime.now().millisecondsSinceEpoch,
-        colorido ? 1 : 0);
-    return (valorImpressao?.valor ?? 0) * quantidade;*/
     Box box = await AppModule.to
         .getDependency<UtilsHiveService>()
         .getBox('precificacao');
@@ -181,9 +174,9 @@ class UtilsImpressao {
     ;
     if (valores != null && valores.isNotEmpty) {
       var val = valores.firstWhere(
-          (element) => (element.tipoFolha == tipo &&
-              element.dataInicio.isBefore(DateTime.now()) &&
-              element.dataFim.isAfter(DateTime.now())), orElse: () {
+          (element) => (element.tipo_folha_id == tipo &&
+              element.data_inicio.isBefore(DateTime.now()) &&
+              element.data_fim.isAfter(DateTime.now())), orElse: () {
         return null;
       });
       if (val != null) {

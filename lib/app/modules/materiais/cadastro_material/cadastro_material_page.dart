@@ -18,6 +18,9 @@ import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_firebase_file.dart';
 import 'package:uniprint/app/shared/utils/utils_platform.dart';
+import 'package:uniprint/app/shared/widgets/pontos_atendimento/pontos_atendimento_widget.dart';
+import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_controller.dart';
+import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_widget.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 import 'cadastro_material_controller.dart';
@@ -36,12 +39,6 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
   final _controller =
       CadastroMaterialModule.to.bloc<CadastroMaterialController>();
 
-  PontoAtendimento local;
-
-  List<ArquivoMaterial> arquivos = List();
-  int quantidade = 1;
-  bool colorido = false;
-  String tipoFolha = "A4";
   BuildContext buildContext;
 
   @override
@@ -71,7 +68,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                   progress.style(message: 'Cadastrando material');
                   progress.show();
                   try {
-                    for (ArquivoMaterial arquivo in arquivos) {
+                    for (ArquivoMaterial arquivo in _controller.arquivos) {
                       if (arquivo.url == null) {
                         File file = File(arquivo.path);
                         arquivo.url = await UtilsFirebaseFile.putFile(file,
@@ -85,16 +82,17 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                               .getDependency<HasuraAuthService>()
                               .usuario
                               ?.codProfessor ??
-                          6,
-                      'tipo_folha_id': 1,
-                      'colorido': colorido,
+                          12,
+                      'tipo_folha_id': _controller.tipoFolha?.id,
+                      'colorido': _controller.colorido,
                       'data_publicacao': DateFormat('yyyy-MM-ddTHH:mm:ss')
                           .format(DateTime.now()),
                       'tipo': _controller.enviarArquivos ? 0 : 1,
                       'titulo': _controller.controllerTitulo.text,
                       'descricao': _controller.controllerDescricao.text,
-                      'arquivos':
-                          arquivos.map((arquivo) => arquivo.toMap()).toList()
+                      'arquivos': _controller.arquivos
+                          .map((arquivo) => arquivo.toMap())
+                          .toList()
                     });
                     if (progress != null && progress.isShowing()) {
                       progress.dismiss();
@@ -198,31 +196,9 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
       height: 170,
       child: Card(
         child: InkWell(
-          onLongPress: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                      title: Text('Deseja remover o arquivo?'),
-                      content: Text('Clique para confirmar'),
-                      actions: <Widget>[
-                        new FlatButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('Cancelar')),
-                        new FlatButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              setState(() {
-                                arquivos.remove(arquivo);
-                              });
-                            },
-                            child: Text('Sim')),
-                      ]);
-                });
+          onTap: () {
+            _removerItem(arquivo);
           },
-          onTap: () {},
           child: new Padding(
             padding: EdgeInsets.all(15),
             child: Column(
@@ -245,6 +221,29 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
     );
   }
 
+  void _removerItem(ArquivoMaterial arquivo) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              title: Text('Deseja remover o arquivo?'),
+              content: Text('Clique para confirmar'),
+              actions: <Widget>[
+                new FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Cancelar')),
+                new FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _controller.arquivos.remove(arquivo);
+                    },
+                    child: Text('Sim')),
+              ]);
+        });
+  }
+
   void selecionarArquivo() async {
     Map<String, String> filePaths = await FilePicker.getMultiFilePath(
         type: FileType.CUSTOM, fileExtension: 'pdf');
@@ -264,9 +263,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
         arquivos.add(arquivo);
       }
 
-      setState(() {
-        this.arquivos.addAll(arquivos);
-      });
+      _controller.arquivos.addAll(arquivos);
     }
   }
 
@@ -277,14 +274,15 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
         duration: Duration(seconds: 3),
       ));
       return false;
-    } else if (!_controller.enviarArquivos && local == null) {
+    } else if (!_controller.enviarArquivos &&
+        _controller.controllerPontosAtendimento.pontoAtendimento == null) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(
             'Você precisa selecionar o local onde o material vai estar disponível'),
         duration: Duration(seconds: 3),
       ));
       return false;
-    } else if (_controller.enviarArquivos && arquivos.isEmpty) {
+    } else if (_controller.enviarArquivos && _controller.arquivos.isEmpty) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text('Você precisa anexar pelo menos um arquivo'),
         duration: Duration(seconds: 3),
@@ -312,10 +310,10 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                           new StaggeredTile.fit(1),
                       //scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.only(top: 16),
-                      itemCount: arquivos.length ?? 0,
+                      itemCount: _controller.arquivos.length ?? 0,
                       itemBuilder: (BuildContext context, int index) {
                         return new Container(
-                            child: _getItemList(arquivos[index]));
+                            child: _getItemList(_controller.arquivos[index]));
                       })),
               Padding(
                 padding: EdgeInsets.all(5),
@@ -343,41 +341,9 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
     return new Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        new LocaisAtendimento(
-          'Local do material',
-          (local) {
-            setState(() {
-              this.local = local;
-            });
-          },
-          local: local,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-          child: Text(
-            'Informe o tipo de folha que deve ser impresso',
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 15),
-          child: new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              ChipButtonState('A3', tipoFolha == 'A3', () {
-                setState(() {
-                  tipoFolha = 'A3';
-                });
-              }),
-              ChipButtonState('A4', tipoFolha == 'A4', () {
-                setState(() {
-                  tipoFolha = 'A4';
-                });
-              })
-            ],
-          ),
-        ),
+        new PontosAtendimentoWidget('Local do material', (local) {},
+            _controller.controllerPontosAtendimento),
+        TipoFolhaWidget(TipoFolhaController(_controller.tipoFolha)),
         Padding(
           padding: const EdgeInsets.only(top: 15, left: 16, right: 16),
           child: Text(
@@ -392,33 +358,33 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
           children: <Widget>[
             new SizedBox(
               height: 50,
-              child: new NumberPicker.integer(
-                  highlightSelectedValue: true,
-                  itemExtent: 35,
-                  zeroPad: false,
-                  scrollDirection: Axis.horizontal,
-                  initialValue: quantidade,
-                  minValue: 1,
-                  maxValue: 99,
-                  onChanged: (quantidade) {
-                    setState(() {
-                      this.quantidade = quantidade;
-                    });
-                  }),
+              child: Observer(
+                builder: (_) => NumberPicker.integer(
+                    highlightSelectedValue: true,
+                    itemExtent: 35,
+                    zeroPad: false,
+                    scrollDirection: Axis.horizontal,
+                    initialValue: _controller.quantidade,
+                    minValue: 1,
+                    maxValue: 99,
+                    onChanged: (quantidade) {
+                      _controller.quantidade = quantidade;
+                    }),
+              ),
             ),
             SizedBox(
               height: 50,
               width: 150,
-              child: CheckboxListTile(
-                title: Text("Colorido"),
-                value: colorido,
-                onChanged: (newValue) {
-                  setState(() {
-                    colorido = newValue;
-                  });
-                },
-                controlAffinity:
-                    ListTileControlAffinity.leading, //  <-- leading Checkbox
+              child: Observer(
+                builder: (_) => CheckboxListTile(
+                  title: Text("Colorido"),
+                  value: _controller.colorido,
+                  onChanged: (newValue) {
+                    _controller.colorido = newValue;
+                  },
+                  controlAffinity:
+                      ListTileControlAffinity.leading, //  <-- leading Checkbox
+                ),
               ),
             ),
           ],

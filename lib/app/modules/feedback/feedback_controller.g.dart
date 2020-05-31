@@ -9,33 +9,37 @@ part of 'feedback_controller.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$FeedbackController on _FeedbackBase, Store {
-  final _$valueAtom = Atom(name: '_FeedbackBase.value');
+  final _$coutTextFeedbackAtom = Atom(name: '_FeedbackBase.coutTextFeedback');
 
   @override
-  int get value {
-    _$valueAtom.context.enforceReadPolicy(_$valueAtom);
-    _$valueAtom.reportObserved();
-    return super.value;
+  int get coutTextFeedback {
+    _$coutTextFeedbackAtom.context.enforceReadPolicy(_$coutTextFeedbackAtom);
+    _$coutTextFeedbackAtom.reportObserved();
+    return super.coutTextFeedback;
   }
 
   @override
-  set value(int value) {
-    _$valueAtom.context.conditionallyRunInAction(() {
-      super.value = value;
-      _$valueAtom.reportChanged();
-    }, _$valueAtom, name: '${_$valueAtom.name}_set');
+  set coutTextFeedback(int value) {
+    _$coutTextFeedbackAtom.context.conditionallyRunInAction(() {
+      super.coutTextFeedback = value;
+      _$coutTextFeedbackAtom.reportChanged();
+    }, _$coutTextFeedbackAtom, name: '${_$coutTextFeedbackAtom.name}_set');
   }
 
-  final _$_FeedbackBaseActionController =
-      ActionController(name: '_FeedbackBase');
+  final _$ratingAtom = Atom(name: '_FeedbackBase.rating');
 
   @override
-  void increment() {
-    final _$actionInfo = _$_FeedbackBaseActionController.startAction();
-    try {
-      return super.increment();
-    } finally {
-      _$_FeedbackBaseActionController.endAction(_$actionInfo);
-    }
+  double get rating {
+    _$ratingAtom.context.enforceReadPolicy(_$ratingAtom);
+    _$ratingAtom.reportObserved();
+    return super.rating;
+  }
+
+  @override
+  set rating(double value) {
+    _$ratingAtom.context.conditionallyRunInAction(() {
+      super.rating = value;
+      _$ratingAtom.reportChanged();
+    }, _$ratingAtom, name: '${_$ratingAtom.name}_set');
   }
 }

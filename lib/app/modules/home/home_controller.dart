@@ -16,4 +16,6 @@ abstract class _HomeBase with Store {
   ObservableList<Impressao> impressoes = ObservableList();
   @observable
   bool exibirFab = true;
+  @observable
+  int lastSelected = 0;
 }
