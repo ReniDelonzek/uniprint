@@ -42,7 +42,6 @@ abstract class _CadastroImpressaoBase with Store {
 
   @action
   Future cadastrarDados() async {
-    print((AppModule.to.getDependency<HasuraAuthService>().usuario.codHasura));
     DateTime data = DateTime.now();
     for (int i = 0; i < arquivos.length; i++) {
       if (arquivos[i].url == null || arquivos[i].url.isEmpty) {

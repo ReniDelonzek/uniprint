@@ -155,18 +155,22 @@ class UtilsImpressao {
       List<ArquivoImpressao> arquivos) async {
     Box box = await AppModule.to
         .getDependency<UtilsHiveService>()
-        .getBox('precificacao');
+        .getBox('valor_impressao');
     var valores = box.values.cast<ValorImpressao>();
     double valor = 0;
+
     for (ArquivoImpressao arquivo in arquivos) {
-      var val = valores.firstWhere(
-          (element) => (element.tipo_folha_id == arquivo.tipoFolha.id &&
-              element.data_inicio.isBefore(DateTime.now()) &&
-              element.data_fim.isAfter(DateTime.now())), orElse: () {
+      var val = valores.firstWhere((element) {
+        return (element.tipo_folha_id ==
+                    (arquivo.tipoFolha?.id ?? arquivo.tipo_folha_id) &&
+                element.data_inicio.isBefore(DateTime.now())) &&
+            (element.data_fim == null ||
+                element.data_fim.isAfter(DateTime.now()));
+      }, orElse: () {
         return null;
       });
       if (val != null) {
-        valor += val.valor * arquivo.quantidade;
+        valor += val.valor * arquivo.num_paginas * arquivo.quantidade;
       }
     }
     return valor;

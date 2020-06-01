@@ -37,7 +37,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         verificarLogin(buildContext);
       });
     });
-    _firebaseCloudMessagingListeners();
+    //_firebaseCloudMessagingListeners();
   }
 
   @override

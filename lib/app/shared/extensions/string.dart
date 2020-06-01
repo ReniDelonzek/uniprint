@@ -5,7 +5,7 @@ extension ST on String {
     try {
       return DateFormat('yyyy-MM-ddTHH:mm:ss').parse(this);
     } catch (e) {
-      print(e);
+      //print(e);
       return defaultDate ?? null;
     }
   }

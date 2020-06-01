@@ -24,7 +24,7 @@ class DetalhesAtendimentoPage extends StatefulWidget {
   final String title;
   final Atendimento atendimento;
   DetalhesAtendimentoPage(this.atendimento,
-      {Key key, this.title = "DetalhesAtendimento"})
+      {Key key, this.title = "Detalhes do Atendimento"})
       : super(key: key);
 
   @override
@@ -49,7 +49,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
     return new Scaffold(
         appBar: new AppBar(
           title: new Text(
-            "Atendimento",
+            widget.title,
           ),
         ),
         body: Builder(builder: (context) {
