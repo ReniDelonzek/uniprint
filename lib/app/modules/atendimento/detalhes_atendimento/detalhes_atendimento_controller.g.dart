@@ -25,4 +25,24 @@ mixin _$DetalhesAtendimentoController on _DetalhesAtendimentoBase, Store {
       _$avaliacaoAtom.reportChanged();
     }, _$avaliacaoAtom, name: '${_$avaliacaoAtom.name}_set');
   }
+
+  final _$mostrarBotaoSalvarAvaliacaoAtom =
+      Atom(name: '_DetalhesAtendimentoBase.mostrarBotaoSalvarAvaliacao');
+
+  @override
+  bool get mostrarBotaoSalvarAvaliacao {
+    _$mostrarBotaoSalvarAvaliacaoAtom.context
+        .enforceReadPolicy(_$mostrarBotaoSalvarAvaliacaoAtom);
+    _$mostrarBotaoSalvarAvaliacaoAtom.reportObserved();
+    return super.mostrarBotaoSalvarAvaliacao;
+  }
+
+  @override
+  set mostrarBotaoSalvarAvaliacao(bool value) {
+    _$mostrarBotaoSalvarAvaliacaoAtom.context.conditionallyRunInAction(() {
+      super.mostrarBotaoSalvarAvaliacao = value;
+      _$mostrarBotaoSalvarAvaliacaoAtom.reportChanged();
+    }, _$mostrarBotaoSalvarAvaliacaoAtom,
+        name: '${_$mostrarBotaoSalvarAvaliacaoAtom.name}_set');
+  }
 }

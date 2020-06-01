@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:intl/intl.dart';
 import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_atendimento_module.dart';
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
@@ -26,7 +25,9 @@ import 'package:uniprint/app/shared/network/querys.dart';
 import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
+import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
+import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
 import 'package:uniprint/app/shared/widgets/bottom_app_nav.dart';
 import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
@@ -70,10 +71,8 @@ class _HomePageState extends State<HomePage> {
                     new CadastroAtendimentoModule()));
             controller.exibirFab = true;
           } else {
-            Scaffold.of(buildContextScall).showSnackBar(SnackBar(
-              content: Text('Você já possui um atendimento marcado!'),
-              duration: Duration(seconds: 3),
-            ));
+            showSnack(
+                buildContextScall, 'Você já possui um atendimento marcado!');
           }
           break;
         }
@@ -205,7 +204,6 @@ class _HomePageState extends State<HomePage> {
           ))),
       bottomNavigationBar: FABBottomAppBar(
         centerItemText: '',
-        //color: Colors.grey,
         selectedColor: Colors.blue,
         notchedShape: CircularNotchedRectangle(),
         onTabSelected: _selectedTab,
@@ -278,7 +276,10 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                              "Atendimento: ${controller.atendimentos[pos].id}"),
+                            "Atendimento: ${controller.atendimentos[pos].id}",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                           _getMovimentacoesAtendimento(
                               controller.atendimentos[pos])
                         ]),
@@ -382,51 +383,22 @@ class _HomePageState extends State<HomePage> {
 
   Widget _getMovimentacoesAtendimento(Atendimento atendimento) {
     Movimentacao mov =
-        atendimento.movimentacao_atendimentos?.first?.movimentacao;
-    return new Column(
-      children: <Widget>[
-        Text(
-            '${mov?.data?.string('dd/MM') ?? ''}: ${UtilsAtendimento.tipoAtendimento(atendimento.status)}')
-      ],
+        atendimento.movimentacao_atendimentos?.last?.movimentacao;
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: Icon(
+                UtilsMovimentacao.getIconeAtendimento((atendimento.status))),
+          ),
+          Expanded(
+            child: Text(
+                '${mov?.data?.string('dd/MM HH:mm:ss') ?? ''}: ${UtilsAtendimento.tipoAtendimento(mov.tipo)}'),
+          )
+        ],
+      ),
     );
-
-    if (atendimento.status == Constants.STATUS_ATENDIMENTO_SOLICITADO) {
-      return new Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new Text(
-                'Agendando em: ${new DateFormat("dd/MM - HH:mm").format((atendimento.data_solicitacao)) ?? ''}'),
-            //new Text(getLocalAtendimento((atendimento.ponto_atendimento_id)))
-          ]);
-    } else if (atendimento.status ==
-        Constants.STATUS_ATENDIMENTO_CANCELADO_ATENDENTE) {
-      return new Column(
-        children: <Widget>[
-          new Text('O atendente cancelou o atendimento'),
-          new Text(
-              'Agendando em: ${new DateFormat("dd/MM - HH:mm").format((atendimento.data_solicitacao)) ?? ''}'),
-        ],
-      );
-    } else if (atendimento.status ==
-        Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO) {
-      return new Column(
-        children: <Widget>[
-          new Text('Você cancelou o atendimento'),
-          new Text(
-              'Agendando em: ${new DateFormat("dd/MM - HH:mm").format((atendimento.data_solicitacao)) ?? ''}'),
-        ],
-      );
-    } else {
-      return new Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new Text('Data do atendimento: ' +
-                    new DateFormat("dd/MM - HH:mm")
-                        .format(atendimento.data_solicitacao) ??
-                ''),
-            //getSatisfacao(1),
-          ]);
-    }
   }
 
   Widget _buildFab(BuildContext context) {
@@ -461,7 +433,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _cadastroMaterial() {
+  Widget _cadastroMaterial() {
     if (AppModule.to.getDependency<HasuraAuthService>().usuario.codProfessor !=
         null) {
       return new ListTile(
@@ -481,10 +453,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   _atualizarValoresImpressoes() {
-    compute(sincronizarDados(), '');
+    //compute(sincronizarDados, '');
+    sincronizarDados('');
   }
 }
 
-sincronizarDados() {
+sincronizarDados(String s) {
   SincronizarDadosService().sincronizar('');
 }

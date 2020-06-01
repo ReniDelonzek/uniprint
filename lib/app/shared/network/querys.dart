@@ -1,5 +1,5 @@
 class Querys {
-  static String getAtendimentos =
+  static const String getAtendimentos =
       """subscription getAtendimentos(\$usuario_id: Int!) { 
   atendimento(where: {usuario_id: {_eq: \$usuario_id}}, order_by: {id: desc}) {
     id
@@ -7,6 +7,7 @@ class Querys {
     status
     ponto_atendimento_id 
     usuario_id
+    nota_atendimento
     usuario {
       id
       email
@@ -24,7 +25,7 @@ class Querys {
   }
 }""";
 
-  static String getImpressoes = """
+  static const String getImpressoes = """
 subscription getImpressoes(\$usuario_id: Int!) { 
   impressao(where: {usuario_id: {_eq: \$usuario_id}}, order_by: {id: desc}) {
     id
@@ -55,7 +56,7 @@ subscription getImpressoes(\$usuario_id: Int!) {
 }
 """;
 
-  static String posicaoAtendimento = """
+  static const String posicaoAtendimento = """
 subscription posicaoAtendimento(\$id: Int!) {
   atendimento_aggregate(where: {status: {_eq: 1}, _and: {id: {_gt: \$id}}}) {
     aggregate {
@@ -66,7 +67,7 @@ subscription posicaoAtendimento(\$id: Int!) {
 
 """;
 
-  static String getListaMateriais = """query materiais {
+  static const String getListaMateriais = """query materiais {
   material {
     colorido
     data_publicacao
@@ -93,7 +94,7 @@ subscription posicaoAtendimento(\$id: Int!) {
   }
 }
 """;
-  static String getDetalhesUsuUsuario = """
+  static const String getDetalhesUsuUsuario = """
  detalhesUso(\$usuario_id: Int!) {
   atendimento_aggregate(where: {usuario_id: {_eq: \$usuario_id}}) {
     aggregate {
@@ -108,7 +109,7 @@ subscription posicaoAtendimento(\$id: Int!) {
 }
 """;
 
-  static String getSincronizacao = """
+  static const String getSincronizacao = """
   query valoresImpressao {
   valor_impressao {
     colorido
@@ -125,7 +126,7 @@ subscription posicaoAtendimento(\$id: Int!) {
 }
 """;
 
-  static String getValorMaximoImpressao = """
+  static const String getValorMaximoImpressao = """
   query nivel_usuario(\$usuario_id: Int!) {
   nivel_usuario(where: {usuario_id: {_eq: \$usuario_id}}) {
     nivel {

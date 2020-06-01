@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:uniprint/app/shared/extensions/date.dart';
-import 'package:uniprint/app/shared/extensions/string.dart';
 import 'package:hive/hive.dart';
+import 'package:uniprint/app/shared/extensions/string.dart';
 
 part 'valor_impressao.g.dart';
 

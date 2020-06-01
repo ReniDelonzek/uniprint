@@ -8,4 +8,6 @@ class DetalhesAtendimentoController = _DetalhesAtendimentoBase
 abstract class _DetalhesAtendimentoBase with Store {
   @observable
   double avaliacao = 4;
+  @observable
+  bool mostrarBotaoSalvarAvaliacao = false;
 }

@@ -87,24 +87,4 @@ Future onDidReceiveLocalNotification(
   if (getAction(payload).isNotEmpty) {
     setActionNotification(payload);
   }
-
-  // display a dialog with the notification details, tap ok to go to another page
-  /*showDialog(
-      context: context,
-      builder: (BuildContext context) => new CupertinoAlertDialog(
-        title: new Text(title),
-        content: new Text(body),
-        actions: [
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            child: new Text('Ok'),
-            onPressed: () async {
-              Route route =
-                  MaterialPageRoute(builder: (context) => MainPrinter());
-              Navigator.pushReplacement(context, route);
-            },
-          )
-        ],
-      ),
-    );*/
 }

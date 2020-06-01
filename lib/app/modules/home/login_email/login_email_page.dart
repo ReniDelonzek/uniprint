@@ -9,7 +9,6 @@ import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
-import 'package:uniprint/app/shared/utils/utils_login.dart';
 import 'package:uniprint/app/shared/utils/utils_sentry.dart';
 
 import 'login_email_controller.dart';

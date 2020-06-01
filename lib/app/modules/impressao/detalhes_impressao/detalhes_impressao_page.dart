@@ -3,13 +3,12 @@ import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
+import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
-import 'package:uniprint/app/shared/temas/Tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
-import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/widgets/button.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
 
@@ -19,7 +18,7 @@ class DetalhesImpressaoPage extends StatefulWidget {
   DetalhesImpressaoPage(
     this.impressao, {
     Key key,
-    this.title = "Detalhes Impressao",
+    this.title = "Detalhes da Impressão",
   }) : super(key: key);
 
   @override
@@ -37,7 +36,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: AppBar(title: Text('Detalhes impressão')),
+      appBar: AppBar(title: Text(widget.title)),
       body: new Builder(
         builder: (builderContext) {
           return SingleChildScrollView(
@@ -111,7 +110,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
     );
   }
 
-  _getTimeLine() {
+  Widget _getTimeLine() {
     TimelineItemPosition position = TimelineItemPosition.left;
     List<TimelineModel> items = widget.impressao.movimentacao_impressaos.map(
       (mov) {
@@ -132,7 +131,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
             iconBackground:
                 UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
             icon: Icon(
-              UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
+              UtilsMovimentacao.getIconeAtendimento(mov.movimentacao.tipo),
               color: Colors.white,
             ));
       },

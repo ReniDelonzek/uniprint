@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 import 'package:uniprint/app/app_module.dart';
-import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_controller.dart';
 
 import 'utils_hive_service.dart';
+
 part 'tipo_folha.g.dart';
 
 @HiveType(typeId: 3)

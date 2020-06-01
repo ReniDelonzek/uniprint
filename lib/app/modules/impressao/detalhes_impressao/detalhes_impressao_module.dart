@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_page.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
 
-
 class DetalhesImpressaoModule extends ModuleWidget {
-  Impressao impressao;
+  final Impressao impressao;
   DetalhesImpressaoModule(this.impressao);
 
   @override

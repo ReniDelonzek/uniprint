@@ -153,38 +153,59 @@ class UtilsImpressao {
 
   static Future<double> getValorImpressaoArquivos(
       List<ArquivoImpressao> arquivos) async {
-    int qtdA3C = getQuantidadeFolhasArq(arquivos, "A3", true);
-    int qtdA3 = getQuantidadeFolhasArq(arquivos, "A3", false);
-    int qtdA4C = getQuantidadeFolhasArq(arquivos, "A4", true);
-    int qtdA4 = getQuantidadeFolhasArq(arquivos, "A4", false);
-
-    double valorA3 = await (getValorImpressaoTipo("A3", qtdA3, false));
-    double valorA4 = await (getValorImpressaoTipo("A4", qtdA4, false));
-    double valorA4C = await (getValorImpressaoTipo("A4", qtdA4C, true));
-    double valorA3C = await (getValorImpressaoTipo("A3", qtdA3C, true));
-    return valorA3 + valorA4 + valorA3C + valorA4C;
-  }
-
-  static Future<double> getValorImpressaoTipo(
-      String tipo, int quantidade, bool colorido) async {
     Box box = await AppModule.to
         .getDependency<UtilsHiveService>()
         .getBox('precificacao');
     var valores = box.values.cast<ValorImpressao>();
-    ;
-    if (valores != null && valores.isNotEmpty) {
+    double valor = 0;
+    for (ArquivoImpressao arquivo in arquivos) {
       var val = valores.firstWhere(
-          (element) => (element.tipo_folha_id == tipo &&
+          (element) => (element.tipo_folha_id == arquivo.tipoFolha.id &&
               element.data_inicio.isBefore(DateTime.now()) &&
               element.data_fim.isAfter(DateTime.now())), orElse: () {
         return null;
       });
       if (val != null) {
-        return val.valor * quantidade;
+        valor += val.valor * arquivo.quantidade;
       }
     }
-    return 0.25 * quantidade;
+    return valor;
   }
+
+  // static Future<double> getValorImpressaoArquivos(
+  //     List<ArquivoImpressao> arquivos) async {
+  //   int qtdA3C = getQuantidadeFolhasArq(arquivos, "A3", true);
+  //   int qtdA3 = getQuantidadeFolhasArq(arquivos, "A3", false);
+  //   int qtdA4C = getQuantidadeFolhasArq(arquivos, "A4", true);
+  //   int qtdA4 = getQuantidadeFolhasArq(arquivos, "A4", false);
+
+  //   double valorA3 = await (getValorImpressaoTipo("A3", qtdA3, false));
+  //   double valorA4 = await (getValorImpressaoTipo("A4", qtdA4, false));
+  //   double valorA4C = await (getValorImpressaoTipo("A4", qtdA4C, true));
+  //   double valorA3C = await (getValorImpressaoTipo("A3", qtdA3C, true));
+  //   return valorA3 + valorA4 + valorA3C + valorA4C;
+  // }
+
+  // static Future<double> getValorImpressaoTipo(
+  //     String tipo, int quantidade, bool colorido) async {
+  //   Box box = await AppModule.to
+  //       .getDependency<UtilsHiveService>()
+  //       .getBox('precificacao');
+  //   var valores = box.values.cast<ValorImpressao>();
+
+  //   if (valores != null && valores.isNotEmpty) {
+  //     var val = valores.firstWhere(
+  //         (element) => (element.tipo_folha_id == tipo &&
+  //             element.data_inicio.isBefore(DateTime.now()) &&
+  //             element.data_fim.isAfter(DateTime.now())), orElse: () {
+  //       return null;
+  //     });
+  //     if (val != null) {
+  //       return val.valor * quantidade;
+  //     }
+  //   }
+  //   return 0.25 * quantidade;
+  // }
 
   static Future<bool> gerarMovimentacao(int tipo, int status, int impressaoId,
       int usuario, BuildContext context, String message) async {

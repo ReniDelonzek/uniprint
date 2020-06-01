@@ -1,7 +1,8 @@
 import 'package:uniprint/app/shared/utils/constans.dart';
 
-String cadastroAtendimento =
-    """mutation addAtendimentos(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$ponto_atendimento_id: Int!, \$status: Int!) {
+class Mutations {
+  static const String cadastroAtendimento =
+      """mutation addAtendimentos(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$ponto_atendimento_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: 
     {data: \$data, 
       tipo: \$tipo, 
@@ -20,8 +21,8 @@ String cadastroAtendimento =
 }
 """;
 
-String cadastroImpressao =
-    """mutation addImpressao(\$data: timestamptz!, \$usuario_id: Int!, \$tipo: Int!,
+  static const String cadastroImpressao =
+      """mutation addImpressao(\$data: timestamptz!, \$usuario_id: Int!, \$tipo: Int!,
   \$comentario: String!, \$ponto_atendimento_id: Int!, \$arquivos: [arquivo_impressao_insert_input!]!) {
   insert_movimentacao(objects: {
     data: \$data,
@@ -41,7 +42,7 @@ String cadastroImpressao =
 }
 """;
 
-String cadastroFeedBack = """
+  static const String cadastroFeedBack = """
 mutation AddFeedbak(\$feedback: String!, \$nota: float8!, \$usuario_id: Int!) {
   __typename
   insert_feedback(objects: {feedback: \$feedback, nota: \$nota, usuario_id: \$usuario_id}) {
@@ -50,8 +51,8 @@ mutation AddFeedbak(\$feedback: String!, \$nota: float8!, \$usuario_id: Int!) {
 }
 """;
 
-String cadastroMaterial =
-    """mutation AddMaterial(\$colorido: Boolean!, \$data_publicacao: timestamptz!, 
+  static const String cadastroMaterial =
+      """mutation AddMaterial(\$colorido: Boolean!, \$data_publicacao: timestamptz!, 
 \$tipo: Int!, \$tipo_folha_id: Int!, \$titulo: String!, \$arquivos: [arquivo_material_insert_input!]!, \$professor_id: Int!, \$descricao: String) {
   insert_material(objects: {professor_id: \$professor_id, colorido: \$colorido, data_publicacao: \$data_publicacao, tipo: \$tipo,
    tipo_folha_id: \$tipo_folha_id, titulo: \$titulo, descricao: \$descricao arquivo_materials: {data: \$arquivos}}) {
@@ -60,7 +61,7 @@ String cadastroMaterial =
 }
 """;
 
-String cadastroAtendente = """
+  static const String cadastroAtendente = """
 mutation AddAtendente(\$usuario_id: Int!, \$ponto_atendimento_id: Int!) {
   __typename
   insert_atendente(objects: {usuario_id: \$usuario_id, ponto_atendimento_id: \$ponto_atendimento_id}) {
@@ -69,7 +70,7 @@ mutation AddAtendente(\$usuario_id: Int!, \$ponto_atendimento_id: Int!) {
 }
 """;
 
-String addMovimentacaoAtendimento = """
+  static const String addMovimentacaoAtendimento = """
 mutation AddMovimentacaoAtendimento(\$atendimento_id: Int!, \$status: Int!, 
 \$data: timestamptz!, \$tipo_movimento: Int!, \$usuario_id: Int!) {
   update_atendimento(where: {id: {_eq: \$atendimento_id}}, _set: {status: \$status}) {
@@ -83,8 +84,7 @@ mutation AddMovimentacaoAtendimento(\$atendimento_id: Int!, \$status: Int!,
 
 """;
 
-class Mutations {
-  static String cadastroMovimentacaoAtendimento = """
+  static const String cadastroMovimentacaoAtendimento = """
 mutation cadastroMovimentacaoAtendimento(\$data: timestamptz!, 
 \$tipo: Int!, \$usuario_id: Int!, \$atendimento_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: {data: \$data, 
@@ -99,7 +99,7 @@ mutation cadastroMovimentacaoAtendimento(\$data: timestamptz!,
 }
 """;
 
-  static String cadastroMovimentacaoImpressao = """
+  static const String cadastroMovimentacaoImpressao = """
 mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usuario_id: Int!, \$impressao_id: Int!, \$status: Int!) {
   insert_movimentacao(objects: {data: \$data, tipo: \$tipo, usuario_id: \$usuario_id, movimentacao_impressaos: {data: {impressao_id: \$impressao_id}}}) {
     affected_rows
@@ -108,5 +108,14 @@ mutation cadastroMovimentacaoImpressao(\$data: timestamptz!, \$tipo: Int!, \$usu
     affected_rows
   }
 }
+""";
+
+  static const String cadastroNotaAtendimento = """
+mutation cadastroNotaAtendimento(\$id: Int, \$nota_atendimento: Int) {
+  update_atendimento(where: {id: {_eq: \$id}}, _set: {nota_atendimento: \$nota_atendimento}) {
+    affected_rows
+  }
+}
+
 """;
 }

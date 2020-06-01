@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
-import 'package:uniprint/app/shared/interfaces/auth_service_interface.dart';
 import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
@@ -53,7 +52,7 @@ abstract class _CadastroImpressaoBase with Store {
       }
     }
     return await GraphQlObject.hasuraConnect
-        .mutation(cadastroImpressao, variables: {
+        .mutation(Mutations.cadastroImpressao, variables: {
       'data': DateFormat('yyyy-MM-dd HH:mm:ss').format(data),
       'usuario_id':
           (AppModule.to.getDependency<HasuraAuthService>().usuario.codHasura),

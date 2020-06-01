@@ -13,6 +13,4 @@ class UtilsFirebaseFile {
     var a = await uploadTask.onComplete;
     return await a.ref.getDownloadURL();
   }
-
-  File getDownloadFile() {}
 }

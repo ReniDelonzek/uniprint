@@ -12,7 +12,6 @@ import 'package:progress_dialog/progress_dialog.dart';
 import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/models/graph/materiais/arquivo_material.dart';
-import 'package:uniprint/app/shared/models/graph/ponto_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -21,7 +20,6 @@ import 'package:uniprint/app/shared/utils/utils_platform.dart';
 import 'package:uniprint/app/shared/widgets/pontos_atendimento/pontos_atendimento_widget.dart';
 import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_controller.dart';
 import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_widget.dart';
-import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 import 'cadastro_material_controller.dart';
 import 'cadastro_material_module.dart';
@@ -77,7 +75,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                     }
 
                     var res = await GraphQlObject.hasuraConnect
-                        .mutation(cadastroMaterial, variables: {
+                        .mutation(Mutations.cadastroMaterial, variables: {
                       'professor_id': AppModule.to
                               .getDependency<HasuraAuthService>()
                               .usuario
@@ -250,6 +248,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
     if (filePaths != null) {
       ProgressDialog progressDialog = ProgressDialog(context)
         ..style(message: 'Coletando dados do arquivo...');
+      await progressDialog.show();
       //todo ver pq aqui estava aparecendo so depois do arquivo ja adicionado a lista
 
       List<ArquivoMaterial> arquivos = List();

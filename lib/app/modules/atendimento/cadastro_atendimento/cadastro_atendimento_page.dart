@@ -67,7 +67,7 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
                     progressDialog.show();
                     try {
                       var res = await GraphQlObject.hasuraConnect
-                          .mutation(cadastroAtendimento, variables: {
+                          .mutation(Mutations.cadastroAtendimento, variables: {
                         'tipo': Constants.STATUS_ATENDIMENTO_SOLICITADO,
                         'usuario_id': AppModule.to
                             .getDependency<HasuraAuthService>()

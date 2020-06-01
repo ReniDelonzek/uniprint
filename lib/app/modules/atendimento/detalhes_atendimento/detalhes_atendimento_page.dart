@@ -9,12 +9,12 @@ import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/posicao_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
+import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
-import 'package:uniprint/app/shared/widgets/button.dart';
 import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 import 'detalhes_atendimento_controller.dart';
@@ -152,6 +152,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                     allowHalfRating: false,
                     onRatingChanged: (v) {
                       _controller.avaliacao = v;
+                      _controller.mostrarBotaoSalvarAvaliacao = true;
                     },
                     starCount: 5,
                     rating: _controller.avaliacao,
@@ -161,6 +162,35 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
                     spacing: 0.0),
               ),
             ),
+            Observer(
+              builder: (_) => _controller.mostrarBotaoSalvarAvaliacao
+                  ?
+                  //so mostra o salvar se a avaliacao for alterada
+                  FlatButton(
+                      child: Text('Salvar'),
+                      onPressed: () async {
+                        showSnack(context, 'Cadastrando avaliação...',
+                            duration: Duration(seconds: 2));
+                        var res = await GraphQlObject.hasuraConnect.mutation(
+                            Mutations.cadastroNotaAtendimento,
+                            variables: {
+                              'id': widget.atendimento.id,
+                              'nota_atendimento': _controller.avaliacao.toInt()
+                            });
+                        if (sucessoMutationAffectRows(
+                            res, 'update_atendimento')) {
+                          showSnack(
+                              context, 'Avaliação cadastrada com sucesso');
+                        } else {
+                          showSnack(context, 'Ops, houve uma falha ao avaliar');
+                        }
+                      },
+                    )
+                  : Container(
+                      height: 48,
+                      //deixa do mesmo tamanho de um botao, para n ter scrool na hora que o botao aparece
+                    ),
+            )
           ]);
   }
 
@@ -170,7 +200,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
         padding: EdgeInsets.all(30));
   }
 
-  _getTimeLine() {
+  Widget _getTimeLine() {
     TimelineItemPosition position = TimelineItemPosition.left;
     List<TimelineModel> items =
         widget.atendimento.movimentacao_atendimentos.map(
@@ -192,7 +222,7 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
             iconBackground:
                 UtilsMovimentacao.getColorIcon(mov.movimentacao.tipo),
             icon: Icon(
-              UtilsMovimentacao.getIcon(mov.movimentacao.tipo),
+              UtilsMovimentacao.getIconeAtendimento(mov.movimentacao.tipo),
               color: Colors.white,
             ));
       },
@@ -205,126 +235,4 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
       position: TimelinePosition.Center,
     );
   }
-
-  // Future<int> getPosicao() async {
-  //   Map<String, dynamic> body = {
-  //     'pontoID': '${widget.atendimento.ponto}',
-  //     'data': '${widget.atendimento.dataSolicitacao.millisecondsSinceEpoch}'
-  //   };
-
-  //   var stringJson = json.encode(body);
-  //   final response = await http.post(
-  //       'https://us-central1-uniprint-uv.cloudfunctions.net/getPosition',
-  //       headers: {"content-type": "application/json"},
-  //       body: stringJson);
-
-  //   if (response.statusCode == 200) {
-  //     int pos = json.decode(response.body)['numAtendimentos'];
-  //     print(pos);
-  //     return pos;
-  //   } else {
-  //     //throw Exception('Failed to load post');
-  //     return -1;
-  //   }
-  // }
-/*
-  Future<String> apiRequest(String url, Map jsonMap) async {
-    HttpClient httpClient = new HttpClient();
-    HttpClientRequest request = await httpClient.postUrl(Uri.parse(url));
-    request.headers.set('content-type', 'application/json');
-    request.add(utf8.encode(json.encode(jsonMap)));
-    HttpClientResponse response = await request.close();
-    // todo - you should check the response.statusCode
-    String reply = await response.transform(utf8.decoder).join();
-    httpClient.close();
-    return reply;
-  }
-*/
-  // Widget _getWidgetPosicao(BuildContext buildContext) {
-  //   if (widget.atendimento.status == Constants.STATUS_ATENDIMENTO_SOLICITADO) {
-  //     return Column(
-  //       children: <Widget>[
-  //         new Text("Sua senha de atendimento é:"),
-  //         new Padding(padding: EdgeInsets.all(5)),
-  //         new Text(widget.atendimento.id.toString(),
-  //             style: TextStyle(
-  //                 fontSize: 24,
-  //                 color: Colors.black,
-  //                 fontWeight: FontWeight.bold)),
-  //         FutureBuilder(
-  //           future: posicao,
-  //           builder: (context, snapshot) {
-  //             return Text(snapshot.connectionState == ConnectionState.waiting
-  //                 ? 'Carregando posição'
-  //                 : 'Só mais ${snapshot.data} pessoas na sua frente');
-  //           },
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.only(top: 25),
-  //           child: new ButtonTheme(
-  //               height: 45,
-  //               minWidth: 150,
-  //               child: RaisedButton(
-  //                 onPressed: () {
-  //                   // Firestore.instance
-  //                   //     .collection("Empresas")
-  //                   //     .document('Uniguacu')
-  //                   //     .collection('Pontos')
-  //                   //     .document(widget.atendimento.codPonto)
-  //                   //     .collection('Atendimentos')
-  //                   //     .document(widget.atendimento.id)
-  //                   //     .updateData({
-  //                   //   'status': Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO
-  //                   // }).then((res) {
-  //                   //   Scaffold.of(context).showSnackBar(SnackBar(
-  //                   //     content: Text('Atendimento cancelado com sucesso'),
-  //                   //     duration: Duration(seconds: 3),
-  //                   //   ));
-  //                   //   Future.delayed(Duration(seconds: 1)).then((a) {
-  //                   //     Navigator.of(buildContext).pop();
-  //                   //   });
-  //                   // }).catchError((error) {
-  //                   //   Scaffold.of(context).showSnackBar(SnackBar(
-  //                   //     content: Text(
-  //                   //         'Ops, houve uma falha ao tentar cancelar o atendimento'),
-  //                   //     duration: Duration(seconds: 3),
-  //                   //   ));
-  //                   // });
-  //                 },
-  //                 color: Colors.blue,
-  //                 shape: RoundedRectangleBorder(
-  //                   borderRadius: BorderRadius.circular(22.0),
-  //                 ),
-  //                 child: new Text(
-  //                   "Cancelar",
-  //                   style: new TextStyle(
-  //                       color: Colors.white, fontWeight: FontWeight.bold),
-  //                 ),
-  //               )),
-  //         ),
-  //       ],
-  //     );
-  //   } else if (widget.atendimento.status ==
-  //       Constants.STATUS_ATENDIMENTO_CANCELADO_USUARIO) {
-  //     return Hero(
-  //       tag: "atendimento_cancelado",
-  //       child: Text(
-  //         "Você cancelou o atendimento",
-  //         style: TextStyle(fontSize: 18),
-  //       ),
-  //     );
-  //   } else if (widget.atendimento.status ==
-  //       Constants.STATUS_ATENDIMENTO_CANCELADO_ATENDENTE) {
-  //     return Text(
-  //       "O atendente cancelou o atendimento",
-  //       style: TextStyle(fontSize: 18),
-  //     );
-  //   } else {
-  //     return Text(
-  //       "Você foi atendido em ${DateFormat('dd/MM').format(widget.atendimento.data_atendimento)}",
-  //       style: TextStyle(fontSize: 18),
-  //     );
-  //   }
-  // }
-
 }

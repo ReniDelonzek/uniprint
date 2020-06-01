@@ -82,16 +82,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
                             ProgressDialog progressDialog =
                                 ProgressDialog(context);
                             progressDialog.style(message: 'Enviando feedback');
-                            progressDialog.show();
+                            await progressDialog.show();
                             FirebaseAuth.instance
                                 .currentUser()
                                 .then((user) async {
                               var res = await GraphQlObject.hasuraConnect
-                                  .mutation(cadastroFeedBack, variables: {
-                                'nota': _controller.rating,
-                                'feedback': _controller.controllerFeedBack.text,
-                                'usuario_id': 1
-                              });
+                                  .mutation(Mutations.cadastroFeedBack,
+                                      variables: {
+                                    'nota': _controller.rating,
+                                    'feedback':
+                                        _controller.controllerFeedBack.text,
+                                    'usuario_id': 1
+                                  });
                               progressDialog.dismiss();
                               if (res != null) {
                                 showSnack(context, 'Muito obrigado!',

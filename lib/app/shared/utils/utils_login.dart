@@ -78,20 +78,17 @@ Future<int> atualizarPermissoes(
   return -1;
 }
 
-Future<bool> enviarToken(String uid, BuildContext context) {
-  SharedPreferences.getInstance().then((shared) async {
+Future<bool> enviarToken(String uid, BuildContext context) async {
+  SharedPreferences shared = await SharedPreferences.getInstance();
+  if (shared != null) {
     Firestore.instance
         .collection('Usuarios')
         .document(uid)
         .collection('tokens')
         .add({'messaging_token': shared.getString('messaging_token')});
     return true;
-  }).catchError((error) {
-    Scaffold.of(context).showSnackBar(new SnackBar(
-      content: new Text("Ops, houve uma falha na tentativa de login"),
-    ));
-    return false;
-  });
+  }
+  return false;
 }
 
 void posLogin(AuthResult user, BuildContext context) async {

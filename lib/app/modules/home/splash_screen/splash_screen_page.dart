@@ -25,8 +25,6 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   @override
   void initState() {
     super.initState();
-    // _firebaseMessaging = FirebaseMessaging();
-    // _firebaseCloudMessagingListeners();
     Future.delayed(Duration(milliseconds: 100), () {
       setState(() {
         opacity = 1;
@@ -39,6 +37,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         verificarLogin(buildContext);
       });
     });
+    _firebaseCloudMessagingListeners();
   }
 
   @override
