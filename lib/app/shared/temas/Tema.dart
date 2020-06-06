@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Tema {
-  static ThemeData getWhiteTema(BuildContext context) {
-    bool darkMode = false;
+  static ThemeData getTema(BuildContext context, {bool darkMode = false}) {
     return ThemeData(
         brightness: darkMode ? Brightness.dark : Brightness.light,
         appBarTheme: AppBarTheme(elevation: 0),
@@ -17,4 +16,8 @@ class Tema {
 
 Color getCorPadrao() {
   return Colors.blue;
+}
+
+bool isDarkMode(BuildContext context) {
+  return Theme.of(context).brightness == Brightness.dark;
 }

@@ -42,7 +42,6 @@ class _CadastroAtendimentoPageState extends State<CadastroAtendimentoPage> {
         appBar: new AppBar(
           title: new Text("Solicitar atendimento"),
         ),
-        backgroundColor: Colors.white,
         body: Builder(
             builder: (context) => _getPageCadastroAtendimento(context)));
   }

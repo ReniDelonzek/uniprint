@@ -47,34 +47,30 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-        theme: Tema.getWhiteTema(context),
-        home: Builder(builder: ((context) {
-          buildContext = context;
-          return new Scaffold(
-            body: new Container(
-              alignment: Alignment.center,
-              child: new Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  AnimatedContainer(
-                    duration: Duration(milliseconds: 1000),
-                    width: width,
-                    height: height,
-                    child: AnimatedOpacity(
-                      child: FlutterLogo(
-                        size: 200.0,
-                      ),
-                      opacity: opacity.toDouble(),
-                      duration: Duration(milliseconds: 1500),
-                    ),
-                  ),
-                ],
+    return new Scaffold(body: Builder(builder: ((context) {
+      buildContext = context;
+      return new Container(
+        alignment: Alignment.center,
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AnimatedContainer(
+              duration: Duration(milliseconds: 1000),
+              width: width,
+              height: height,
+              child: AnimatedOpacity(
+                child: FlutterLogo(
+                  size: 200.0,
+                ),
+                opacity: opacity.toDouble(),
+                duration: Duration(milliseconds: 1500),
               ),
             ),
-          );
-        })));
+          ],
+        ),
+      );
+    })));
   }
 
   void _firebaseCloudMessagingListeners() {

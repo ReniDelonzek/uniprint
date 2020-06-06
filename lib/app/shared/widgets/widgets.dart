@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uniprint/app/shared/temas/tema.dart';
 
 class TextTitle extends StatelessWidget {
   final String title;
@@ -60,7 +61,8 @@ class ChipButtonState extends StatelessWidget {
         decoration: new BoxDecoration(
             color: isSelected ? Colors.blue : Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(24.0)),
-            border: new Border.all(color: Colors.blue)),
+            border: new Border.all(
+                color: isDarkMode(context) ? Colors.transparent : Colors.blue)),
         child: Material(
             color: Colors.transparent,
             child: InkWell(

@@ -11,6 +11,7 @@ import 'package:uniprint/app/shared/models/graph/posicao_atendimento.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
+import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -73,6 +74,8 @@ class _DetalhesAtendimentoPageState extends State<DetalhesAtendimentoPage> {
               data: widget.atendimento.id.toString(),
               version: QrVersions.auto,
               size: 200.0,
+              foregroundColor:
+                  isDarkMode(context) ? Colors.white : Colors.black,
             ),
             Text('Esse é o seu QR de identificação!'),
             Container(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uniprint/app/shared/temas/tema.dart';
 
 import 'modules/home/splash_screen/splash_module.dart';
 
@@ -7,9 +8,9 @@ class AppWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'UniPrint',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: Tema.getTema(context),
+      darkTheme: Tema.getTema(context, darkMode: true),
+      themeMode: ThemeMode.dark,
       home: SplashModule(),
     );
   }
