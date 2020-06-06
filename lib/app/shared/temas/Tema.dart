@@ -8,7 +8,10 @@ class Tema {
         appBarTheme: AppBarTheme(elevation: 0),
         accentColor: getCorPadrao(),
         scaffoldBackgroundColor: darkMode ? Colors.black : Colors.white,
-        primaryColor: darkMode ? Colors.black : Colors.white);
+        primaryColor: darkMode ? Colors.black : Colors.white,
+        inputDecorationTheme: InputDecorationTheme(
+            labelStyle:
+                TextStyle(color: darkMode ? Colors.white60 : Colors.black87)));
   }
 }
 

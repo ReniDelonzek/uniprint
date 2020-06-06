@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uniprint/app/shared/db/hive/menu.dart';
 import 'package:uniprint/app/shared/db/hive/tipo_folha.dart';
 import 'package:uniprint/app/shared/db/hive/usuario.dart';
 import 'package:uniprint/app/shared/db/valor_impressao.dart';
@@ -19,6 +20,7 @@ class UtilsHiveService extends Disposable {
     Hive.registerAdapter(UsuarioHasuraAdapter());
     Hive.registerAdapter(ValorImpressaoAdapter());
     Hive.registerAdapter(TipoFolhaAdapter());
+    Hive.registerAdapter(MenuAdapter());
     completer.complete(true);
   }
 

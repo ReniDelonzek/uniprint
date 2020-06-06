@@ -214,7 +214,7 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
                               return _getTextoValorTotal(
                                   'Ops, houve uma falha ao calcular o preço total 😬');
                             } else {
-                              if (snap.data.toDouble() == 0.0) {
+                              if (snap.data?.toDouble() == 0.0) {
                                 return Text('');
                               }
                               String valor =

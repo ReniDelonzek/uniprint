@@ -23,9 +23,8 @@ void verificarLogin(context) {
       Route route = MaterialPageRoute(builder: (context) => LoginSocialPage());
       Navigator.pushReplacement(context, route);
     } else {
-      AppModule.to
-          .getDependency<HasuraAuthService>()
-          .obterDadosUsuario(user.uid, (value) {
+      AppModule.to.getDependency<HasuraAuthService>().obterDadosUsuario(user,
+          (value) {
         _goScreen(user, context);
       });
     }
@@ -91,10 +90,10 @@ Future<bool> enviarToken(String uid, BuildContext context) async {
   return false;
 }
 
-void posLogin(AuthResult user, BuildContext context) async {
-  if (user != null) {
-    enviarToken(user.user.uid, context);
-    buscarDadosPerfil(context, user.user.uid);
+void posLogin(AuthResult authResult, BuildContext context) async {
+  if (authResult != null) {
+    enviarToken(authResult.user.uid, context);
+    buscarDadosPerfil(context, authResult.user);
   } else {
     Scaffold.of(context).showSnackBar(new SnackBar(
       content: new Text("Ops, houve uma falha na tentativa de login"),
@@ -102,14 +101,15 @@ void posLogin(AuthResult user, BuildContext context) async {
   }
 }
 
-void buscarDadosPerfil(BuildContext context, String uid) async {
+void buscarDadosPerfil(BuildContext context, FirebaseUser firebaseUser) async {
   ProgressDialog progressDialog = ProgressDialog(context)
     ..style(message: 'Buscando dados do perfil');
   await progressDialog.show();
 
   HasuraAuthService hasuraAuthService =
       AppModule.to.getDependency<HasuraAuthService>();
-  hasuraAuthService.obterDadosUsuario(uid, (UsuarioHasura usuarioHasura) async {
+  hasuraAuthService.obterDadosUsuario(firebaseUser,
+      (UsuarioHasura usuarioHasura) async {
     try {
       progressDialog.dismiss();
     } catch (e) {

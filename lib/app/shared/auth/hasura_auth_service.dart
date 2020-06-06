@@ -14,6 +14,7 @@ import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_sentry.dart';
 
 class HasuraAuthService extends Disposable with AuthServiceInterface {
+  FirebaseUser firebaseUser;
   UsuarioHasura usuario;
   Completer<Box> completer = Completer();
 
@@ -33,14 +34,14 @@ class HasuraAuthService extends Disposable with AuthServiceInterface {
   Future<bool> logOut() async {
     try {
       usuario = null;
-      FirebaseUser user = await FirebaseAuth.instance.currentUser();
+      firebaseUser = await FirebaseAuth.instance.currentUser();
       Box box = await completer.future;
       await box.clear();
       await FirebaseAuth.instance.signOut();
       SharedPreferences shared = await SharedPreferences.getInstance();
       shared.remove(Constants.TIPO_USUARIO);
       await _limparTokenFirebase(
-          user?.uid, shared.get(Constants.MESSAGING_TOKEN));
+          firebaseUser?.uid, shared.get(Constants.MESSAGING_TOKEN));
       return true;
     } catch (error, stackTrace) {
       UtilsSentry.reportError(error, stackTrace);
@@ -49,15 +50,18 @@ class HasuraAuthService extends Disposable with AuthServiceInterface {
   }
 
   void obterDadosUsuario(
-      String uid, ValueChanged<UsuarioHasura> onChanged) async {
+      FirebaseUser firebaseUser, ValueChanged<UsuarioHasura> onChanged) async {
+    this.firebaseUser = firebaseUser;
     if (usuario == null) {
       Box box = await completer.future;
       if (box.containsKey('usuario')) {
         usuario = box.get('usuario');
         onChanged(usuario);
       } else {
-        var l =
-            Firestore.instance.collection('Usuarios').document(uid).snapshots();
+        var l = Firestore.instance
+            .collection('Usuarios')
+            .document(firebaseUser.uid)
+            .snapshots();
         l.listen((event) async {
           if (event.data?.containsKey('hasura_id') ?? false) {
             if (usuario == null) {

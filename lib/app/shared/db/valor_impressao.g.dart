@@ -20,8 +20,8 @@ class ValorImpressaoAdapter extends TypeAdapter<ValorImpressao> {
       fields[0] as int,
       fields[1] as double,
       fields[3] as int,
-      fields[4] as dynamic,
-      fields[5] as dynamic,
+      fields[4] as DateTime,
+      fields[5] as DateTime,
       fields[6] as bool,
     );
   }

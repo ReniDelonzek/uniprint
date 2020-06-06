@@ -17,9 +17,12 @@ import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_m
 import 'package:uniprint/app/services/sincronizar_dados_service.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
+import 'package:uniprint/app/shared/menu_drawer/menu_drawer_widget.dart';
+import 'package:uniprint/app/shared/models/acao.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
 import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
+import 'package:uniprint/app/shared/models/menu_item.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
 import 'package:uniprint/app/shared/temas/tema.dart';
@@ -126,6 +129,31 @@ class _HomePageState extends State<HomePage> {
             ? _getAtendimentos(context)
             : _getImpressoes(context);
       }),
+      drawer: MenuDrawerWidget([
+        MenuItem(
+            titulo: 'Materiais publicados',
+            codSistema: 1,
+            icone: new Icon(Icons.school),
+            acao: Acao(funcao: ({data}) async {
+              controller.exibirFab = false;
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ListaMateriaisModule()));
+              controller.exibirFab = true;
+            })),
+        MenuItem(
+            titulo: 'FeedBack',
+            codSistema: 2,
+            icone: new Icon(Icons.favorite),
+            acao: Acao(funcao: ({data}) async {
+              controller.exibirFab = false;
+              await Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => FeedbackModule()));
+              controller.exibirFab = true;
+            }))
+      ]),
+/*
       drawer: Theme(
           data: Tema.getWhiteTema(context),
           child: new Drawer(
@@ -202,6 +230,7 @@ class _HomePageState extends State<HomePage> {
                   }),
             ]),
           ))),
+     */
       bottomNavigationBar: FABBottomAppBar(
         centerItemText: '',
         selectedColor: Colors.blue,

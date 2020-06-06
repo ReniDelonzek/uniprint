@@ -177,7 +177,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
         } else {
           AppModule.to
               .getDependency<HasuraAuthService>()
-              .obterDadosUsuario(user.user.uid, (usuario) {
+              .obterDadosUsuario(user.user, (usuario) {
             progressDialog.dismiss();
             if (usuario != null) {
               Route route =
@@ -257,7 +257,7 @@ class _LoginEmailPageState extends State<LoginEmailPage> {
       } else {
         AppModule.to
             .getDependency<HasuraAuthService>()
-            .obterDadosUsuario(user.user.uid, (value) async {
+            .obterDadosUsuario(user.user, (value) async {
           if (value != null) {
             progressDialog.dismiss();
             Navigator.of(context)?.pushReplacement(new MaterialPageRoute(

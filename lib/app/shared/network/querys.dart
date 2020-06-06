@@ -134,6 +134,16 @@ subscription posicaoAtendimento(\$id: Int!) {
     }
   }
 }
+""";
 
+  static const String getMenus = """
+query getMenus(\$usuario_id: Int!) {
+  menu(where:
+    {_or: [{direito_menu_tipo_usuarios: {tipo_usuario: {usuarios: {id: {_eq: \$usuario_id}}}}}, {direito_menu_usuarios: {usuario_id: {_eq: \$usuario_id}}}]}) {
+    nome
+    id
+    menu_pai_id
+  }
+}
 """;
 }
