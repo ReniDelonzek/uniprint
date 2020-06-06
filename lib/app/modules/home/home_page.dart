@@ -8,8 +8,6 @@ import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_a
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
 import 'package:uniprint/app/modules/home/home_module.dart';
-import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
-import 'package:uniprint/app/modules/home/tela_perfil/tela_perfil_page.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_module.dart';
 import 'package:uniprint/app/modules/materiais/cadastro_material/cadastro_material_module.dart';
@@ -17,7 +15,6 @@ import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_m
 import 'package:uniprint/app/services/sincronizar_dados_service.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
-import 'package:uniprint/app/shared/menu_drawer/menu_drawer_widget.dart';
 import 'package:uniprint/app/shared/models/acao.dart';
 import 'package:uniprint/app/shared/models/graph/atendimento_g.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
@@ -25,7 +22,6 @@ import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
 import 'package:uniprint/app/shared/models/menu_item.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
-import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -36,6 +32,7 @@ import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
 import 'package:uniprint/app/shared/widgets/layout.dart';
 import 'package:uniprint/app/shared/widgets/lista_vazia/lista_vazia_widget.dart';
+import 'package:uniprint/app/shared/widgets/menu_drawer/menu_drawer_widget.dart';
 
 import 'home_controller.dart';
 

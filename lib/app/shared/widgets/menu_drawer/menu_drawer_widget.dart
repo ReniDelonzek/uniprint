@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/modules/home/tela_perfil/tela_perfil_page.dart';
 import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
-import 'package:uniprint/app/shared/menu/menu_widget.dart';
 import 'package:uniprint/app/shared/models/menu_item.dart';
+import 'package:uniprint/app/shared/widgets/menu/menu_widget.dart';
 
 class MenuDrawerWidget extends StatelessWidget {
   final List<MenuItem> menus;
