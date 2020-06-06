@@ -435,8 +435,10 @@ class _HomePageState extends State<HomePage> {
       ItemFabWith(
           icon: Icons.add,
           title: 'Impressão arquivos',
-          heroTag: 'add_atendimento'),
-      ItemFabWith(icon: Icons.print, title: 'Senha Atendimento'),
+          heroTag: 'add_atendimento',
+          color: Colors.white),
+      ItemFabWith(
+          icon: Icons.print, title: 'Senha Atendimento', color: Colors.white),
       //ItemFabWith(icon: Icons.people, title: 'Material Aula')
     ];
     return Observer(

@@ -4,8 +4,9 @@ class ItemFabWith {
   IconData icon;
   String title;
   String heroTag;
+  Color color;
 
-  ItemFabWith({this.icon, this.title, this.heroTag});
+  ItemFabWith({this.icon, this.title, this.heroTag, this.color});
 }
 
 class FabWithIcons extends StatefulWidget {
@@ -51,11 +52,7 @@ class FabWithIconsState extends State<FabWithIcons>
                     mainAxisSize: MainAxisSize.min,
                     children: List.generate(widget.icons.length, (int index) {
                       return _buildChild(index);
-                    }) /*.toList()
-                      ..add(
-
-                      ),*/
-                    ),
+                    })),
               ),
             ),
           ),
@@ -67,7 +64,7 @@ class FabWithIconsState extends State<FabWithIcons>
 
   Widget _buildChild(int index) {
     Color backgroundColor = Theme.of(context).cardColor;
-    Color foregroundColor = Theme.of(context).accentColor;
+
     return Container(
       height: 70.0,
       alignment: FractionalOffset.centerRight,
@@ -81,13 +78,6 @@ class FabWithIconsState extends State<FabWithIcons>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            /*Text(
-              widget.icons[index].title,
-              style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                  decoration: TextDecoration.none),
-            ),*/
             Padding(
               padding: EdgeInsets.all(5),
             ),
@@ -96,7 +86,9 @@ class FabWithIconsState extends State<FabWithIcons>
                   widget.icons[index].heroTag ?? "item_${index.toString()}",
               backgroundColor: backgroundColor,
               mini: true,
-              child: Icon(widget.icons[index].icon, color: foregroundColor),
+              child: Icon(widget.icons[index].icon,
+                  color: widget.icons[index].color ??
+                      Theme.of(context).accentColor),
               onPressed: () => _onTapped(index),
             ),
           ],
