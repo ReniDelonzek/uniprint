@@ -22,6 +22,7 @@ import 'package:uniprint/app/shared/models/graph/movimentacao_g.dart';
 import 'package:uniprint/app/shared/models/menu_item.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
+import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
@@ -147,6 +148,17 @@ class _HomePageState extends State<HomePage> {
               controller.exibirFab = false;
               await Navigator.push(context,
                   MaterialPageRoute(builder: (context) => FeedbackModule()));
+              controller.exibirFab = true;
+            })),
+        MenuItem(
+            titulo: 'Cadastrar Material',
+            codSistema: 4,
+            acao: Acao(funcao: ({data}) async {
+              controller.exibirFab = false;
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CadastroMaterialModule()));
               controller.exibirFab = true;
             }))
       ]),
@@ -416,7 +428,9 @@ class _HomePageState extends State<HomePage> {
           Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8),
             child: Icon(
-                UtilsMovimentacao.getIconeAtendimento((atendimento.status))),
+              UtilsMovimentacao.getIconeAtendimento((atendimento.status)),
+              color: UtilsMovimentacao.getColorIcon(atendimento.status),
+            ),
           ),
           Expanded(
             child: Text(
@@ -433,10 +447,11 @@ class _HomePageState extends State<HomePage> {
           icon: Icons.add,
           title: 'Impressão arquivos',
           heroTag: 'add_atendimento',
-          color: Colors.white),
+          color: isDarkMode(context) ? Colors.white : Colors.black),
       ItemFabWith(
-          icon: Icons.print, title: 'Senha Atendimento', color: Colors.white),
-      //ItemFabWith(icon: Icons.people, title: 'Material Aula')
+          icon: Icons.print,
+          title: 'Senha Atendimento',
+          color: isDarkMode(context) ? Colors.white : Colors.black),
     ];
     return Observer(
       builder: (_) => AnchoredOverlay(
@@ -459,25 +474,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  Widget _cadastroMaterial() {
-    if (AppModule.to.getDependency<HasuraAuthService>().usuario.codProfessor !=
-        null) {
-      return new ListTile(
-          title: new Text("Cadastrar Material (Professor)"),
-          trailing: new Icon(Icons.list),
-          onTap: () async {
-            controller.exibirFab = false;
-            await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CadastroMaterialModule()));
-            controller.exibirFab = true;
-          });
-    } else {
-      return Container();
-    }
   }
 
   _atualizarValoresImpressoes() {

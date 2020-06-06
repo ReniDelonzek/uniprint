@@ -50,7 +50,7 @@ class UtilsMovimentacao {
       case Constants.MOV_IMPRESSAO_AUTORIZADO:
         return Colors.blue;
       case Constants.MOV_IMPRESSAO_AGUARDANDO_RETIRADA:
-        return Colors.yellow;
+        return Colors.orange;
       case Constants.MOV_IMPRESSAO_RETIRADA:
         return Colors.green;
       case Constants.MOV_IMPRESSAO_CANCELADO:
