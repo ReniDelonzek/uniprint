@@ -79,10 +79,9 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                     var res = await GraphQlObject.hasuraConnect
                         .mutation(Mutations.cadastroMaterial, variables: {
                       'usuario_id': AppModule.to
-                              .getDependency<HasuraAuthService>()
-                              .usuario
-                              ?.codHasura ??
-                          12,
+                          .getDependency<HasuraAuthService>()
+                          .usuario
+                          ?.codHasura,
                       'tipo_folha_id': _controller.tipoFolha?.id,
                       'colorido': _controller.colorido,
                       'data_publicacao': DateFormat('yyyy-MM-ddTHH:mm:ss')

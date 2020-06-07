@@ -153,6 +153,7 @@ class _HomePageState extends State<HomePage> {
         MenuItem(
             titulo: 'Cadastrar Material',
             codSistema: 4,
+            icone: Icon(Icons.add_box),
             acao: Acao(funcao: ({data}) async {
               controller.exibirFab = false;
               await Navigator.push(
