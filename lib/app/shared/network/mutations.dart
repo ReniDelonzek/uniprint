@@ -53,7 +53,7 @@ mutation AddFeedbak(\$feedback: String!, \$nota: float8!, \$usuario_id: Int!) {
 
   static const String cadastroMaterial =
       """mutation AddMaterial(\$colorido: Boolean!, \$data_publicacao: timestamptz!, 
-\$tipo: Int!, \$tipo_folha_id: Int!, \$titulo: String!, \$arquivos: [arquivo_material_insert_input!]!, \$usuario_id: Int!, \$descricao: String) {
+\$tipo: Int!, \$tipo_folha_id: Int, \$titulo: String!, \$arquivos: [arquivo_material_insert_input!]!, \$usuario_id: Int!, \$descricao: String) {
   insert_material(objects: {usuario_id: \$usuario_id, colorido: \$colorido, data_publicacao: \$data_publicacao, tipo: \$tipo,
    tipo_folha_id: \$tipo_folha_id, titulo: \$titulo, descricao: \$descricao arquivo_materials: {data: \$arquivos}}) {
     affected_rows

@@ -77,15 +77,13 @@ subscription posicaoAtendimento(\$id: Int!) {
     }
     descricao
     tipo
-    titulo
-    professor {
-        usuario {
-          pessoa {
-            nome
-          }
-          url_foto
-        }
-    }
+    titulo 
+    usuario {
+      pessoa {
+        nome
+      }
+      url_foto
+    } 
     arquivo_materials { 
       nome
       url

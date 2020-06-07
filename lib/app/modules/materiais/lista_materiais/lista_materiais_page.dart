@@ -90,7 +90,7 @@ class _ListaMateriaisPageState extends State<ListaMateriaisPage> {
               ),
               Text(UtilsMaterial.getResumoMaterial(material)),
               Text(
-                'By: ' + (material?.professor?.usuario?.pessoa?.nome ?? ''),
+                'By: ' + (material?.usuario?.pessoa?.nome ?? ''),
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

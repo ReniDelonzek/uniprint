@@ -235,12 +235,14 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
   }
 
   void selecionarArquivo() async {
+    ProgressDialog progressDialog = ProgressDialog(context)
+      ..style(message: 'Coletando dados do arquivo...')
+      ..show();
+
     Map<String, String> filePaths = await FilePicker.getMultiFilePath(
         type: FileType.CUSTOM, fileExtension: 'pdf');
+    progressDialog.dismiss();
     if (filePaths != null) {
-      ProgressDialog progressDialog = ProgressDialog(context)
-        ..style(message: 'Coletando dados do arquivo...');
-      await progressDialog.show();
       //todo ver pq aqui estava aparecendo so depois do arquivo ja adicionado a lista
 
       List<ArquivoMaterial> arquivos = List();

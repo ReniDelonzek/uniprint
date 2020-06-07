@@ -5,6 +5,7 @@ import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/extensions/string.dart';
 import 'package:uniprint/app/shared/models/graph/materiais/arquivo_material.dart';
 import 'package:uniprint/app/shared/models/graph/professor.dart';
+import 'package:uniprint/app/shared/models/graph/usuario_g.dart';
 
 import '../ponto_atendimento.dart';
 
@@ -16,7 +17,7 @@ class MaterialProf {
   bool colorido;
   PontoAtendimento ponto_atendimento;
   List<ArquivoMaterial> arquivo_materials;
-  Professor professor;
+  Usuario usuario;
   String descricao;
   MaterialProf({
     this.data_publicacao,
@@ -26,7 +27,7 @@ class MaterialProf {
     this.colorido,
     this.ponto_atendimento,
     this.arquivo_materials,
-    this.professor,
+    this.usuario,
     this.descricao,
   });
 
@@ -49,7 +50,7 @@ class MaterialProf {
       colorido: colorido ?? this.colorido,
       ponto_atendimento: ponto_atendimento ?? this.ponto_atendimento,
       arquivo_materials: arquivo_materials ?? this.arquivo_materials,
-      professor: professor ?? this.professor,
+      usuario: professor ?? this.usuario,
       descricao: descricao ?? this.descricao,
     );
   }
@@ -64,7 +65,7 @@ class MaterialProf {
       'ponto_atendimento': ponto_atendimento.toMap(),
       'arquivo_materials':
           List<dynamic>.from(arquivo_materials.map((x) => x.toMap())),
-      'professor': professor.toMap(),
+      'usuario': usuario.toMap(),
       'descricao': descricao,
     };
   }
@@ -82,7 +83,7 @@ class MaterialProf {
       ponto_atendimento: PontoAtendimento.fromMap(map['ponto_atendimento']),
       arquivo_materials: List<ArquivoMaterial>.from(
           map['arquivo_materials']?.map((x) => ArquivoMaterial.fromMap(x))),
-      professor: Professor.fromMap(map['professor']),
+      usuario: Usuario.fromMap(map['usuario']),
       descricao: map['descricao'],
     );
   }
@@ -93,7 +94,7 @@ class MaterialProf {
 
   @override
   String toString() {
-    return 'MaterialProf data_publicacao: $data_publicacao, tipo: $tipo, titulo: $titulo, tipo_folha: $tipo_folha, colorido: $colorido, ponto_atendimento: $ponto_atendimento, arquivo_materials: $arquivo_materials, professor: $professor, descricao: $descricao';
+    return 'MaterialProf data_publicacao: $data_publicacao, tipo: $tipo, titulo: $titulo, tipo_folha: $tipo_folha, colorido: $colorido, ponto_atendimento: $ponto_atendimento, arquivo_materials: $arquivo_materials, usuario: $usuario, descricao: $descricao';
   }
 
   @override
@@ -108,7 +109,7 @@ class MaterialProf {
         o.colorido == colorido &&
         o.ponto_atendimento == ponto_atendimento &&
         o.arquivo_materials == arquivo_materials &&
-        o.professor == professor &&
+        o.usuario == usuario &&
         o.descricao == descricao;
   }
 
@@ -121,7 +122,7 @@ class MaterialProf {
         colorido.hashCode ^
         ponto_atendimento.hashCode ^
         arquivo_materials.hashCode ^
-        professor.hashCode ^
+        usuario.hashCode ^
         descricao.hashCode;
   }
 }

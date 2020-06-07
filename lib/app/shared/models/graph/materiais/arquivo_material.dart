@@ -32,7 +32,6 @@ class ArquivoMaterial {
 
   Map<String, dynamic> toMap() {
     return {
-      'material': material.toMap(),
       'url': url,
       'nome': nome,
       'num_paginas': num_paginas,
