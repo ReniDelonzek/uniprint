@@ -92,7 +92,7 @@ abstract class _CadastroImpressaoBase with Store {
     }
     double valor = await UtilsImpressao.getValorImpressaoArquivos(arquivos);
     if (valor > valorMax) {
-      return 'Infelizmente você não tem reputação suficiente para imprimir essa quantia toda de uma vez, você só pode imprimir até R\$: ${NumberFormat('0.00').format(valorMax)} reais.\nSua reputação cresce com a gente a medida que você usa nossa plataforma, então continue usando para ter um limite maior ˆˆ ';
+      return 'Infelizmente você não tem reputação suficiente para imprimir essa quantia toda de uma vez, você só pode imprimir até R\$: ${NumberFormat('0.00').format(valorMax).replaceAll('.', ',')} reais.\nSua reputação cresce com a gente a medida que você usa nossa plataforma, então continue usando para ter um limite maior ˆˆ ';
     } else
       return null;
   }

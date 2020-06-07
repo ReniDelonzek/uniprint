@@ -17,7 +17,6 @@ class SplashScreenPage extends StatefulWidget {
 }
 
 class _SplashScreenPageState extends State<SplashScreenPage> {
-  FirebaseMessaging _firebaseMessaging;
   int opacity = 0;
   var buildContext;
   double width = 0, height = 0;
@@ -37,7 +36,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
         verificarLogin(buildContext);
       });
     });
-    //_firebaseCloudMessagingListeners();
+    _firebaseCloudMessagingListeners();
   }
 
   @override
@@ -74,7 +73,8 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
   }
 
   void _firebaseCloudMessagingListeners() {
-    if (Platform.isIOS) _iOSPermission();
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    if (Platform.isIOS) _iOSPermission(_firebaseMessaging);
     if (Platform.isAndroid || Platform.isIOS) {
       _firebaseMessaging.getToken().then((token) {
         SharedPreferences.getInstance().then((shared) {
@@ -105,7 +105,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
     }
   }
 
-  void _iOSPermission() {
+  void _iOSPermission(FirebaseMessaging _firebaseMessaging) {
     _firebaseMessaging.requestNotificationPermissions(
         IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered

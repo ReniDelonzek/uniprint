@@ -167,10 +167,6 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
     return account;
   }
 
-  // ignore: missing_return
-  Future<AuthResult> signIntoFirebase(
-      GoogleSignInAccount googleSignInAccount) {}
-
   startingLoginFacebook(BuildContext context) async {
     var facebookLogin = new FacebookLogin();
     var result = await facebookLogin
@@ -204,7 +200,6 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
         Scaffold.of(buildContext).showSnackBar(new SnackBar(
           content: new Text("Ops, houve uma falha na tentativa de login"),
         ));
-        print("Houve um erro");
         break;
     }
   }

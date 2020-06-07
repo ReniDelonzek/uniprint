@@ -17,6 +17,8 @@ import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_firebase_file.dart';
 import 'package:uniprint/app/shared/utils/utils_platform.dart';
+import 'package:uniprint/app/shared/utils/utils_sentry.dart';
+import 'package:uniprint/app/shared/widgets/button.dart';
 import 'package:uniprint/app/shared/widgets/pontos_atendimento/pontos_atendimento_widget.dart';
 import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_controller.dart';
 import 'package:uniprint/app/shared/widgets/tipo_folha/tipo_folha_widget.dart';
@@ -52,14 +54,14 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
             "Cadastrar Material",
             style: new TextStyle(color: Colors.black),
           ),
-          backgroundColor: Colors.white,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: ButtonTheme(
             height: 42,
             minWidth: 140,
-            child: RaisedButton(
-              onPressed: () async {
+            child: Button(
+              'Salvar',
+              () async {
                 if (verificarDados(buildContext)) {
                   FocusScope.of(context).requestFocus(FocusNode());
                   ProgressDialog progress = ProgressDialog(context);
@@ -76,10 +78,10 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
 
                     var res = await GraphQlObject.hasuraConnect
                         .mutation(Mutations.cadastroMaterial, variables: {
-                      'professor_id': AppModule.to
+                      'usuario_id': AppModule.to
                               .getDependency<HasuraAuthService>()
                               .usuario
-                              ?.codProfessor ??
+                              ?.codHasura ??
                           12,
                       'tipo_folha_id': _controller.tipoFolha?.id,
                       'colorido': _controller.colorido,
@@ -103,8 +105,8 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                       showSnack(buildContext,
                           'Ops, houve uma falha ao cadastrar o material');
                     }
-                  } catch (e) {
-                    print(e);
+                  } catch (error, stackTrace) {
+                    UtilsSentry.reportError(error, stackTrace);
                     if (progress != null && progress.isShowing()) {
                       progress.dismiss();
                     }
@@ -113,17 +115,7 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
                   }
                 }
               },
-              color: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22.0),
-              ),
-              child: new Text(
-                "SALVAR",
-                style: new TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
             )),
-        backgroundColor: Colors.white,
         body: Builder(builder: (context) => _getBody(context)));
   }
 
