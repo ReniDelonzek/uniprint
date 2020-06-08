@@ -37,8 +37,8 @@ dependencies:
   firebase_auth: ^0.14.0
   firebase_storage: ^3.0.6
   firebase_messaging: ^5.1.5
-  flutter_facebook_login: ^2.0.1
-  google_sign_in: ^4.1.1
+  flutter_facebook_login: ^3.0.0
+  google_sign_in: ^4.5.1
   json_annotation: ^2.0.0
 
   masked_text: ^0.0.6
