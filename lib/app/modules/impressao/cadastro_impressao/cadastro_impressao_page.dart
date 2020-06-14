@@ -116,7 +116,7 @@ class _CadastroImpressaoPageState extends State<CadastroImpressaoPage> {
         arquivo.quantidade = 1;
         arquivo.colorido = false;
         arquivo.tipo_folha_id = 1;
-        arquivo.tipoFolha = TipoFolha.getTamanhoFolhas().first;
+        arquivo.tipoFolha = (await TipoFolha.getTiposFolha()).first;
         arquivos.add(arquivo);
       }
       inicializados = true;

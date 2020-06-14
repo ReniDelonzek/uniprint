@@ -193,7 +193,6 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
         });
         break;
       case FacebookLoginStatus.cancelledByUser:
-        print("O login foi cancelado");
         break;
       case FacebookLoginStatus.error:
         Scaffold.of(buildContext).showSnackBar(new SnackBar(

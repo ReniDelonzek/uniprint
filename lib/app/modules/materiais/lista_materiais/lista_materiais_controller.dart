@@ -13,7 +13,8 @@ abstract class _ListaMateriaisBase with Store {
   ObservableList<MaterialProf> materiais = ObservableList();
 
   @action
-  List<ArquivoImpressao> getArquivosImpressao(MaterialProf material) {
+  Future<List<ArquivoImpressao>> getArquivosImpressao(
+      MaterialProf material) async {
     List<ArquivoImpressao> arquivos = List();
     if (material.arquivo_materials != null &&
         material.arquivo_materials.isNotEmpty) {
@@ -23,7 +24,7 @@ abstract class _ListaMateriaisBase with Store {
         arquivo.url = arquivoMaterial.url;
         arquivo.colorido = material.colorido ?? false;
         arquivo.quantidade = 1;
-        arquivo.tipoFolha = TipoFolha.getTamanhoFolhas().first;
+        arquivo.tipoFolha = (await TipoFolha.getTiposFolha()).first;
         arquivo.tipo_folha_id = arquivo.tipoFolha.id;
         arquivo.num_paginas = arquivoMaterial.num_paginas;
         arquivos.add(arquivo);

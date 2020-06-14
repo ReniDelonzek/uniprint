@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
 import 'package:uniprint/app/modules/materiais/lista_materiais/lista_materiais_module.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
+import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 import 'package:uniprint/app/shared/models/graph/materiais/material.dart';
 import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/querys.dart';
@@ -66,12 +67,14 @@ class _ListaMateriaisPageState extends State<ListaMateriaisPage> {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
+          List<ArquivoImpressao> arquivos =
+              await controller.getArquivosImpressao(material);
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => CadastroImpressaoModule(
-                      arquivos: controller.getArquivosImpressao(material))));
+                  builder: (context) =>
+                      CadastroImpressaoModule(arquivos: arquivos)));
         },
         child: Padding(
           padding: const EdgeInsets.all(16.0),

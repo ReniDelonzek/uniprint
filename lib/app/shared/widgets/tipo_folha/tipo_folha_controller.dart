@@ -13,6 +13,11 @@ abstract class _TipoFolhaBase with Store {
   _TipoFolhaBase(this.tipoFolha);
 
   getTiposFolha() async {
-    return AppModule.to.getDependency<TipoFolha>().getTiposFolha();
+    TipoFolha tipoFolha = AppModule.to.getDependency<TipoFolha>();
+    if (tipoFolha.tiposFolha?.isEmpty ?? true) {
+      tipoFolha.tiposFolha = await TipoFolha.getTiposFolha();
+    }
+
+    return tipoFolha.tiposFolha;
   }
 }

@@ -63,17 +63,13 @@ class TipoFolha {
   @override
   int get hashCode => id.hashCode ^ nome.hashCode;
 
-  static List<TipoFolha> getTamanhoFolhas() {
-    return [TipoFolha(id: 1, nome: 'A4'), TipoFolha(id: 2, nome: 'A3')];
-  }
-
   List<TipoFolha> tiposFolha;
 
-  Future<List<TipoFolha>> getTiposFolha() async {
+  static Future<List<TipoFolha>> getTiposFolha() async {
     Box box = await AppModule.to
         .getDependency<UtilsHiveService>()
         .getBox<TipoFolha>('tipo_folha');
-    tiposFolha = box.values.toList();
+    var tiposFolha = box.values.toList();
     return tiposFolha;
   }
 }

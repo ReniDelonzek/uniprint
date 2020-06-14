@@ -31,7 +31,6 @@ class _CadastroArquivosImpressaoPageState
       .bloc<CadastroArquivosImpressaoController>();
 
   bool _visibility = true;
-  List<TipoFolha> tamanhosFolha = List();
 
   _CadastroArquivosImpressaoPageState(List<ArquivoImpressao> arq) {
     controller.arquivos.addAll(arq);
@@ -39,7 +38,6 @@ class _CadastroArquivosImpressaoPageState
 
   @override
   void initState() {
-    tamanhosFolha = TipoFolha.getTamanhoFolhas();
     controller.icon = (controller.arquivos.length == 1)
         ? Icon(Icons.done)
         : Icon(Icons.navigate_next);

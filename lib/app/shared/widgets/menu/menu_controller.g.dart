@@ -9,21 +9,21 @@ part of 'menu_controller.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MenuController on _MenuBase, Store {
-  final _$personsAtom = Atom(name: '_MenuBase.persons');
+  final _$menuBoxAtom = Atom(name: '_MenuBase.menuBox');
 
   @override
   Box get menuBox {
-    _$personsAtom.context.enforceReadPolicy(_$personsAtom);
-    _$personsAtom.reportObserved();
+    _$menuBoxAtom.context.enforceReadPolicy(_$menuBoxAtom);
+    _$menuBoxAtom.reportObserved();
     return super.menuBox;
   }
 
   @override
   set menuBox(Box value) {
-    _$personsAtom.context.conditionallyRunInAction(() {
+    _$menuBoxAtom.context.conditionallyRunInAction(() {
       super.menuBox = value;
-      _$personsAtom.reportChanged();
-    }, _$personsAtom, name: '${_$personsAtom.name}_set');
+      _$menuBoxAtom.reportChanged();
+    }, _$menuBoxAtom, name: '${_$menuBoxAtom.name}_set');
   }
 
   final _$menusAtom = Atom(name: '_MenuBase.menus');
