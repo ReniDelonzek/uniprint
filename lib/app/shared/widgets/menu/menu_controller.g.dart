@@ -12,16 +12,16 @@ mixin _$MenuController on _MenuBase, Store {
   final _$personsAtom = Atom(name: '_MenuBase.persons');
 
   @override
-  Box get persons {
+  Box get menuBox {
     _$personsAtom.context.enforceReadPolicy(_$personsAtom);
     _$personsAtom.reportObserved();
-    return super.persons;
+    return super.menuBox;
   }
 
   @override
-  set persons(Box value) {
+  set menuBox(Box value) {
     _$personsAtom.context.conditionallyRunInAction(() {
-      super.persons = value;
+      super.menuBox = value;
       _$personsAtom.reportChanged();
     }, _$personsAtom, name: '${_$personsAtom.name}_set');
   }

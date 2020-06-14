@@ -41,7 +41,7 @@ class MenuWidget extends StatelessWidget {
           await AppModule.to.getDependency<HasuraAuthService>().logOut();
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => SplashModule()));
-          await menuController.persons.clear();
+          await menuController.menuBox.clear();
         })));
     return menus;
   }

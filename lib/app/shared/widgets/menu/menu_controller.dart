@@ -16,7 +16,7 @@ class MenuController = _MenuBase with _$MenuController;
 
 abstract class _MenuBase with Store {
   @observable
-  Box persons;
+  Box menuBox;
   @observable
   ObservableList<Menu> menus = ObservableList();
 
@@ -25,16 +25,16 @@ abstract class _MenuBase with Store {
   @action
   loadMenus() async {
     await _init();
-    for (var menu in persons.values) {
+    for (var menu in menuBox.values) {
       menus.add(menu);
     }
   }
 
   _init() async {
-    persons =
+    menuBox =
         await AppModule.to.getDependency<UtilsHiveService>().getBox('menu');
     getMenus();
-    return persons;
+    return menuBox;
   }
 
   @action
@@ -46,21 +46,20 @@ abstract class _MenuBase with Store {
             AppModule.to.getDependency<HasuraAuthService>().usuario?.codHasura
       });
       if (res != null && res.containsKey('data')) {
-        await persons.clear();
+        await menuBox.clear();
         for (var map in res['data']['menu']) {
           Menu menu = Menu.fromMap(map);
-          await persons.put(menu.id, menu);
+          await menuBox.put(menu.id, menu);
         }
 
         menus.clear();
-        for (var menu in persons.values) {
+        for (var menu in menuBox.values) {
           menus.add(menu);
         }
       }
     } catch (error, stackTrace) {
       UtilsSentry.reportError(error, stackTrace);
     }
-
     return menus;
   }
 }
