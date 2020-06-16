@@ -23,19 +23,20 @@ class Mutations {
 
   static const String cadastroImpressao =
       """mutation addImpressao(\$data: timestamptz!, \$usuario_id: Int!, \$tipo: Int!,
-  \$comentario: String!, \$ponto_atendimento_id: Int!, \$arquivos: [arquivo_impressao_insert_input!]!) {
+  \$comentario: String!, \$ponto_atendimento_id: Int!, \$arquivos: [arquivo_impressao_insert_input!]!, \$valor_total: numeric) {
   insert_movimentacao(objects: {
     data: \$data,
     usuario_id: \$usuario_id, 
     tipo: \$tipo,
     movimentacao_impressaos: {data: {
       impressao: {data: {
+        valor_total: \$valor_total,
         comentario: \$comentario,
         status: ${Constants.STATUS_IMPRESSAO_SOLICITADO}, 
         usuario_id: \$usuario_id,
         ponto_atendimento_id: \$ponto_atendimento_id,
         arquivo_impressaos: {data: \$arquivos}},
-      
+        
       }}}}) {
     affected_rows
   }

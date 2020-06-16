@@ -64,8 +64,12 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: FutureBuilder(
+                                padding: const EdgeInsets.all(15.0),
+                                child: Text(
+                                    'Valor Total: ${NumberFormat.simpleCurrency().format(widget.impressao.valorTotal ?? 0)}')
+
+                                /*
+                              FutureBuilder(
                                 future:
                                     UtilsImpressao.getValorImpressaoArquivos(
                                         widget.impressao.arquivo_impressaos),
@@ -85,8 +89,8 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                                         fontWeight: FontWeight.bold),
                                   );
                                 },
-                              ),
-                            ),
+                              ),*/
+                                ),
                           ],
                         ),
                       ),

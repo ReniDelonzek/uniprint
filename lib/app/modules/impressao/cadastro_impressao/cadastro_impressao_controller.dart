@@ -50,6 +50,7 @@ abstract class _CadastroImpressaoBase with Store {
             'Impressoes/${AppModule.to.getDependency<HasuraAuthService>().usuario?.codHasura}/${DateFormat('yyyyMMddHHmm').format(data)}/${file.path.split('/').last}');
       }
     }
+    double valor = await UtilsImpressao.getValorImpressaoArquivos(arquivos);
     return await GraphQlObject.hasuraConnect
         .mutation(Mutations.cadastroImpressao, variables: {
       'data': DateFormat('yyyy-MM-dd HH:mm:ss').format(data),
@@ -58,7 +59,8 @@ abstract class _CadastroImpressaoBase with Store {
       'ponto_atendimento_id': local.id,
       'tipo': Constants.MOV_IMPRESSAO_SOLICITADO,
       'comentario': controllerObs.text,
-      'arquivos': arquivos?.toList()?.map((a) => a.toJson())?.toList() ?? '[]'
+      'arquivos': arquivos?.toList()?.map((a) => a.toJson())?.toList() ?? '[]',
+      'valor_total': valor
     });
   }
 

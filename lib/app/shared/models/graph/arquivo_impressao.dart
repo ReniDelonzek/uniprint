@@ -28,7 +28,7 @@ class ArquivoImpressao extends _ArquivoImpressaoBase with _$ArquivoImpressao {
         quantidade: map['quantidade'],
         tipo_folha_id: map['tipo_folha_id'],
         num_paginas: map['num_paginas'],
-        tipoFolha: TipoFolha.fromMap(map['tipofolha']));
+        tipoFolha: TipoFolha.fromMap(map['tipo_folha']));
   }
 }
 

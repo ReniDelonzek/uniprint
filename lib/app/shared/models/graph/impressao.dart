@@ -12,14 +12,15 @@ class Impressao {
   List<ArquivoImpressao> arquivo_impressaos;
   List<MovimentacaoImpressao> movimentacao_impressaos;
   Usuario usuario;
-  Impressao({
-    this.id,
-    this.comentario,
-    this.status,
-    this.arquivo_impressaos,
-    this.movimentacao_impressaos,
-    this.usuario,
-  });
+  double valorTotal;
+  Impressao(
+      {this.id,
+      this.comentario,
+      this.status,
+      this.arquivo_impressaos,
+      this.movimentacao_impressaos,
+      this.usuario,
+      this.valorTotal});
 
   Impressao copyWith({
     int id,
@@ -57,16 +58,16 @@ class Impressao {
     if (map == null) return null;
 
     return Impressao(
-      id: map['id'],
-      comentario: map['comentario'],
-      status: map['status'],
-      arquivo_impressaos: List<ArquivoImpressao>.from(
-          map['arquivo_impressaos']?.map((x) => ArquivoImpressao.fromMap(x))),
-      movimentacao_impressaos: List<MovimentacaoImpressao>.from(
-          map['movimentacao_impressaos']
-              ?.map((x) => MovimentacaoImpressao.fromMap(x))),
-      usuario: Usuario.fromMap(map['usuario']),
-    );
+        id: map['id'],
+        comentario: map['comentario'],
+        status: map['status'],
+        arquivo_impressaos: List<ArquivoImpressao>.from(
+            map['arquivo_impressaos']?.map((x) => ArquivoImpressao.fromMap(x))),
+        movimentacao_impressaos: List<MovimentacaoImpressao>.from(
+            map['movimentacao_impressaos']
+                ?.map((x) => MovimentacaoImpressao.fromMap(x))),
+        usuario: Usuario.fromMap(map['usuario']),
+        valorTotal: map['valor_total']);
   }
 
   String toJson() => json.encode(toMap());

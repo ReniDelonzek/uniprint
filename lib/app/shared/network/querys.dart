@@ -34,13 +34,14 @@ subscription getImpressoes(\$usuario_id: Int!) {
     usuario {
       id
     }
+    valor_total
     arquivo_impressaos {
       colorido
       id
       nome
       quantidade
       num_paginas
-      tipofolha {
+      tipo_folha {
         id
         nome
       }

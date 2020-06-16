@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hasura_connect/hasura_connect.dart';
 
 class GraphQlObject {
-  static HasuraConnect hasuraConnect = HasuraConnect(
-      'https://uniprint-uv.herokuapp.com/v1/graphql', token: (isError) async {
+  static HasuraConnect hasuraConnect =
+      HasuraConnect('http://159.89.146.96/v1/graphql', token: (isError) async {
     var a = await FirebaseAuth.instance.currentUser();
     return "Bearer ${await a?.getIdToken() ?? ''}";
   });
