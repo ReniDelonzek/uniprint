@@ -59,13 +59,12 @@ subscription getImpressoes(\$usuario_id: Int!) {
 
   static const String posicaoAtendimento = """
 subscription posicaoAtendimento(\$id: Int!) {
-  atendimento_aggregate(where: {status: {_eq: 1}, _and: {id: {_gt: \$id}}}) {
+  atendimento_aggregate(where: {_and: [{status: {_eq: 1}}, {id: {_lt: \$id}}]}) {
     aggregate {
       count(columns: id)
     }
   }
 }
-
 """;
 
   static const String getListaMateriais = """query materiais {

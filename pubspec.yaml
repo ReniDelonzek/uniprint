@@ -24,7 +24,7 @@ dependencies:
   hive_flutter: ^0.3.0+1
   hive: ^1.4.0+1
   timeline_list: ^0.0.5 
-  hasura_connect: ^1.0.5
+  hasura_connect: ^1.2.2+1
   #hasura_connect: ^1.0.3
   flutter_mobx: ^0.3.4+3
   mobx: ^0.3.6
@@ -78,8 +78,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
 
 dev_dependencies:
-  hive_generator: ^0.7.0
-  floor_generator: ^0.9.0
+  hive_generator: ^0.7.0+2
   mobx_codegen: ^0.3.11
   build_runner: ^1.7.2
   mockito: ^4.1.1

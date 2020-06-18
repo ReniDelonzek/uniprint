@@ -10,6 +10,7 @@ import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/shared/db/hive/usuario.dart';
 import 'package:uniprint/app/shared/db/hive/utils_hive_service.dart';
 import 'package:uniprint/app/shared/interfaces/auth_service_interface.dart';
+import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_sentry.dart';
 
@@ -38,6 +39,7 @@ class HasuraAuthService extends Disposable with AuthServiceInterface {
       Box box = await completer.future;
       await box.clear();
       await FirebaseAuth.instance.signOut();
+
       SharedPreferences shared = await SharedPreferences.getInstance();
       shared.remove(Constants.TIPO_USUARIO);
       await _limparTokenFirebase(
