@@ -15,6 +15,14 @@
   - Solicitar a impressão do material com alguns cliques
 * Para professores: Possibilidade de publicar materiais para impressão de suas disciplinas
 
+## Tecnologias Utilizadas
+
+- Flutter
+- Hasura
+- Firebase
+- GraphQl
+- NodeJs
+
 ## Começando
 
 Para executar o projeto, você precisa primeiro ter o <a href="https://flutter.dev/docs/get-started/install">ambiente Flutter instalado e configurado</a>
