@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:uniprint/app/modules/home/login_email/login_email_page.dart';
+import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_colors.dart';
 import 'package:uniprint/app/shared/utils/utils_login.dart';
+import 'package:uniprint/app/shared/utils/utils_sentry.dart';
 
 class LoginSocialPage extends StatefulWidget {
   final String title;
@@ -117,6 +119,9 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
         // Start the sign-in process:
         googleAccount = await googleSignIn.signIn();
       }
+      if (googleAccount == null) {
+        showSnack(buildContext, 'Ops, houve uma falha ao realizar o login');
+      }
       googleAccount.authentication.then((googleAuth) {
         AuthCredential credential = GoogleAuthProvider.getCredential(
           accessToken: googleAuth.accessToken,
@@ -141,16 +146,15 @@ class _LoginSocialPageState extends State<LoginSocialPage> {
           content: new Text("Ops, houve uma falha na tentativa de login"),
         ));
       });
-    } catch (e) {
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       Scaffold.of(buildContext).showSnackBar(new SnackBar(
-        content: new Text(
-            "Ops, houve uma falha na tentativa de login (${e.toString()})"),
+        content: new Text("Ops, houve uma falha na tentativa de login"),
       ));
     }
-    //AuthResult user = await signIntoFirebase(googleAccount);
   }
 
-  Future<Null> initUser() async {
+  Future<void> initUser() async {
     googleAccount = await getSignedInAccount(googleSignIn);
     if (googleAccount == null) {
     } else {

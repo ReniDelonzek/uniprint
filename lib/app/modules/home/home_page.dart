@@ -163,84 +163,6 @@ class _HomePageState extends State<HomePage> {
               controller.exibirFab = true;
             }))
       ]),
-/*
-      drawer: Theme(
-          data: Tema.getWhiteTema(context),
-          child: new Drawer(
-              child: Container(
-            child: new Column(children: <Widget>[
-              Observer(
-                builder: (_) => new UserAccountsDrawerHeader(
-                  accountName: new Text(
-                    controller.user?.displayName ?? "",
-                    style: new TextStyle(color: Colors.white),
-                  ),
-                  accountEmail: new Text(controller.user?.email ?? "",
-                      style: new TextStyle(color: Colors.white)),
-                  currentAccountPicture: new GestureDetector(
-                    onTap: () async {
-                      controller.exibirFab = false;
-                      await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  TelaPerfilPage(controller.user)));
-                      controller.exibirFab = true;
-                    },
-                    child: Hero(
-                      tag: "imagem_perfil",
-                      child: new CircleAvatar(
-                        backgroundImage: new NetworkImage(controller
-                                .user?.photoUrl ??
-                            "https://pbs.twimg.com/profile_images/1172678945088688128/VwmaYUyw_400x400.jpg"),
-                      ),
-                    ),
-                  ),
-                  decoration: new BoxDecoration(
-                      image: new DecorationImage(
-                          fit: BoxFit.fill,
-                          image: AssetImage('imagens/back_drawer.jpg'))),
-                ),
-              ),
-              new ListTile(
-                  title: new Text("Materiais publicados"),
-                  trailing: new Icon(Icons.school),
-                  onTap: () async {
-                    controller.exibirFab = false;
-                    await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ListaMateriaisModule()));
-                    controller.exibirFab = true;
-                  }),
-              _cadastroMaterial(),
-              new ListTile(
-                  title: new Text("FeedBack"),
-                  trailing: new Icon(Icons.favorite),
-                  onTap: () async {
-                    controller.exibirFab = false;
-                    await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => FeedbackModule()));
-                    controller.exibirFab = true;
-                  }),
-              new Divider(),
-              new ListTile(
-                  title: new Text("Sair"),
-                  trailing: new Icon(Icons.power_settings_new),
-                  onTap: () async {
-                    await AppModule.to
-                        .getDependency<HasuraAuthService>()
-                        .logOut();
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SplashModule()));
-                  }),
-            ]),
-          ))),
-     */
       bottomNavigationBar: FABBottomAppBar(
         centerItemText: '',
         selectedColor: Colors.blue,
@@ -421,6 +343,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _getMovimentacoesAtendimento(Atendimento atendimento) {
+    if (atendimento.movimentacao_atendimentos?.isNotEmpty == false) {
+      return Container();
+    }
     Movimentacao mov =
         atendimento.movimentacao_atendimentos?.last?.movimentacao;
     return Container(
