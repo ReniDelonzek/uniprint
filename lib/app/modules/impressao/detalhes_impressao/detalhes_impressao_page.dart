@@ -99,11 +99,12 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                 ),
 
                 _botaoConfirmarRecebimento(builderContext),
-                Container(
-                  //alignment: Alignment.center,
-                  padding: const EdgeInsets.only(top: 35, bottom: 16),
-                  child: TextTitle('Movimentações'),
-                ),
+                // Container(
+                //   //alignment: Alignment.center,
+                //   padding: const EdgeInsets.only(
+                //       top: 35, bottom: 16, left: 8, right: 8),
+                //   child: TextTitle('Histórico'),
+                // ),
                 _getTimeLine(),
                 //_botaoConfirmarRecebimento(builderContext)
               ],
@@ -142,7 +143,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
     ).toList();
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(top: 32, bottom: 8, left: 16, right: 16),
       child: Timeline(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
