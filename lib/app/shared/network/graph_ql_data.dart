@@ -4,8 +4,12 @@ import 'package:hasura_connect/hasura_connect.dart';
 class GraphQlObject {
   static HasuraConnect hasuraConnect =
       HasuraConnect('http://159.89.146.96/v1/graphql', token: (isError) async {
-    var a = await FirebaseAuth.instance.currentUser();
-    return "Bearer ${await a?.getIdToken() ?? ''}";
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      String token = (await user.getIdToken())?.token;
+      return "Bearer $token";
+    } else
+      return "";
   });
 }
 
