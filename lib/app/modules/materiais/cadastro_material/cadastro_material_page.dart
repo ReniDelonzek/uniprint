@@ -130,7 +130,6 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
             children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(
-                  labelStyle: TextStyle(color: Colors.black45),
                   labelText: 'Defina um título',
                 ),
                 controller: _controller.controllerTitulo,
@@ -138,7 +137,6 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
               ),
               TextFormField(
                 decoration: InputDecoration(
-                  labelStyle: TextStyle(color: Colors.black45),
                   labelText: 'Descrição',
                 ),
                 controller: _controller.controllerDescricao,
