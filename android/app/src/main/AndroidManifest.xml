@@ -14,6 +14,7 @@
     <application
         android:name=".application.MyApplication"
         android:label="UniPrint"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
 
         <meta-data
