@@ -52,7 +52,6 @@ class _CadastroMaterialPageState extends State<CadastroMaterialPage> {
         appBar: new AppBar(
           title: new Text(
             "Cadastrar Material",
-            style: new TextStyle(color: Colors.black),
           ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

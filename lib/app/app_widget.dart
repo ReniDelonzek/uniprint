@@ -10,6 +10,8 @@ class AppWidget extends StatelessWidget {
       title: 'UniPrint',
       theme: Tema.getTema(context),
       darkTheme: Tema.getTema(context, darkMode: true),
+      themeMode: ThemeMode.light,
+      debugShowCheckedModeBanner: false,
       home: SplashModule(),
     );
   }
