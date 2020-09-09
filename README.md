@@ -15,6 +15,43 @@
   - Solicitar a impressão do material com alguns cliques
 * Para professores: Possibilidade de publicar materiais para impressão de suas disciplinas
 
+## Capturas de tela
+
+### Dark
+
+ <table>
+  <tr> 
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450540.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450423.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450431.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599451196.png" width="280px" /></td>
+    
+  <tr>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450437.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450455.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450460.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450464.png" width="280px" /></td>
+    
+    
+  </tr>
+</table>
+
+### Light
+
+ <table>
+  <tr> 
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450657.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450661.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450672.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450674.png" width="280px" /></td>
+  <tr>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450687.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450698.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450708.png" width="280px" /></td>
+    <td><img src="https://github.com/ReniDelonzek/uniprint/blob/master/capturas_tela/Screenshot_1599450742.png" width="280px" /></td>
+  </tr>
+</table>
+
 ## Tecnologias Utilizadas
 
 - Flutter
