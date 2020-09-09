@@ -27,23 +27,6 @@ Future<bool> showSnack(BuildContext context, String text,
   }
 }
 
-// }
-
-// Widget tratarMutation(QueryResult result, BuildContext context, Widget widget) {
-//   if (result.hasException) {
-//     showSnack(context, 'Ops, houve uma falha ao tentar cadastrar');
-//   }
-//   if (result.loading) {
-//     return Center(
-//       child: CircularProgressIndicator(),
-//     );
-//   }
-//   if (result.data != null) {
-//     showSnack(context, 'Cadastro efetuado com sucesso');
-//   }
-//   return widget;
-// }
-
 showProgressDialog(BuildContext context) {
   ProgressDialog progressDialog =
       ProgressDialog(context, type: ProgressDialogType.Normal);
