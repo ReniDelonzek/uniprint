@@ -60,6 +60,7 @@
 - GraphQl
 - NodeJs
 
+
 ## Começando
 
 Para executar o projeto, você precisa primeiro ter o <a href="https://flutter.dev/docs/get-started/install">ambiente Flutter instalado e configurado</a>
@@ -80,3 +81,8 @@ Contribuições são muito bem vindas ❤. Lembre-se de sempre seguir a estrutur
 - Faça as alterações necessárias
 - Teste e documente as alterações realizadas
 - Crie um Pull Request
+
+## Veja Também
+
+### Uniprint Gestão - Sitema de gestão
+Disponível em: https://github.com/ReniDelonzek/uniprint_gestao
