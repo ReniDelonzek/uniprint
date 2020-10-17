@@ -10,7 +10,6 @@ import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
 import 'package:uniprint/app/shared/widgets/button.dart';
-import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 class DetalhesImpressaoPage extends StatefulWidget {
   final String title;
@@ -66,31 +65,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                             Padding(
                                 padding: const EdgeInsets.all(15.0),
                                 child: Text(
-                                    'Valor Total: ${NumberFormat.simpleCurrency().format(widget.impressao.valorTotal ?? 0)}')
-
-                                /*
-                              FutureBuilder(
-                                future:
-                                    UtilsImpressao.getValorImpressaoArquivos(
-                                        widget.impressao.arquivo_impressaos),
-                                builder: (_, snap) {
-                                  if (snap.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Container(width: 0, height: 0);
-                                  }
-                                  if (snap.hasError) {
-                                    return Text(
-                                        'Houve uma falha ao recuperar o valor da impressão');
-                                  }
-                                  return new Text(
-                                    'Valor Total: ${NumberFormat.simpleCurrency().format(snap.data ?? 0)}',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  );
-                                },
-                              ),*/
-                                ),
+                                    'Valor Total: ${NumberFormat.simpleCurrency().format(widget.impressao.valorTotal ?? 0)}')),
                           ],
                         ),
                       ),
