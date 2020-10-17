@@ -1,6 +1,7 @@
 # UniPrint 🖨 
-
+<!--
 <img src="https://img.shields.io/github/license/ReniDelonzek/uniprint">
+-->
 
 Um sistema de agendamento de atendimentos e envio de arquivos para impressão
 
