@@ -36,12 +36,11 @@ void verificarLogin(context) {
 void _goScreen(FirebaseUser user, BuildContext context) async {
   final prefs = await SharedPreferences.getInstance();
 
-  int tipo = 0;
   if (prefs.containsKey(Constants.TIPO_USUARIO)) {
-    tipo = prefs.getInt(Constants.TIPO_USUARIO);
+    prefs.getInt(Constants.TIPO_USUARIO);
     atualizarPermissoes(user, prefs);
   } else
-    tipo = await atualizarPermissoes(user, prefs);
+    await atualizarPermissoes(user, prefs);
 
   // if (tipo == Constants.USUARIO_ATENDENTE) {
   //   String codPonto = await _getPontoAtendimento(user.uid);

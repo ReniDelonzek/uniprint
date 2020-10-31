@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_arquivos_impressao/cadastro_arquivos_impressao_controller.dart';
-import 'package:uniprint/app/shared/db/hive/tipo_folha.dart';
 import 'package:uniprint/app/shared/models/graph/arquivo_impressao.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
 import 'package:uniprint/app/shared/widgets/selecionar_quantidade/selecionar_quantidade_widget.dart';
@@ -112,7 +111,9 @@ class _CadastroArquivosImpressaoPageState
                     position == controller.currentPageValue.floor(),
                     position == 0
                         ? Colors.blue
-                        : position == 1 ? Colors.cyan : Colors.greenAccent,
+                        : position == 1
+                            ? Colors.cyan
+                            : Colors.greenAccent,
                     position));
           },
         );

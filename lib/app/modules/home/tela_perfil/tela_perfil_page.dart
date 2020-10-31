@@ -176,11 +176,7 @@ class _TelaPerfilPageState extends State<TelaPerfilPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Text(data,
-            style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black)),
+        Text(data, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         Text(label)
       ],
     );

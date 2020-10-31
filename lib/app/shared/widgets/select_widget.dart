@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:uniprint/app/shared/widgets/widgets.dart'; 
+import 'package:uniprint/app/shared/widgets/widgets.dart';
 
 class SelectWidget extends StatelessWidget {
-  String title;
-  String value;
-  GestureTapCallback onTap;
+  final String title;
+  final String value;
+  final GestureTapCallback onTap;
 
   SelectWidget(this.title, this.value, this.onTap);
 

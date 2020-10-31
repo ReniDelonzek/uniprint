@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/utils_login.dart';
 import 'package:uniprint/app/shared/utils/utils_notification.dart';
 
