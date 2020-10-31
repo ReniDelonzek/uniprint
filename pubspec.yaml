@@ -16,7 +16,9 @@ version: 1.0.0+1
 environment:
   sdk: ">=2.6.0 <3.0.0"
 
-dependencies:  
+dependencies:
+  curved_navigation_bar: ^0.3.4
+  simple_speed_dial: ^0.1.2
   sprintf: ^4.0.2
   pdf_render: ^0.57.1
   device_info: ^0.4.1+5

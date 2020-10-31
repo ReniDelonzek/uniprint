@@ -1,8 +1,10 @@
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 import 'package:uniprint/app/app_module.dart';
 import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_atendimento_module.dart';
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
@@ -28,7 +30,6 @@ import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
-import 'package:uniprint/app/shared/widgets/bottom_app_nav.dart';
 import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
 import 'package:uniprint/app/shared/widgets/layout.dart';
@@ -49,45 +50,9 @@ class _HomePageState extends State<HomePage> {
   final controller = HomeModule.to.bloc<HomeController>();
 
   Atendimento atendimento;
-  int _lastSelected = 0;
   BuildContext buildContextScall;
 
   _HomePageState({this.atendimento});
-
-  void _selectedTab(int index) {
-    setState(() {
-      _lastSelected = index;
-    });
-  }
-
-  Future<void> _selectedFab(int index) async {
-    switch (index) {
-      case 0:
-        {
-          if (!controller.atendimentos.any((element) =>
-              element.status == Constants.STATUS_ATENDIMENTO_SOLICITADO)) {
-            controller.exibirFab = false;
-            await Navigator.of(context).push(new MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    new CadastroAtendimentoModule()));
-            controller.exibirFab = true;
-          } else {
-            showSnack(
-                buildContextScall, 'Você já possui um atendimento marcado!');
-          }
-          break;
-        }
-      case 1:
-        {
-          controller.exibirFab = false;
-          await Navigator.of(context).push(new MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  new CadastroImpressaoModule()));
-          controller.exibirFab = true;
-          break;
-        }
-    }
-  }
 
   @override
   void initState() {
@@ -123,9 +88,10 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Builder(builder: (context) {
         buildContextScall = context;
-        return (_lastSelected == 0)
-            ? _getAtendimentos(context)
-            : _getImpressoes(context);
+        return Observer(
+            builder: (context) => (controller.lastSelected == 0)
+                ? _getAtendimentos(context)
+                : _getImpressoes(context));
       }),
       drawer: MenuDrawerWidget([
         MenuItem(
@@ -163,19 +129,28 @@ class _HomePageState extends State<HomePage> {
               controller.exibirFab = true;
             }))
       ]),
-      bottomNavigationBar: FABBottomAppBar(
-        centerItemText: '',
-        selectedColor: Colors.blue,
-        notchedShape: CircularNotchedRectangle(),
-        onTabSelected: _selectedTab,
+      bottomNavigationBar: CurvedNavigationBar(
+        key: controller.navigationKey,
+        color: getCorPadrao(),
+        backgroundColor: Colors.transparent,
+        buttonBackgroundColor: getCorPadrao(),
+        height: 60,
         items: [
-          FABBottomAppBarItem(iconData: Icons.group_work, text: 'Atendimentos'),
-          FABBottomAppBarItem(iconData: Icons.layers, text: 'Impressões'),
+          Icon(
+            Icons.group_work,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.layers,
+            color: Colors.white,
+          ),
         ],
+        onTap: (index) {
+          controller.lastSelected = index;
+        },
+        animationDuration: Duration(milliseconds: 400),
       ),
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _buildFab(context),
+      floatingActionButton: builFab2(context),
     );
   }
 
@@ -367,38 +342,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildFab(BuildContext context) {
-    final icons = [
-      ItemFabWith(
-          icon: Icons.add,
-          title: 'Impressão arquivos',
-          heroTag: 'add_atendimento',
-          color: isDarkMode(context) ? Colors.white : Colors.black),
-      ItemFabWith(
-          icon: Icons.print,
-          title: 'Senha Atendimento',
-          color: isDarkMode(context) ? Colors.white : Colors.black),
-    ];
-    return Observer(
-      builder: (_) => AnchoredOverlay(
-        showOverlay: controller.exibirFab,
-        overlayBuilder: (context, offset) {
-          return CenterAbout(
-            position: Offset(offset.dx, offset.dy - icons.length * 35.0),
-            child: FabWithIcons(
-              icons: icons,
-              onIconTapped: _selectedFab,
-            ),
-          );
-        },
-        child: FloatingActionButton(
-          heroTag: 'aaa',
-          onPressed: () {},
-          tooltip: 'Increment',
+  Widget builFab2(BuildContext context) {
+    return SpeedDial(
+      child: Icon(Icons.add),
+      labelsStyle: TextStyle(color: Colors.black),
+      speedDialChildren: <SpeedDialChild>[
+        SpeedDialChild(
           child: Icon(Icons.add),
-          elevation: 5.0,
+          label: 'Senha Atendimento',
+          onPressed: () async {
+            if (!controller.atendimentos.any((element) =>
+                element.status == Constants.STATUS_ATENDIMENTO_SOLICITADO)) {
+              await Navigator.of(context).push(new MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      new CadastroAtendimentoModule()));
+            } else {
+              showSnack(
+                  buildContextScall, 'Você já possui um atendimento marcado!');
+            }
+          },
+          closeSpeedDialOnPressed: true,
         ),
-      ),
+        SpeedDialChild(
+          child: Icon(Icons.print),
+          label: 'Impressão arquivos',
+          onPressed: () async {
+            await Navigator.of(context).push(new MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    new CadastroImpressaoModule()));
+          },
+        ),
+        //  Your other SpeeDialChildren go here.
+      ],
     );
   }
 
