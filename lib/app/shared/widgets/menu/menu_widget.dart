@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:uniprint/app/app_module.dart';
-import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
-import 'package:uniprint/app/shared/auth/hasura_auth_service.dart';
 import 'package:uniprint/app/shared/db/hive/menu.dart';
-import 'package:uniprint/app/shared/models/acao.dart';
 import 'package:uniprint/app/shared/models/menu_item.dart';
 
 import 'menu_controller.dart';
@@ -23,27 +19,9 @@ class MenuWidget extends StatelessWidget {
   }
 
   Widget _getMenu(BuildContext context) {
-    if (!menus.any((element) => element.titulo == 'Sair')) {
-      menus.addAll(_getMenusAuth(menuController.menus, context));
-    }
     return Column(
       children: _filtrarMenus(menuController.menus, menus, context),
     );
-  }
-
-  List<MenuItem> _getMenusAuth(List<Menu> listMenus, BuildContext context) {
-    List<MenuItem> menus = List();
-    menus.add(MenuItem(
-        codSistema: 3,
-        icone: Icon(Icons.power_settings_new),
-        titulo: 'Sair',
-        acao: Acao(funcao: ({data}) async {
-          await AppModule.to.getDependency<HasuraAuthService>().logOut();
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => SplashModule()));
-          await menuController.menuBox.clear();
-        })));
-    return menus;
   }
 
   Widget _getHeader(String title) {

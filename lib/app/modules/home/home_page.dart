@@ -10,6 +10,7 @@ import 'package:uniprint/app/modules/atendimento/cadastro_atendimento/cadastro_a
 import 'package:uniprint/app/modules/atendimento/detalhes_atendimento/detalhes_atendimento_module.dart';
 import 'package:uniprint/app/modules/feedback/feedback_module.dart';
 import 'package:uniprint/app/modules/home/home_module.dart';
+import 'package:uniprint/app/modules/home/splash_screen/splash_module.dart';
 import 'package:uniprint/app/modules/impressao/cadastro_impressao/cadastro_impressao_module.dart';
 import 'package:uniprint/app/modules/impressao/detalhes_impressao/detalhes_impressao_module.dart';
 import 'package:uniprint/app/modules/materiais/cadastro_material/cadastro_material_module.dart';
@@ -30,9 +31,7 @@ import 'package:uniprint/app/shared/utils/utils_atendimento.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
 import 'package:uniprint/app/shared/utils/utils_movimentacao.dart';
-import 'package:uniprint/app/shared/widgets/fab_multi_icons.dart';
 import 'package:uniprint/app/shared/widgets/falha/falha_widget.dart';
-import 'package:uniprint/app/shared/widgets/layout.dart';
 import 'package:uniprint/app/shared/widgets/lista_vazia/lista_vazia_widget.dart';
 import 'package:uniprint/app/shared/widgets/menu_drawer/menu_drawer_widget.dart';
 
@@ -127,6 +126,15 @@ class _HomePageState extends State<HomePage> {
                   MaterialPageRoute(
                       builder: (context) => CadastroMaterialModule()));
               controller.exibirFab = true;
+            })),
+        MenuItem(
+            codSistema: 3,
+            icone: Icon(Icons.power_settings_new),
+            titulo: 'Sair',
+            acao: Acao(funcao: ({data}) async {
+              await AppModule.to.getDependency<HasuraAuthService>().logOut();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => SplashModule()));
             }))
       ]),
       bottomNavigationBar: CurvedNavigationBar(

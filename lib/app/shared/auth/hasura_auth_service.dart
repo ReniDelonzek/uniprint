@@ -45,6 +45,9 @@ class HasuraAuthService extends Disposable with AuthServiceInterface {
       await _limparTokenFirebase(
           firebaseUser?.uid, shared.get(Constants.MESSAGING_TOKEN));
       GraphQlObject.hasuraConnect.cleanCache();
+      Box boxMenu =
+          await AppModule.to.getDependency<UtilsHiveService>().getBox('menu');
+      boxMenu.clear();
       return true;
     } catch (error, stackTrace) {
       UtilsSentry.reportError(error, stackTrace);
