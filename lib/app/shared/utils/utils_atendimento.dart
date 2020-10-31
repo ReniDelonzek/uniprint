@@ -5,6 +5,7 @@ import 'package:uniprint/app/shared/network/graph_ql_data.dart';
 import 'package:uniprint/app/shared/network/mutations.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
+import 'package:uniprint/app/shared/utils/utils_sentry.dart';
 
 class UtilsAtendimento {
   static String tipoAtendimento(int tipo) {
@@ -65,8 +66,8 @@ class UtilsAtendimento {
         'usuario_id': usuario
       });
       return res != null;
-    } catch (e) {
-      print(e);
+    } catch (error, stackTrace) {
+      UtilsSentry.reportError(error, stackTrace);
       return false;
     }
   }

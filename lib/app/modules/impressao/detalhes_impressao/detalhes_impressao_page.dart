@@ -5,6 +5,7 @@ import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
 import 'package:uniprint/app/shared/extensions/date.dart';
 import 'package:uniprint/app/shared/models/graph/impressao.dart';
+import 'package:uniprint/app/shared/temas/tema.dart';
 import 'package:uniprint/app/shared/utils/constans.dart';
 import 'package:uniprint/app/shared/utils/utils_cadastro.dart';
 import 'package:uniprint/app/shared/utils/utils_impressao.dart';
@@ -65,7 +66,11 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                             Padding(
                                 padding: const EdgeInsets.all(15.0),
                                 child: Text(
-                                    'Valor Total: ${NumberFormat.simpleCurrency().format(widget.impressao.valorTotal ?? 0)}')),
+                                  'Valor Total: ${NumberFormat.simpleCurrency().format(widget.impressao.valorTotal ?? 0)}',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                )),
                           ],
                         ),
                       ),
@@ -74,12 +79,6 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
                 ),
 
                 _botaoConfirmarRecebimento(builderContext),
-                // Container(
-                //   //alignment: Alignment.center,
-                //   padding: const EdgeInsets.only(
-                //       top: 35, bottom: 16, left: 8, right: 8),
-                //   child: TextTitle('Histórico'),
-                // ),
                 _getTimeLine(),
                 //_botaoConfirmarRecebimento(builderContext)
               ],
@@ -128,7 +127,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
     );
   }
 
-  Widget _getQr(String qr) {
+  Widget _getQr(String qr, BuildContext context) {
     return Column(
       children: <Widget>[
         Container(
@@ -138,9 +137,31 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
             data: qr,
             version: QrVersions.auto,
             size: 200.0,
+            foregroundColor: isDarkMode(context) ? Colors.white : Colors.black,
           ),
         ),
         Text('Apresente esse QRCode para retirar'),
+        SizedBox(height: 5),
+        FlatButton.icon(
+            icon: Icon(Icons.done),
+            onPressed: () async {
+              var res = await UtilsImpressao.gerarMovimentacao(
+                  Constants.MOV_IMPRESSAO_RETIRADA,
+                  Constants.STATUS_IMPRESSAO_RETIRADA,
+                  widget.impressao.id,
+                  widget.impressao.usuario.id,
+                  context,
+                  'Confirmando impressão impressão...');
+              if (res) {
+                showSnack(
+                    context, 'Impressão marcada como retirada com sucesso',
+                    dismiss: true);
+              } else {
+                showSnack(context,
+                    'Ops, houve uma falha ao marcar como retirada a impressão');
+              }
+            },
+            label: Text('Eu já retirei o material'))
       ],
     );
   }
@@ -208,7 +229,7 @@ class _DetalhesImpressaoPageState extends State<DetalhesImpressaoPage> {
       );
     } else if (widget.impressao.status ==
         Constants.STATUS_IMPRESSAO_AGUARDANDO_RETIRADA) {
-      return _getQr(widget.impressao.id.toString());
+      return _getQr(widget.impressao.id.toString(), context);
     } else
       return Container();
   }
